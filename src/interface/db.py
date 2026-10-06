@@ -51,8 +51,18 @@ def _is_pg_url(target) -> bool:
 
 
 def database_url() -> str | None:
-    """The Postgres URL from the environment, read at CALL time (tests set it)."""
-    return os.environ.get("DATABASE_URL") or None
+    """The Postgres URL from the environment, read at CALL time (tests set it).
+
+    Stripped, because a hosting dashboard's multi-line value box keeps whatever
+    whitespace was pasted into it. A trailing newline ends up INSIDE the last
+    query parameter and libpq rejects the entire connection -- for example
+    `invalid channel_binding value` when the pasted string ended just after
+    channel_binding=require. That took a Render deploy down on 6 Oct 2026:
+    the image built and gunicorn started, but every connection attempt failed
+    and the health check never passed, so the deploy timed out after 15m49s.
+    """
+    raw = os.environ.get("DATABASE_URL")
+    return raw.strip() if raw and raw.strip() else None
 
 
 def backend(target=None) -> str:
