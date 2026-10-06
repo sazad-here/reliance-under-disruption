@@ -11,5 +11,12 @@ pandas==2.2.3
 scipy==1.15.1
 scikit-learn==1.6.1
 lightgbm==4.7.0
-psycopg[binary]==3.3.6
+# The [pool] extra is REQUIRED, not optional: src/interface/db.py imports
+# psycopg_pool.ConnectionPool for every Postgres connection. [binary] alone
+# installs psycopg + psycopg-binary only, and the app then answers /healthz
+# with database:false and "No module named 'psycopg_pool'" -- i.e. it cannot
+# reach the database at all. Found 5 Oct 2026 by running the image against a
+# real Postgres; the SQLite dry run cannot catch it.
+psycopg[binary,pool]==3.3.6
+psycopg-pool==3.3.3                   # version of the working dev environment
 gunicorn==26.2.0

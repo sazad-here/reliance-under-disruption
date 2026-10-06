@@ -1,0 +1,58 @@
+# Render Blueprint for the reliance-under-disruption study app.
+#
+# Render reads this file from the repository root and configures the service
+# for you (Dashboard -> New -> Blueprint -> pick this repo).
+#
+# IMPORTANT -- create the database FIRST. /healthz answers 503 while the
+# database is unreachable, and Render treats a failing health check as a failed
+# deploy. So: create the Neon Postgres database, copy its POOLED connection
+# string, and have it ready to paste as DATABASE_URL on the first deploy.
+#
+# Why Neon and not Render's own Postgres: Render's free database is deleted
+# after 30 days. Collection runs 19 Oct - 1 Nov 2026 and the data must outlive
+# it. Neon's free tier does not expire.
+
+services:
+  - type: web
+    name: reliance-study
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon            # US. Must match where your ethics approval says
+                              # participant data may be stored.
+
+    # /healthz checks the database AND that the LightGBM model loaded, so a
+    # green health check means the app is genuinely ready for a participant.
+    healthCheckPath: /healthz
+
+    # Deliberately OFF. One instance holds live participant sessions in memory,
+    # so an automatic redeploy on push would drop whoever is mid-session. This
+    # is the Render equivalent of deploy/FREEZE: deploy by hand, never on push,
+    # and not at all between 19 Oct and 1 Nov 2026.
+    autoDeploy: false
+
+    envVars:
+      # Secure session cookies; the app refuses to boot without APP_SECRET_KEY.
+      - key: PRODUCTION
+        value: "1"
+
+      # Server-side desktop gate. The study is desktop-only by design.
+      - key: DESKTOP_ONLY
+        value: "1"
+
+      # Render generates this once and keeps it stable across deploys. A
+      # changing key would invalidate every participant's session cookie.
+      - key: APP_SECRET_KEY
+        generateValue: true
+
+      # Paste Neon's POOLED connection string (it contains "-pooler").
+      # Must end with ?sslmode=require. Never commit it.
+      # sync:false = Render prompts for it instead of reading it from here.
+      - key: DATABASE_URL
+        sync: false
+
+      # The connection pool in src/interface/db.py. Default is 8; 5 keeps well
+      # clear of the free tier's connection ceiling, and the app serves one
+      # participant at a time.
+      - key: DB_POOL_MAX
+        value: "5"
