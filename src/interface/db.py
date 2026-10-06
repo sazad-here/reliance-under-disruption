@@ -235,7 +235,19 @@ def _pool(url: str):
             from psycopg_pool import ConnectionPool
             pool = ConnectionPool(
                 url, min_size=1, max_size=int(os.environ.get("DB_POOL_MAX", "8")),
-                kwargs={"autocommit": True},
+                # prepare_threshold=None disables psycopg's automatic server-side
+                # PREPARE. By default it prepares a statement after 5 executions,
+                # and this app runs the same statements thousands of times. Behind a
+                # TRANSACTION-mode connection pooler (Supabase Supavisor, PgBouncer)
+                # a named prepared statement outlives the pooled backend it was made
+                # on, so later executions fail with "prepared statement already
+                # exists" -- and only once traffic is real, i.e. mid-collection.
+                # PgBouncer >= 1.21 with max_prepared_statements > 0 handles it
+                # (verified against 1.26 on 5 Oct 2026), but that setting is not ours
+                # to control on a managed database. Disabling it costs nothing here:
+                # the app serves one participant at a time, nowhere near a rate where
+                # statement preparation matters.
+                kwargs={"autocommit": True, "prepare_threshold": None},
                 # A pooled connection can be dropped by Cloud SQL or the proxy
                 # while idle; check before handing it out, not on the next
                 # participant's trial write.
