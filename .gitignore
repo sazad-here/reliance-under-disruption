@@ -20,7 +20,12 @@ data/test_databases/
 data/raw/
 data/.browser/
 data/.downloads/
-vendor/
+# Anchored with a leading slash: a bare `vendor/` also matched
+# src/interface/static/vendor/, which holds the vendored three.js the task
+# page imports. That kept three.module.min.js out of the repo and out of
+# the Render build, so the 3D warehouse silently failed to render in
+# production (canvas count 0, four 404s). Found 6 Oct 2026.
+/vendor/
 demo/output/
 *.webm
 
