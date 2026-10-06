@@ -1,0 +1,92 @@
+{
+  "corpus_fingerprint": "f953645593cab9a1",
+  "fold": 0,
+  "note": "All models -- tabular and windowed alike -- now share the IDENTICAL series_folds(fold=0) test set, verified by assertion at runtime, not just by construction. SVM/MLP are single deterministic fits; CNN/LSTM/GRU/Transformer/JointPatchTransformer are single seed, early-stopped (patience=8) -- not PatchTST v2's 5-seed full-budget protocol. Exploratory, not headline.",
+  "svm": {
+    "accuracy": 0.8647598870056498,
+    "auroc": 0.8868440896562484,
+    "pr_auc": 0.6739500288865106,
+    "f1": 0.5749167591564928,
+    "precision": 0.7095890410958904,
+    "recall": 0.4832089552238806,
+    "brier": 0.0973957436089738,
+    "ece": 0.02211594466128538,
+    "threshold": 0.47
+  },
+  "mlp_tabular": {
+    "accuracy": 0.8550494350282486,
+    "auroc": 0.8624292653674137,
+    "pr_auc": 0.6322941773629114,
+    "f1": 0.5116002379535991,
+    "precision": 0.7060755336617406,
+    "recall": 0.40111940298507465,
+    "brier": 0.10505941874695207,
+    "ece": 0.010490604092866814,
+    "threshold": 0.49
+  },
+  "cnn": {
+    "accuracy": 0.8584039548022598,
+    "auroc": 0.8854944029850745,
+    "pr_auc": 0.6709502728257062,
+    "f1": 0.5818561001042752,
+    "precision": 0.6595744680851063,
+    "recall": 0.5205223880597015,
+    "brier": 0.09905293168463283,
+    "ece": 0.024800232598855873,
+    "threshold": 0.43,
+    "epochs": 12,
+    "val_auroc": 0.8795
+  },
+  "lstm": {
+    "accuracy": 0.8605225988700564,
+    "auroc": 0.8752616490717146,
+    "pr_auc": 0.6529060541973853,
+    "f1": 0.554176072234763,
+    "precision": 0.7014285714285714,
+    "recall": 0.45802238805970147,
+    "brier": 0.10193962536096676,
+    "ece": 0.01394365194352203,
+    "threshold": 0.46,
+    "epochs": 20,
+    "val_auroc": 0.8779
+  },
+  "gru": {
+    "accuracy": 0.8584039548022598,
+    "auroc": 0.8713249275183317,
+    "pr_auc": 0.6479068874168182,
+    "f1": 0.5374855824682814,
+    "precision": 0.7039274924471299,
+    "recall": 0.43470149253731344,
+    "brier": 0.10272435619693372,
+    "ece": 0.015319684881593673,
+    "threshold": 0.45,
+    "epochs": 20,
+    "val_auroc": 0.8734
+  },
+  "transformer_vanilla": {
+    "accuracy": 0.8554025423728814,
+    "auroc": 0.8753687057959332,
+    "pr_auc": 0.6511733548117377,
+    "f1": 0.587820835430297,
+    "precision": 0.6382513661202186,
+    "recall": 0.5447761194029851,
+    "brier": 0.10222676910369807,
+    "ece": 0.013857431826581345,
+    "threshold": 0.45,
+    "epochs": 31,
+    "val_auroc": 0.8746
+  },
+  "joint_patch_transformer": {
+    "accuracy": 0.8622881355932204,
+    "auroc": 0.8840096257605701,
+    "pr_auc": 0.6653814412067721,
+    "f1": 0.5760869565217391,
+    "precision": 0.6901041666666666,
+    "recall": 0.4944029850746269,
+    "brier": 0.09954142984525008,
+    "ece": 0.026114298381982867,
+    "threshold": 0.47,
+    "epochs": 17,
+    "val_auroc": 0.8761
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "features": [
+    "demand",
+    "inventory",
+    "on_order",
+    "lead_time",
+    "backorders",
+    "supplier_reliability",
+    "transport_ok",
+    "disruption_flag",
+    "inventory_position",
+    "net_position",
+    "cover_ratio",
+    "demand_lag1",
+    "demand_lag2",
+    "demand_lag3",
+    "demand_lag4",
+    "inventory_lag1",
+    "inventory_lag2",
+    "inventory_lag3",
+    "inventory_lag4",
+    "backorders_lag1",
+    "backorders_lag2",
+    "backorders_lag3",
+    "backorders_lag4",
+    "ip_lag1",
+    "ip_lag2",
+    "ip_lag3",
+    "ip_lag4",
+    "demand_mean4",
+    "demand_std4",
+    "ip_change"
+  ],
+  "platt": [
+    0.964988433251707,
+    -0.09628434530909052
+  ],
+  "label": "stockout_within_2",
+  "lags": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "rounds": 194,
+  "cv_rounds": [
+    203,
+    194,
+    178,
+    213,
+    178
+  ],
+  "cv": {
+    "auroc": 0.8965316180733139,
+    "pr_auc": 0.6988290508471211,
+    "ece": 0.006151435831195656,
+    "auroc_period_ge_48": 0.89727534673519,
+    "auroc_first_5_weeks": 0.8326708333333332
+  },
+  "session_series_check": {
+    "auroc": 0.9024408879997777,
+    "n": 960,
+    "ece": 0.022274625300668656
+  },
+  "excluded_series": [
+    0,
+    43
+  ],
+  "corpus_fingerprint": "f953645593cab9a1",
+  "lightgbm_version": "4.7.0"
+}

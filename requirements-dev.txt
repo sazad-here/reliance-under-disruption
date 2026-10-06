@@ -1,0 +1,8 @@
+# Development / testing extras. Not installed in the production image.
+-r requirements.txt
+pytest==9.1.1
+# Pre-registered analysis (src/analysis/): mixed models
+statsmodels==0.15.0
+# Optional: browser-driven end-to-end checks. After installing run
+#   python -m playwright install chromium
+playwright==1.59.0

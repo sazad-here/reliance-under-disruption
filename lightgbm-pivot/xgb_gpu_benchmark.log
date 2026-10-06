@@ -1,0 +1,8 @@
+seed 0  F 0.8840/0.9495  G 0.8904/0.9558
+seed 1  F 0.8968/0.9534  G 0.8977/0.9578
+seed 2  F 0.8924/0.9529  G 0.8959/0.9570
+seed 3  F 0.8967/0.9566  G 0.9022/0.9621
+seed 4  F 0.8895/0.9520  G 0.8952/0.9581
+F_xgb_paper_cuda           acc 0.8919 +/- 0.0048  AUROC 0.9529 +/- 0.0023
+G_xgb_easyensemble_cuda    acc 0.8963 +/- 0.0038  AUROC 0.9581 +/- 0.0021
+XGBoost (paper, reported)  acc 0.8853

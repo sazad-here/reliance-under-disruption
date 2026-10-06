@@ -1,0 +1,113 @@
+# Continuous integration for the warehouse reliance study.
+#
+# Runs on every push and pull request. It never deploys anything; deployment is
+# the manual, approval-gated workflow in deploy.yml.
+#
+# Jobs:
+#   test      - unit/integration tests on SQLite, then a scripted end-to-end
+#               dry run whose log is checked by verify_log.py (the same
+#               integrity check we run on real participant data).
+#   postgres  - the same, against a real Postgres 16 (production uses Cloud SQL
+#               Postgres, and SQLite hides some SQL dialect differences).
+#   docker    - the production image still builds.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# A newer push to the same branch makes older runs pointless; cancel them.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests (SQLite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          # Cache pip downloads keyed on both requirement files.
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run tests
+        run: python -m pytest src/tests -q
+
+      # WHY: unit tests don't prove a whole session writes a complete, consistent
+      # log. The dry run plays a scripted participant through every week, and
+      # verify_log.py fails if any trial row is missing or inconsistent.
+      - name: Scripted dry run
+        run: python src/interface/app.py --dry-run --db /tmp/ci.sqlite3
+
+      - name: Verify dry-run log integrity
+        run: python src/interface/verify_log.py --db /tmp/ci.sqlite3 --participant DRYRUN-01
+
+  postgres:
+    name: Tests (Postgres 16)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        # WHY: the job must not start before Postgres accepts connections.
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # PG_TEST_URL switches the test suite into its Postgres-parametrized mode.
+      PG_TEST_URL: postgresql://postgres:test@localhost:5432/postgres
+      # DATABASE_URL makes the app itself (dry run, verify_log) use Postgres,
+      # exactly as it does on Cloud Run.
+      DATABASE_URL: postgresql://postgres:test@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run tests (SQLite + Postgres)
+        run: python -m pytest src/tests -q
+
+      # No --db here: DATABASE_URL (set above) selects Postgres.
+      - name: Scripted dry run on Postgres
+        run: python src/interface/app.py --dry-run
+
+      - name: Verify dry-run log integrity on Postgres
+        run: python src/interface/verify_log.py --participant DRYRUN-01
+
+  docker:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # WHY: a broken Dockerfile would otherwise only be discovered during a
+      # production deploy. Build only; nothing is pushed from CI.
+      - name: Build image
+        run: docker build -t reliance-study:ci .

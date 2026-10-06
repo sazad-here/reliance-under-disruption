@@ -1,0 +1,220 @@
+<title>Stockout Model Validation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<style>
+:root{
+  --ground:#F4F6F3; --paper:#FFFFFF; --ink:#18211E; --muted:#56635D; --rule:#D5DCD7;
+  --teal:#2A5E66; --teal-soft:#DCEAEA; --amber:#A8621C; --amber-soft:#F5E6D3;
+  --good:#2F6B3A; --good-soft:#E2EFE3; --bad:#9A3B2E; --bad-soft:#F4E1DD; --grid:#E4E9E5;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#111614; --paper:#182019; --ink:#E3E9E5; --muted:#9AA8A1; --rule:#2C3832;
+  --teal:#7DB9BF; --teal-soft:#1F3134; --amber:#E2A263; --amber-soft:#3A2C1D;
+  --good:#8BC795; --good-soft:#1E3122; --bad:#E08C7E; --bad-soft:#3A221E; --grid:#243029; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ground:#111614; --paper:#182019; --ink:#E3E9E5; --muted:#9AA8A1; --rule:#2C3832;
+  --teal:#7DB9BF; --teal-soft:#1F3134; --amber:#E2A263; --amber-soft:#3A2C1D;
+  --good:#8BC795; --good-soft:#1E3122; --bad:#E08C7E; --bad-soft:#3A221E; --grid:#243029; color-scheme:dark;}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);padding-inline:16px;padding-block:40px 72px}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--serif);text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(30px,5vw,44px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:26px;font-weight:700}
+h3{font-size:18px;font-weight:600}
+p{margin:0;max-width:70ch}
+section{display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-direction:column;gap:14px}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+.lede{font-size:18px;color:var(--muted);max-width:64ch}
+.meta{font:13px var(--mono);color:var(--muted)}
+.verdict{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:20px}
+.verdict div{display:flex;flex-direction:column;gap:4px}
+.verdict .k{font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.verdict .v{font:600 26px var(--serif);font-variant-numeric:tabular-nums}
+.verdict .s{font-size:13px;color:var(--muted)}
+.v.good{color:var(--good)} .v.amber{color:var(--amber)} .v.bad{color:var(--bad)} .v.teal{color:var(--teal)}
+.tablebox{overflow-x:auto;border:1px solid var(--rule);border-radius:6px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--ground)}
+tr:last-child td{border-bottom:0}
+td.first{font-weight:500;min-width:170px}
+td small{display:block;color:var(--muted);font-size:12.5px;font-weight:400}
+tr.pick td{background:var(--teal-soft)}
+.tag{display:inline-block;font:500 11px var(--mono);padding:2px 7px;border-radius:3px;letter-spacing:.03em;white-space:nowrap}
+.tag.done{background:var(--good-soft);color:var(--good)}
+.tag.part{background:var(--amber-soft);color:var(--amber)}
+.tag.miss{background:var(--bad-soft);color:var(--bad)}
+.tag.info{background:var(--grid);color:var(--muted)}
+.caption{font-size:13px;color:var(--muted);max-width:74ch}
+.callout{border-left:3px solid var(--amber);padding:4px 0 4px 16px;display:flex;flex-direction:column;gap:8px}
+.callout strong{color:var(--amber)}
+.checks{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px;max-width:none}
+.check{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:18px 22px;display:grid;grid-template-columns:44px 1fr;gap:4px 16px}
+.check .num{grid-row:span 5;font:600 28px/1 var(--serif);color:var(--teal);font-variant-numeric:tabular-nums}
+.check h3{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:baseline}
+.check .when{font:500 12px var(--mono);color:var(--amber);white-space:nowrap}
+.check p{font-size:15px}
+.check .lbl{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;max-width:72ch}
+code{font:13px var(--mono);background:var(--grid);padding:1px 5px;border-radius:3px}
+a{color:var(--teal)}
+a:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.sources{font-size:14px}
+.sources li{max-width:none}
+@media (max-width:520px){.check{grid-template-columns:1fr}.check .num{grid-row:auto}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">AHFE 2027 · Human–AI reliance study · Model validation</span>
+  <h1>How far can we trust the stockout model?</h1>
+  <p class="lede">We read all 14 papers in the project folder and three industry standards for checking models. Our validation already goes further than most of those papers. Six more checks would bring it up to what companies require before a model goes live. The model is frozen at gate G0 on Fri 2 Oct, so the checks that could change it have to run before then.</p>
+  <p class="meta">25 September 2026 · LightGBM live risk model (AUROC 0.897) · corpus f953645593cab9a1</p>
+</header>
+
+<div class="verdict" role="group" aria-label="Summary">
+  <div><span class="k">Already done</span><span class="v good">6 of 12</span><span class="s">industry checks fully met</span></div>
+  <div><span class="k">Partly done</span><span class="v amber">3</span><span class="s">calibration, business value, stress tests</span></div>
+  <div><span class="k">Missing</span><span class="v bad">3</span><span class="s">time backtest, explanation, served-risk check</span></div>
+  <div><span class="k">Chart tool</span><span class="v teal">Python</span><span class="s">keep it; no SAS or Tableau needed</span></div>
+</div>
+
+<section>
+  <span class="eyebrow">Part 1 · The industry standard</span>
+  <h2>What companies check before they trust a model</h2>
+  <p>Banks follow the most formal rules, set by the US Federal Reserve in <strong>SR 11-7</strong> (2011). Retail and logistics firms use the same three ideas. First, <em>conceptual soundness</em>: does the model use sensible inputs for sensible reasons? Second, <em>outcomes analysis</em>: compare predictions with what actually happened, on later periods the model never saw (backtesting), and against other models (benchmarking). Third, <em>ongoing monitoring</em> once it is live. Google's <strong>ML Test Score</strong> (Breck et al. 2017) adds 28 engineering tests, including one that checks the live system gives the same prediction as the offline model. For the paper, <strong>TRIPOD+AI</strong> (Collins et al. 2024) is the reporting checklist reviewers recognise.</p>
+  <div class="tablebox"><table>
+    <thead><tr><th>Check</th><th>Status</th><th>Where we stand</th></tr></thead>
+    <tbody>
+      <tr><td class="first">Hidden hold-out test</td><td><span class="tag done">Done</span></td><td>M5's official hidden 28 days. On the simulator, every series is tested once without being trained on. The two series participants see were never used in training (AUROC 0.902).</td></tr>
+      <tr><td class="first">Benchmark against alternatives</td><td><span class="tag done">Done</span></td><td>10 models on the simulator; 4 public datasets; a one-feature baseline (net inventory position, AUROC 0.859).</td></tr>
+      <tr><td class="first">Reproduce the published number first</td><td><span class="tag done">Done</span></td><td>Our M5 scorer matches the official ES_bu 0.670981 exactly. DataCo: 0.322 vs 0.323. Ntakolia's protocol re-run over 5 seeds.</td></tr>
+      <tr><td class="first">Leakage audit</td><td><span class="tag done">Done</span></td><td>The 98 % episode-overlap leak was found and fixed. Found the post-outcome column that inflates Ahmed et al. (2025).</td></tr>
+      <tr><td class="first">Uncertainty intervals</td><td><span class="tag done">Done</span></td><td>Series-clustered bootstrap, 2,000 draws; 5 seeds on the benchmark.</td></tr>
+      <tr><td class="first">Monitoring during use</td><td><span class="tag done">Done</span></td><td><code>verify_log.py</code> runs daily; <code>/healthz</code>; a <code>deploy/FREEZE</code> file during collection. Demand is a fixed replay, so there is no data drift to watch.</td></tr>
+      <tr><td class="first">Calibration</td><td><span class="tag part">Partial</span></td><td>ECE 0.006 and Brier score computed. Calibration slope and intercept and a calibration plot are missing.</td></tr>
+      <tr><td class="first">Business value against a no-model rule</td><td><span class="tag part">Partial</span></td><td>The leak and placement checks test what participants see. Nothing yet tests whether acting on the risk % beats a simple rule.</td></tr>
+      <tr><td class="first">Stress and sensitivity tests</td><td><span class="tag part">Partial</span></td><td>The error weeks were checked on unseen lead-time draws 100–299. The model has not been tested under shifted demand or more disruptions.</td></tr>
+      <tr><td class="first">Backtest on later time periods</td><td><span class="tag miss">Missing</span></td><td>Our cross-validation splits by series, never by time. SR 11-7, Tashman (2000) and Li (2026) all ask for time-ordered tests.</td></tr>
+      <tr><td class="first">Conceptual soundness (does it use sensible inputs?)</td><td><span class="tag miss">Missing</span></td><td>There is no feature explanation for the live model. Ntakolia et al. (2021) used SHAP for this.</td></tr>
+      <tr><td class="first">Live prediction matches offline model</td><td><span class="tag miss">Missing</span></td><td>Each trial logs <code>ai_risk_pct</code>, but <code>verify_log.py</code> never recomputes it.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Part 2 · What to add</span>
+  <h2>Six checks, in the order to run them</h2>
+  <p>Each check uses data and code we already have. If a check fails after G0, the fix is to disclose the result in the paper. The model is not retrained.</p>
+  <ol class="checks">
+    <li class="check"><span class="num">1</span>
+      <h3>Backtest on later weeks, and on held-out states <span class="when">before G0 · Fri 2 Oct</span></h3>
+      <p><span class="lbl">What</span>Train the live model on the early weeks of every series and test it on the later weeks. Then run a second split: train on two US states and test on the third (California, Texas, Wisconsin; the 70 series come from 10 stores in these 3 states).</p>
+      <p><span class="lbl">Why</span>This is what "backtesting" means in SR 11-7, and it matches the rolling-origin tests in Li (2026) and the hidden later period in M5. At present a reviewer can say the model has only been tested on different series from the same years.</p>
+      <p><span class="lbl">Pass if</span>AUROC stays near 0.89 and calibration error stays small. A large drop is itself a finding to report.</p>
+    </li>
+    <li class="check"><span class="num">2</span>
+      <h3>Full calibration report <span class="when">before G0 · Fri 2 Oct</span></h3>
+      <p><span class="lbl">What</span>Add calibration intercept and slope, and a calibration plot of predicted risk against observed stockout rate, to the existing ECE 0.006.</p>
+      <p><span class="lbl">Why</span>Participants read the risk % as a probability, so it has to mean what it says. Van Calster et al. (2019) call calibration "the Achilles heel" of prediction models. Van den Goorbergh et al. (2022) show that undersampling distorts probabilities, which is why the live model is not undersampled.</p>
+      <p><span class="lbl">Pass if</span>The slope is close to 1 and the intercept close to 0.</p>
+    </li>
+    <li class="check"><span class="num">3</span>
+      <h3>Explain what the model uses (SHAP) <span class="when">before G0 · Fri 2 Oct</span></h3>
+      <p><span class="lbl">What</span>Run SHAP on the live model and list its top features.</p>
+      <p><span class="lbl">Why</span>This is SR 11-7's conceptual soundness check, and our anchor paper did the same. We expect net and current inventory position to lead, because that one feature alone gives AUROC 0.859. If the model leans on something odd, we need to know before participants see it.</p>
+      <p><span class="lbl">Pass if</span>The top features make operational sense: stock position, backorders, recent demand.</p>
+    </li>
+    <li class="check"><span class="num">4</span>
+      <h3>Check the risk % served in each trial <span class="when">before deploying · Wed 7 Oct</span></h3>
+      <p><span class="lbl">What</span>Extend <code>verify_log.py</code> so it recomputes the risk % for every trial from the logged state and compares it with the value shown.</p>
+      <p><span class="lbl">Why</span>The ML Test Score calls this a training–serving skew test. It catches a wrong model file or a LightGBM version mismatch in the Cloud Run container, which would otherwise go unnoticed.</p>
+      <p><span class="lbl">Pass if</span>Every trial matches exactly.</p>
+    </li>
+    <li class="check"><span class="num">5</span>
+      <h3>Does the risk % beat a no-model rule? <span class="when">with the analysis scripts · Fri 9 Oct</span></h3>
+      <p><span class="lbl">What</span>Simulate an ordering rule that adds stock when the risk % is high. Compare its cost and stockouts with the same rule without the model, over the same demand, with bootstrap intervals.</p>
+      <p><span class="lbl">Why</span>Companies judge a model by money and service level, not by AUROC. Li (2026) makes a model beat a no-model rule before counting it as useful, and on Olist the paper's own model failed that test. Decision curve analysis (Vickers &amp; Elkin 2006) is the formal version of this.</p>
+      <p><span class="lbl">Pass if</span>The model-guided rule costs less, with an interval that excludes zero. Whether it helps <em>people</em> is still the experiment's question.</p>
+    </li>
+    <li class="check"><span class="num">6</span>
+      <h3>Stress tests <span class="when">with the analysis scripts · Fri 9 Oct</span></h3>
+      <p><span class="lbl">What</span>Re-score the model with demand scaled by ±30 %, the disruption rate doubled, and more variable lead times.</p>
+      <p><span class="lbl">Why</span>This is SR 11-7's sensitivity analysis. It shows how far the model can be trusted outside the conditions it was trained on, which answers the digital-twin review's warning that most twin studies are never tested outside ideal data.</p>
+      <p><span class="lbl">Pass if</span>Performance falls gradually rather than collapsing. Either way, report the curve.</p>
+    </li>
+  </ol>
+  <div class="callout">
+    <strong>For the paper itself</strong>
+    <ul>
+      <li>Fill in the TRIPOD+AI checklist and a leakage "model info sheet" (Kapoor &amp; Narayanan 2023) as supplementary material. Both are cheap and signal rigour to reviewers.</li>
+      <li><strong>Disclose the Ntakolia split.</strong> Their text says a 70/30 split, but their confusion matrices add up to 5,588 test rows, which is 20 % of the balanced data. We followed the matrices (80/20, 5,593 rows). The project notes don't record this yet, and a reviewer who reads "70/30" will ask.</li>
+      <li>State that the Kaggle numbers come from a balanced test set. They show ranking ability, not probabilities at the real 0.72 % backorder rate.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Part 3 · The 14 papers</span>
+  <h2>How each paper validated its model</h2>
+  <p>A pattern stands out. The two recent supply-chain papers with the biggest claims (Thaker 2026, Ahmed 2025) have the weakest validation. The strongest work (M5, Li 2026) uses hidden or time-ordered tests with intervals. That is the bar to meet, and item 1 above closes our last gap to it.</p>
+  <div class="tablebox"><table>
+    <thead><tr><th>Paper</th><th>Data and test design</th><th>Uncertainty and calibration</th><th>What we take from it</th></tr></thead>
+    <tbody>
+      <tr><td class="first">Thaker et al. 2026<small>IEEE CCGE · PatchTST risk framework</small></td><td>"Real-life supply chain data", not named. Test split not described.</td><td>Paired t-tests, p &lt; 0.01; no intervals. Proposes a calibration loss but never measures calibration.</td><td>Cannot be reproduced. The original PatchTST plan followed this paper; it is why we moved away.</td></tr>
+      <tr><td class="first">Ahmed et al. 2025<small>Scientific Reports · SOM + ANN on DataCo</small></td><td>DataCo, random split, ablation study.</td><td>None reported.</td><td>Uses <code>Late_delivery_risk</code>, which is computed from actual delivery days. With those columns LightGBM scores 100 %; with honest features, 77.2 % (AUROC 0.859). Rejected as an anchor.</td></tr>
+      <tr class="pick"><td class="first">Ntakolia et al. 2021<small>Sensors · our anchor</small></td><td>Kaggle backorders, undersampled 1:1. One split, no seed stated. Text says 70/30; matrices imply 80/20.</td><td>No intervals. Platt and isotonic calibration; SHAP explanations.</td><td>Our benchmark. We reproduced it over 5 seeds (90.30 %) and improved on it (90.65 %).</td></tr>
+      <tr><td class="first">Islam &amp; Amin 2020<small>Journal of Big Data · backorders</small></td><td>Kaggle backorders; H2O random forest and GBM; validation frame of 35 % of training; separate test file.</td><td>Hypothesis tests on features; no intervals.</td><td>Shows how to turn predictions into simple business rules (stock, lead-time and sales ranges).</td></tr>
+      <tr><td class="first">Li 2026<small>arXiv 2607.18573 · shipment prioritisation</small></td><td>SCMS, DataCo, Olist. Five rolling-origin folds, nested CV, explicit leakage audit.</td><td>1,000 paired bootstrap resamples, 95 % CI. Severity calibration by decile.</td><td>The model to copy: time-ordered tests and a no-model gate. Source of checks 1 and 5.</td></tr>
+      <tr><td class="first">Makridakis et al. 2022<small>Int. J. Forecasting · M5 competition</small></td><td>Walmart, 42,840 series; hidden 28-day test; validation window before it.</td><td>Multiple-comparisons-with-the-best test with 95 % rank intervals.</td><td>The strongest test we pass: equivalent to 39th of 5,507 teams. Most top entries used LightGBM.</td></tr>
+      <tr><td class="first">van den Goorbergh et al. 2022<small>JAMIA · class imbalance</small></td><td>Simulation study plus clinical data; large out-of-sample sets.</td><td>Calibration intercept and slope are the main outcome.</td><td>Undersampling makes probabilities too high without improving AUROC. Source of check 2.</td></tr>
+      <tr><td class="first">Grinsztajn et al. 2022<small>NeurIPS · trees vs deep learning</small></td><td>45 datasets; train, validation and test; random search repeated in 15 shuffled orders.</td><td>Variance across shuffles.</td><td>Compare models at the same tuning budget. Tree models win on tables like ours.</td></tr>
+      <tr><td class="first">Hollmann et al. 2025<small>Nature · TabPFN</small></td><td>Public benchmarks; 10 repeats of a 90/10 split; 5-fold CV for tuning.</td><td>95 % CI; Wilcoxon signed-rank tests.</td><td>A possible extra challenger for tables up to 10,000 rows. Optional, and it could not replace the model after G0.</td></tr>
+      <tr><td class="first">Zeng et al. 2023<small>AAAI · are Transformers effective?</small></td><td>9 time-series benchmarks, standard splits.</td><td>None.</td><td>Always include the simplest baseline: a one-layer linear model beat five Transformers.</td></tr>
+      <tr><td class="first">Nie et al. 2023<small>ICLR · PatchTST</small></td><td>Standard long-horizon benchmarks.</td><td>None.</td><td>Method paper. Our PatchTST work is archived.</td></tr>
+      <tr><td class="first">Ke et al. 2017<small>NeurIPS · LightGBM</small></td><td>Public datasets; tests the algorithm's speed and accuracy.</td><td>None.</td><td>Cite for the algorithm only.</td></tr>
+      <tr><td class="first">Chen &amp; Guestrin 2016<small>KDD · XGBoost</small></td><td>Public datasets; tests the algorithm's speed and scaling.</td><td>None.</td><td>Cite for the algorithm only.</td></tr>
+      <tr><td class="first">Liu et al. 2026<small>Sustainability · digital-twin review, 89 studies</small></td><td>Systematic review (Scopus and Web of Science, to May 2025).</td><td>Not applicable.</td><td>Most twin studies are conceptual or simulation-only; few measure resilience directly; failures are rarely published. §6.2 names human–AI decision-making with twins as under-studied, which supports our study's motivation.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Part 4 · Tools</span>
+  <h2>Which tool to use for charts</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>Tool</th><th>Cost for you</th><th>Good at</th><th>Problem for this study</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr class="pick"><td class="first">Python<small>matplotlib, statsmodels</small></td><td>Free, already installed</td><td>Figures come from the same frozen scripts as the numbers. Vector SVG or PDF drops straight into the AHFE Word template. Mixed models in statsmodels.</td><td>None new</td><td><span class="tag done">Use</span> for all paper figures and analysis</td></tr>
+      <tr><td class="first">SAS Viya for Learners<small>or SAS OnDemand for Academics</small></td><td>Free for academic, non-commercial use</td><td>Mixed models (PROC GLIMMIX); point-and-click dashboards</td><td>A cloud service: check where it stores data against your ethics approval before uploading participant data. It is also a second toolchain to freeze before data lock.</td><td><span class="tag part">Only if</span> your department or supervisor requires SAS output</td></tr>
+      <tr><td class="first">Tableau<small>free desktop editions</small></td><td>Free, with limits</td><td>Fast exploratory dashboards</td><td>The free editions either save only to Tableau Public, where workbooks are public, or cannot publish at all. Sharing privately needs a paid licence.</td><td><span class="tag miss">Avoid</span> for participant data</td></tr>
+      <tr><td class="first">Power BI Desktop</td><td>Free on Windows; Pro at $10/month to share securely</td><td>Dashboards from a local file</td><td>Sharing with your supervisor needs Pro</td><td><span class="tag info">Optional</span> for looking at an anonymised export on your own laptop</td></tr>
+    </tbody>
+  </table></div>
+  <p class="caption">Why Python: the plan requires the analysis scripts to be frozen before data lock (task B4, Fri 9 Oct). If figures come from a second tool, that tool's steps have to be frozen and documented as well. A drag-and-drop dashboard cannot be re-run by a reviewer.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Sources</span>
+  <h2>References outside the project folder</h2>
+  <p class="caption">All checked on 25 Sept 2026. The 14 papers above are in the project: 12 in <code>lightgbm-pivot/papers/</code> and 2 in the project root.</p>
+  <ul class="sources">
+    <li>Board of Governors of the Federal Reserve System &amp; OCC (2011). <em>SR 11-7: Supervisory Guidance on Model Risk Management.</em> Summary: <a href="https://www.modelop.com/ai-governance/ai-regulations-standards/sr-11-7" target="_blank" rel="noopener">modelop.com</a></li>
+    <li>Breck, E., Cai, S., Nielsen, E., Salib, M. &amp; Sculley, D. (2017). The ML Test Score: a rubric for ML production readiness and technical debt reduction. <em>IEEE Big Data</em>, 1123–1132. <a href="https://research.google/pubs/the-ml-test-score-a-rubric-for-ml-production-readiness-and-technical-debt-reduction/" target="_blank" rel="noopener">research.google</a></li>
+    <li>Collins, G. S. et al. (2024). TRIPOD+AI statement. <em>BMJ</em> 385:e078378. doi:10.1136/bmj-2023-078378. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11025451/" target="_blank" rel="noopener">PMC</a></li>
+    <li>Kapoor, S. &amp; Narayanan, A. (2023). Leakage and the reproducibility crisis in machine-learning-based science. <em>Patterns</em> 4(9):100804. doi:10.1016/j.patter.2023.100804. <a href="https://www.cell.com/patterns/fulltext/S2666-3899(23)00159-9" target="_blank" rel="noopener">cell.com</a></li>
+    <li>Tashman, L. J. (2000). Out-of-sample tests of forecasting accuracy: an analysis and review. <em>International Journal of Forecasting</em> 16(4), 437–450. <a href="https://www.sciencedirect.com/science/article/abs/pii/S0169207000000650" target="_blank" rel="noopener">sciencedirect.com</a></li>
+    <li>Van Calster, B. et al. (2019). Calibration: the Achilles heel of predictive analytics. <em>BMC Medicine</em> 17:230. doi:10.1186/s12916-019-1466-7. <a href="https://bmcmedicine.biomedcentral.com/articles/10.1186/s12916-019-1466-7" target="_blank" rel="noopener">biomedcentral.com</a></li>
+    <li>Vickers, A. J. &amp; Elkin, E. B. (2006). Decision curve analysis: a novel method for evaluating prediction models. <em>Medical Decision Making</em> 26(6), 565–574. <a href="https://journals.sagepub.com/doi/10.1177/0272989X06295361" target="_blank" rel="noopener">sagepub.com</a></li>
+    <li>SAS academic software: <a href="https://www.sas.com/en_us/learn/academic-programs/software.html" target="_blank" rel="noopener">sas.com</a>. Tableau for Students: <a href="https://www.tableau.com/academic/students" target="_blank" rel="noopener">tableau.com</a>. Power BI licensing: <a href="https://community.fabric.microsoft.com/t5/Desktop/PowerBI-Desktop-Free-Account-License-for-Student/m-p/1820786" target="_blank" rel="noopener">Microsoft community</a></li>
+  </ul>
+</section>
+
+</div>

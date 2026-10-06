@@ -1,0 +1,17 @@
+rows 1929935  positives 13981 (0.72 %)
+seed 0  test n=5593  A 0.8967/0.9553  B 0.8934/0.9541  C 0.8922/0.9541  D 0.8976/0.9602  E 0.8970/0.9612
+seed 1  test n=5593  A 0.9088/0.9588  B 0.9077/0.9575  C 0.9051/0.9576  D 0.9085/0.9630  E 0.9102/0.9635
+seed 2  test n=5593  A 0.9002/0.9570  B 0.9024/0.9581  C 0.9022/0.9582  D 0.9083/0.9617  E 0.9086/0.9622
+seed 3  test n=5593  A 0.9045/0.9622  B 0.9045/0.9623  C 0.9042/0.9623  D 0.9083/0.9661  E 0.9097/0.9669
+seed 4  test n=5593  A 0.9049/0.9577  B 0.9038/0.9567  C 0.9024/0.9567  D 0.9047/0.9625  E 0.9068/0.9635
+
+variant                          accuracy            AUROC
+A_lgbm_paper             0.9030 +/- 0.0042  0.9582 +/- 0.0023
+B_lgbm_position          0.9024 +/- 0.0048  0.9577 +/- 0.0027
+C_stack_lr_lgbm          0.9012 +/- 0.0046  0.9578 +/- 0.0026
+D_stack_easyensemble     0.9055 +/- 0.0042  0.9627 +/- 0.0019
+E_lgbm_easyensemble      0.9065 +/- 0.0049  0.9635 +/- 0.0019
+LightGBM (paper)         0.8778  (reported)
+Balanced Bagging (paper  0.8885  (reported)
+
+written -> E:\trae project\New folder (2)\lightgbm-pivot\backorder_benchmark.json

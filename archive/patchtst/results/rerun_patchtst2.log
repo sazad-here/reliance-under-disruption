@@ -1,0 +1,37 @@
+==============================================================================
+PATCHTST v2 -- cross-channel fusion, attention pooling, honest calibration
+==============================================================================
+  channels: 8 raw + 3 derived = 11
+  windows:  17472 train / 3744 val / 3744 test
+C:\Users\ZhuanZ\AppData\Local\Programs\Python\Python313\Lib\site-packages\torch\nn\modules\transformer.py:392: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+  params:   198744  (v1 had 134,737)
+
+  seed 0  22e     68s  acc 0.870  AUROC 0.846  PR-AUC 0.652  F1 0.539  ECE 0.027 (raw 0.043)
+C:\Users\ZhuanZ\AppData\Local\Programs\Python\Python313\Lib\site-packages\torch\nn\modules\transformer.py:392: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+  seed 1  18e     58s  acc 0.871  AUROC 0.836  PR-AUC 0.643  F1 0.540  ECE 0.019 (raw 0.018)
+C:\Users\ZhuanZ\AppData\Local\Programs\Python\Python313\Lib\site-packages\torch\nn\modules\transformer.py:392: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+  seed 2  29e     90s  acc 0.868  AUROC 0.851  PR-AUC 0.654  F1 0.539  ECE 0.018 (raw 0.024)
+C:\Users\ZhuanZ\AppData\Local\Programs\Python\Python313\Lib\site-packages\torch\nn\modules\transformer.py:392: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+  seed 3  19e     60s  acc 0.868  AUROC 0.843  PR-AUC 0.652  F1 0.539  ECE 0.033 (raw 0.042)
+C:\Users\ZhuanZ\AppData\Local\Programs\Python\Python313\Lib\site-packages\torch\nn\modules\transformer.py:392: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+  seed 4  36e     96s  acc 0.870  AUROC 0.857  PR-AUC 0.661  F1 0.532  ECE 0.019 (raw 0.043)
+
+==============================================================================
+COMPARISON  (same corpus, same episode-level splits)
+==============================================================================
+  metric            PatchTST v2       LogReg    GradBoost
+  ------------------------------------------------------------
+  accuracy         0.870+/-0.001        0.884        0.881
+  auroc            0.847+/-0.007        0.880        0.880
+  pr_auc           0.652+/-0.006        0.700        0.693
+  ece              0.023+/-0.006        0.027        0.020
+
+  majority-class accuracy: 0.826
+  MC-dropout spread:       0.032
+
+  written -> results/patchtst_v2.json

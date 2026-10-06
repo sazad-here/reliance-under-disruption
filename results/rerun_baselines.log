@@ -1,0 +1,35 @@
+C:\Users\ZhuanZ\AppData\Local\Programs\Python\Python313\Lib\site-packages\lightgbm\sklearn.py:1106: LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+==================================================================================
+STRONG BASELINES  (series-level split, correct thresholds, bootstrap CIs)
+==================================================================================
+  features: 116   train 17472 / val 3744 / test 3744 rows
+  test positive rate: 17.4%   majority accuracy: 0.826
+
+  LightGBM stopped at 222 trees
+
+  model                      acc   AUROC  PR-AUC      F1     ECE  thr_F1
+  ------------------------------------------------------------------------------
+  logistic regression      0.884   0.880   0.700   0.580   0.027    0.37
+  sklearn HistGB           0.881   0.880   0.693   0.573   0.022    0.39
+  LightGBM                 0.881   0.880   0.693   0.585   0.020    0.37
+
+  95% bootstrap CIs (resampled by episode, 400 reps):
+    logistic regression    AUROC [0.837, 0.916]   PR-AUC [0.523, 0.820]
+    sklearn HistGB         AUROC [0.837, 0.917]   PR-AUC [0.514, 0.817]
+    LightGBM               AUROC [0.838, 0.917]   PR-AUC [0.515, 0.821]
+
+  95% bootstrap CIs (resampled by SERIES, n=11 -- report THIS one):
+    logistic regression    AUROC [0.823, 0.934]   PR-AUC [0.480, 0.851]
+    sklearn HistGB         AUROC [0.823, 0.936]   PR-AUC [0.477, 0.848]
+    LightGBM               AUROC [0.821, 0.934]   PR-AUC [0.468, 0.847]
+
+==================================================================================
+  STRONGEST BASELINE: logistic regression  (PR-AUC 0.700, AUROC 0.880)
+  Its 95% CI spans 0.296 PR-AUC. Any model must clear roughly
+  +0.148 PR-AUC before the difference is real.
+
+  Lipton check: F1-optimal threshold should be ~F1/2 = 0.29; grid found 0.37.
+  consistent -- probabilities look calibrated
+
+  written -> results/baselines_strong.json

@@ -1,0 +1,12 @@
+{
+  "order_only": 0.8829012345679013,
+  "order_state": 0.9999959582598471,
+  "order_risk": 0.891889880952381,
+  "order_state_risk": 0.9999959582598471,
+  "mean_risk": {
+    "correct": 24.478571428571428,
+    "under_order_errors": 18.737037037037037,
+    "over_order_errors": NaN
+  },
+  "n_trials": 3600
+}

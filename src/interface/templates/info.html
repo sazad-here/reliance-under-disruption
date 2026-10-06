@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Participant Information Sheet</title>
+<style>
+  /* UI v3.1 tokens, light + dark. v3.2 (28 Sep 2026): voluntary, unpaid, recruited via the
+     SONA participant pool; the compensation sentence and its placeholder, and the old
+     recruitment-platform ID text, were replaced. Every other [PLACEHOLDER] is unchanged
+     except the example inside the ID retention period. */
+  :root { color-scheme:light; --fg:#121922; --muted:#586473; --bg:#f2f4f7; --card:#fff; --line:#d9dfe6; --line-2:#e7ebf0;
+          --accent:#2468c0; --fill:#fff1c7; --fill-ink:#5c3d00; --focus:#2468c0;
+          --shadow:0 18px 40px -16px rgba(16,24,40,.18), 0 2px 6px rgba(16,24,40,.05); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme:dark;
+          --fg:#edf0f3; --muted:#97a2ad; --bg:#0e1115; --card:#171b20; --line:#2c333b; --line-2:#232930;
+          --accent:#7cb0ee; --fill:#4a3a12; --fill-ink:#ffe3a3; --focus:#7cb0ee; --shadow:0 18px 40px -16px rgba(0,0,0,.6); } }
+  :root[data-theme="dark"] { color-scheme:dark;
+          --fg:#edf0f3; --muted:#97a2ad; --bg:#0e1115; --card:#171b20; --line:#2c333b; --line-2:#232930;
+          --accent:#7cb0ee; --fill:#4a3a12; --fill-ink:#ffe3a3; --focus:#7cb0ee; --shadow:0 18px 40px -16px rgba(0,0,0,.6); }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:40px 16px; font:16px/1.65 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+         color:var(--fg); background:var(--bg); -webkit-font-smoothing:antialiased; }
+  main { max-width:740px; margin:0 auto; background:var(--card); border:1px solid var(--line);
+         border-radius:14px; padding:36px 40px; box-shadow:var(--shadow); }
+  @media (max-width:560px) { main { padding:22px; } }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; letter-spacing:-.01em; text-wrap:balance; }
+  h2 { font-size:1.08rem; margin:28px 0 6px; padding-top:18px; border-top:1px solid var(--line-2); }
+  p, li { max-width:66ch; }
+  li { margin:3px 0; }
+  .sub { color:var(--muted); margin:0 0 8px; }
+  /* Investigator-supplied details. Every one must be filled before launch. */
+  .fill { background:var(--fill); color:var(--fill-ink); padding:0 4px; border-radius:3px; font-weight:600; }
+  a { color:var(--accent); text-underline-offset:3px; }
+  a:focus-visible { outline:3px solid var(--focus); outline-offset:2px; border-radius:2px; }
+  .back { display:inline-block; margin-top:26px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Participant Information Sheet</h1>
+  <p class="sub">Warehouse Ordering Study: decision-making with an AI forecasting assistant</p>
+  <p class="sub">Version 1.1 &middot; Ethics reference <span class="fill">[ETHICS REF]</span></p>
+
+  <p>You are invited to take part in a research study. Please read this sheet before
+  deciding. You can ask questions at any point using the contact details at the end.</p>
+
+  <h2>What is the study about?</h2>
+  <p>Organisations increasingly use AI tools to help people make operational
+  decisions. We are studying how people make repeated ordering decisions for a
+  warehouse when an AI assistant offers recommendations, and how those decisions
+  play out over time.</p>
+
+  <h2>What will I do?</h2>
+  <ul>
+    <li>Answer three short arithmetic questions. These check the task will make sense
+    to you. If the answers suggest it may not, the study ends there.</li>
+    <li>Manage a simulated warehouse for 5 practice weeks and then 30 weeks. Each week
+    you enter your own order, then see the AI assistant's recommendation, then enter
+    your final order.</li>
+    <li>Answer short questionnaires about the assistant and your workload after every
+    ten weeks, and one question at the end.</li>
+  </ul>
+  <p>It takes about 45&ndash;60 minutes. Taking part is voluntary and unpaid.
+  Participants are recruited through the SONA participant pool at
+  <span class="fill">[INSTITUTION]</span>.</p>
+
+  <h2>Is there anything I should know about the assistant?</h2>
+  <p>The assistant <strong>will not always be right</strong>, just as real decision
+  tools are not. You are free to follow it, change it or ignore it. Some details of
+  how the assistant works are explained only at the end of the session, because
+  knowing them in advance would change how people use it. Nothing you are told
+  during the study is false, and a full explanation is given before you leave.</p>
+
+  <h2>Are there any risks or benefits?</h2>
+  <p>There are no known risks beyond those of everyday computer use. Some people find
+  the task mildly frustrating when the assistant's advice turns out badly. There is no
+  direct benefit to you. The results will help design decision-support tools that
+  people can rely on appropriately.</p>
+
+  <h2>What data is collected?</h2>
+  <ul>
+    <li>Your orders, response times, questionnaire answers and the simulated outcomes.</li>
+    <li>A participant ID: the ID shown in SONA, or a code you choose. It is used
+    <strong>only</strong> to find your answers if you ask for them to be deleted, and it
+    is removed <span class="fill">[RETENTION PERIOD, e.g. when data is anonymised]</span>.</li>
+    <li>No name, email address, location or other identifying information is collected.</li>
+  </ul>
+  <p>Data is stored securely by <span class="fill">[INSTITUTION]</span> and kept for
+  <span class="fill">[RETENTION PERIOD FOR RESEARCH DATA]</span>. An anonymised version,
+  with no participant IDs, may be published so other researchers can check the results.</p>
+
+  <h2>Do I have to take part? Can I withdraw?</h2>
+  <p>Taking part is voluntary and unpaid. You can stop at any time without giving a
+  reason, and stopping has no consequences for you:</p>
+  <ul>
+    <li><strong>During the task</strong>, use &ldquo;Withdraw from the study&rdquo; at the
+    bottom of the page. You can choose to have everything you have entered deleted
+    immediately.</li>
+    <li><strong>At the end</strong>, after the explanation, you can again choose to delete
+    your data.</li>
+    <li><strong>Later</strong>, message the researcher with your participant ID
+    before <span class="fill">[DATE, e.g. when data is anonymised]</span>,
+    and your data will be deleted. After that date it cannot be identified and removed.</li>
+  </ul>
+
+  <h2>Who is running the study?</h2>
+  <p><span class="fill">[RESEARCHER NAME]</span>, <span class="fill">[DEPARTMENT, INSTITUTION]</span>,
+  supervised by <span class="fill">[SUPERVISOR NAME]</span>.
+  Contact: <span class="fill">[STUDY EMAIL]</span>.</p>
+  <p>The study has been reviewed by <span class="fill">[ETHICS COMMITTEE NAME]</span>
+  (reference <span class="fill">[ETHICS REF]</span>). If you have a concern you would
+  rather not raise with the researcher, contact <span class="fill">[COMMITTEE CONTACT]</span>.</p>
+
+  <a class="back" href="/">&larr; Back to the start page</a>
+</main>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "horizon": 2,
+  "n_features": 116,
+  "results": [
+    {
+      "model": "logistic regression",
+      "accuracy": 0.868359375,
+      "auroc": 0.9319986659734959,
+      "pr_auc": 0.8886843615296612,
+      "brier": 0.09305965812112905,
+      "ece": 0.010645067193540742,
+      "positive_rate": 0.3157552083333333
+    },
+    {
+      "model": "gradient boosting",
+      "accuracy": 0.86640625,
+      "auroc": 0.9305792617732743,
+      "pr_auc": 0.8867277954826633,
+      "brier": 0.09377694735553292,
+      "ece": 0.008891473717125458,
+      "positive_rate": 0.3157552083333333
+    },
+    {
+      "model": "gradient boosting (calibrated)",
+      "accuracy": 0.86640625,
+      "auroc": 0.9300918712664424,
+      "pr_auc": 0.8767058290163331,
+      "brier": 0.0941862046071127,
+      "ece": 0.011016472029438893,
+      "positive_rate": 0.3157552083333333
+    }
+  ]
+}

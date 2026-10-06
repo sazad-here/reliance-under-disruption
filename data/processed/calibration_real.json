@@ -1,0 +1,10 @@
+{
+  "demand": "real M5 replay",
+  "z_calibrated": 1.6,
+  "z_previous_synthetic": 1.26,
+  "z_myopic": 0.967,
+  "mean_cost": 9186.3,
+  "delta_5pct": 60,
+  "delta_10pct": 85,
+  "n_episodes": 250
+}

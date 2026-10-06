@@ -1,0 +1,26 @@
+{
+  "synthetic/base-stock": {
+    "mean_weeks_affected": 1.73,
+    "pct_3_or_more": 21.4
+  },
+  "synthetic/noisy": {
+    "mean_weeks_affected": 1.73,
+    "pct_3_or_more": 21.2
+  },
+  "synthetic/under-15": {
+    "mean_weeks_affected": 4.21,
+    "pct_3_or_more": 85.6
+  },
+  "m5/base-stock": {
+    "mean_weeks_affected": 1.76,
+    "pct_3_or_more": 23.0
+  },
+  "m5/noisy": {
+    "mean_weeks_affected": 1.79,
+    "pct_3_or_more": 24.0
+  },
+  "m5/under-15": {
+    "mean_weeks_affected": 4.47,
+    "pct_3_or_more": 89.6
+  }
+}

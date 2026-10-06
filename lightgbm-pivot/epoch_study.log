@@ -1,0 +1,59 @@
+rows 24960 | series 70 | tabular features 116 | windows (48, 22) | device cuda
+
+
+  return func(**kwargs)
+  fold 0  MLP                    AUROC ep50 0.840 | ep100 0.812 | val-best 0.871 (epoch 8)    12s
+  fold 0  CNN                    AUROC ep50 0.877 | ep100 0.823 | val-best 0.887 (epoch 7)    14s
+  fold 0  LSTM                   AUROC ep50 0.879 | ep100 0.879 | val-best 0.874 (epoch 8)    17s
+  fold 0  GRU                    AUROC ep50 0.873 | ep100 0.869 | val-best 0.876 (epoch 51)    16s
+  fold 0  Transformer (vanilla)  AUROC ep50 0.873 | ep100 0.862 | val-best 0.875 (epoch 9)    45s
+  fold 0  JointPatchTransformer  AUROC ep50 0.873 | ep100 0.833 | val-best 0.885 (epoch 6)    54s
+  fold 0  PatchTST v2            AUROC ep50 0.836 | ep100 0.811 | val-best 0.842 (epoch 23)   285s
+fold 0 done  (7 min elapsed)
+  fold 1  MLP                    AUROC ep50 0.823 | ep100 0.795 | val-best 0.863 (epoch 7)    12s
+  fold 1  CNN                    AUROC ep50 0.842 | ep100 0.767 | val-best 0.876 (epoch 16)    16s
+  fold 1  LSTM                   AUROC ep50 0.877 | ep100 0.877 | val-best 0.875 (epoch 46)    17s
+  fold 1  GRU                    AUROC ep50 0.876 | ep100 0.879 | val-best 0.878 (epoch 97)    19s
+  fold 1  Transformer (vanilla)  AUROC ep50 0.863 | ep100 0.852 | val-best 0.869 (epoch 35)    48s
+  fold 1  JointPatchTransformer  AUROC ep50 0.864 | ep100 0.834 | val-best 0.874 (epoch 21)    63s
+  fold 1  PatchTST v2            AUROC ep50 0.815 | ep100 0.792 | val-best 0.825 (epoch 18)   290s
+fold 1 done  (15 min elapsed)
+  fold 2  MLP                    AUROC ep50 0.862 | ep100 0.853 | val-best 0.889 (epoch 6)    10s
+  fold 2  CNN                    AUROC ep50 0.876 | ep100 0.840 | val-best 0.897 (epoch 15)    15s
+  fold 2  LSTM                   AUROC ep50 0.894 | ep100 0.893 | val-best 0.899 (epoch 75)    16s
+  fold 2  GRU                    AUROC ep50 0.893 | ep100 0.894 | val-best 0.894 (epoch 12)    17s
+  fold 2  Transformer (vanilla)  AUROC ep50 0.888 | ep100 0.884 | val-best 0.894 (epoch 34)    42s
+  fold 2  JointPatchTransformer  AUROC ep50 0.884 | ep100 0.849 | val-best 0.898 (epoch 13)    53s
+  fold 2  PatchTST v2            AUROC ep50 0.858 | ep100 0.841 | val-best 0.871 (epoch 25)   262s
+fold 2 done  (22 min elapsed)
+  fold 3  MLP                    AUROC ep50 0.886 | ep100 0.874 | val-best 0.914 (epoch 8)    10s
+  fold 3  CNN                    AUROC ep50 0.894 | ep100 0.877 | val-best 0.918 (epoch 16)    13s
+  fold 3  LSTM                   AUROC ep50 0.912 | ep100 0.912 | val-best 0.912 (epoch 100)    15s
+  fold 3  GRU                    AUROC ep50 0.909 | ep100 0.912 | val-best 0.908 (epoch 18)    15s
+  fold 3  Transformer (vanilla)  AUROC ep50 0.912 | ep100 0.905 | val-best 0.909 (epoch 10)    39s
+  fold 3  JointPatchTransformer  AUROC ep50 0.912 | ep100 0.890 | val-best 0.916 (epoch 7)    51s
+  fold 3  PatchTST v2            AUROC ep50 0.883 | ep100 0.857 | val-best 0.890 (epoch 29)   269s
+fold 3 done  (29 min elapsed)
+  fold 4  MLP                    AUROC ep50 0.815 | ep100 0.809 | val-best 0.862 (epoch 8)    10s
+  fold 4  CNN                    AUROC ep50 0.860 | ep100 0.826 | val-best 0.876 (epoch 10)    13s
+  fold 4  LSTM                   AUROC ep50 0.874 | ep100 0.875 | val-best 0.871 (epoch 49)    14s
+  fold 4  GRU                    AUROC ep50 0.875 | ep100 0.875 | val-best 0.872 (epoch 56)    14s
+  fold 4  Transformer (vanilla)  AUROC ep50 0.865 | ep100 0.851 | val-best 0.863 (epoch 49)    37s
+  fold 4  JointPatchTransformer  AUROC ep50 0.859 | ep100 0.840 | val-best 0.876 (epoch 8)    49s
+  fold 4  PatchTST v2            AUROC ep50 0.828 | ep100 0.818 | val-best 0.839 (epoch 28)   266s
+fold 4 done  (36 min elapsed)
+
+model                         ep50     ep100  val-best   95% CI (val-best) diff vs LightGBM, 95% CI
+logistic regression          0.893     0.893     0.893   [0.876, 0.908]   [-0.0003, +0.0046]
+LightGBM                     0.886     0.890     0.891   [0.874, 0.906]   reference
+XGBoost (CUDA)               0.887     0.890     0.893   [0.876, 0.908]   [+0.0005, +0.0028]
+MLP                          0.848     0.833     0.882   [0.864, 0.898]   [-0.0132, -0.0050]
+CNN                          0.871     0.832     0.892   [0.873, 0.908]   [-0.0020, +0.0038]
+LSTM                         0.888     0.887     0.886   [0.868, 0.902]   [-0.0088, -0.0015]
+GRU                          0.885     0.886     0.887   [0.869, 0.903]   [-0.0081, -0.0010]
+Transformer (vanilla)        0.878     0.871     0.883   [0.863, 0.899]   [-0.0128, -0.0039]
+JointPatchTransformer        0.880     0.849     0.886   [0.868, 0.902]   [-0.0093, -0.0011]
+PatchTST v2                  0.846     0.827     0.857   [0.836, 0.876]   [-0.0412, -0.0284]
+
+ranking by AUROC (val-best): logistic regression > XGBoost (CUDA) > CNN > LightGBM > GRU > LSTM > JointPatchTransformer > Transformer (vanilla) > MLP > PatchTST v2
+written -> E:\trae project\New folder (2)\lightgbm-pivot\epoch_study.json

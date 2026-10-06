@@ -1,0 +1,445 @@
+<title>Stockout Model Pivot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<style>
+:root{
+  --ground:#F4F6F3; --paper:#FFFFFF; --ink:#18211E; --muted:#56635D; --rule:#D5DCD7;
+  --teal:#2A5E66; --teal-soft:#DCEAEA; --amber:#A8621C; --amber-soft:#F5E6D3;
+  --good:#2F6B3A; --bad:#9A3B2E; --grid:#E4E9E5;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#111614; --paper:#182019; --ink:#E3E9E5; --muted:#9AA8A1; --rule:#2C3832;
+  --teal:#7DB9BF; --teal-soft:#1F3134; --amber:#E2A263; --amber-soft:#3A2C1D;
+  --good:#8BC795; --bad:#E08C7E; --grid:#243029; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ground:#111614; --paper:#182019; --ink:#E3E9E5; --muted:#9AA8A1; --rule:#2C3832;
+  --teal:#7DB9BF; --teal-soft:#1F3134; --amber:#E2A263; --amber-soft:#3A2C1D;
+  --good:#8BC795; --bad:#E08C7E; --grid:#243029; color-scheme:dark;}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 var(--sans);padding-inline:16px;padding-block:40px 72px}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--serif);text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(30px,5vw,44px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:26px;font-weight:700}
+h3{font-size:18px;font-weight:600;margin-top:8px}
+p{margin:0;max-width:68ch}
+section{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+.lede{font-size:18px;color:var(--muted);max-width:62ch}
+.meta{font:13px var(--mono);color:var(--muted)}
+.verdict{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px}
+.verdict div{display:flex;flex-direction:column;gap:4px}
+.verdict .k{font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.verdict .v{font:600 26px var(--serif);font-variant-numeric:tabular-nums}
+.verdict .s{font-size:13px;color:var(--muted)}
+.v.teal{color:var(--teal)}
+.tablebox{overflow-x:auto;border:1px solid var(--rule);border-radius:6px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--ground)}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tr.pick td{background:var(--teal-soft)}
+tr.ref td{color:var(--muted)}
+.tag{display:inline-block;font:500 11px var(--mono);padding:2px 7px;border-radius:3px;letter-spacing:.03em;white-space:nowrap}
+.tag.pick{background:var(--teal);color:var(--paper)}
+.tag.gpu{background:var(--amber-soft);color:var(--amber)}
+.tag.no{background:var(--grid);color:var(--muted)}
+.chart{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:16px 8px 8px;overflow-x:auto}
+.chart svg{display:block;width:100%;min-width:520px;height:auto}
+.caption{font-size:13px;color:var(--muted);max-width:72ch}
+.callout{border-left:3px solid var(--amber);padding:4px 0 4px 16px;display:flex;flex-direction:column;gap:8px}
+.callout strong{color:var(--amber)}
+blockquote{margin:0;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:16px 20px;font-family:var(--serif);font-size:17px;line-height:1.55}
+ul,ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;max-width:70ch}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.profile{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:16px 20px;display:flex;flex-direction:column;gap:6px}
+.profile h3{margin:0 0 6px}
+.row{display:flex;justify-content:space-between;gap:12px;font-size:14px;border-bottom:1px dashed var(--rule);padding-bottom:5px}
+.row:last-child{border-bottom:0}
+.row b{font:500 14px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:80px 1fr 48px;gap:10px;align-items:center;font-size:13px}
+.bar i{display:block;height:10px;background:var(--teal);border-radius:2px}
+.bar span:last-child{font-family:var(--mono);text-align:right}
+code{font:13px var(--mono);background:var(--grid);padding:1px 5px;border-radius:3px}
+a{color:var(--teal)}
+a:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+svg .lbl{font-family:var(--sans);font-size:12px;fill:var(--ink)}
+svg .grid{stroke:var(--grid);stroke-width:1}
+svg .axis{stroke:var(--rule)}
+svg .ours{fill:var(--teal);stroke:var(--teal)}
+svg .paper{fill:var(--amber);stroke:var(--amber)}
+svg .pick{fill:var(--teal);stroke:var(--teal)}
+svg .other{fill:var(--muted);stroke:var(--muted)}
+svg .whisk{stroke-width:2;fill:none}
+</style>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:14px">
+  <span class="eyebrow">AHFE 2027 · Human–AI reliance study · AI component</span>
+  <h1>Stockout model pivot: PatchTST out, LightGBM in</h1>
+  <p class="lede">We validated LightGBM against published results on four public datasets: Kaggle backorders, Walmart M5 (where it would have ranked 39th of 5,507 teams), DataCo and Olist. We then retrained it on the study's simulator with every one of the 70 demand series held out once. It also compares ten models at 50 and 100 training epochs. This page records the decision, the numbers, and what can and cannot be claimed.</p>
+  <span class="meta">24 September 2026 · corpus f953645593cab9a1 · scripts in <code>lightgbm-pivot/</code></span>
+</header>
+
+<div class="verdict">
+  <div><span class="k">Recommended model</span><span class="v teal">LightGBM</span><span class="s">Gradient-boosted trees, Platt-calibrated</span></div>
+  <div><span class="k">Public benchmark</span><span class="v">90.65 %</span><span class="s">vs 87.78 % reported (Ntakolia 2021)</span></div>
+  <div><span class="k">Simulator, 70 series</span><span class="v">AUROC 0.891</span><span class="s">95 % CI 0.874–0.906</span></div>
+  <div><span class="k">Calibration error</span><span class="v">0.009</span><span class="s">ECE, risk % shown to participants</span></div>
+</div>
+
+<section>
+  <span class="eyebrow">The decision</span>
+  <h2>Why the model changed</h2>
+  <p>PatchTST, and its fusion with a second Transformer, never beat simple models on this task. Across ten architectures it finished last (AUROC 0.859), and a logistic regression on <em>one</em> hand-computed number, net inventory position, matched it exactly. Whether a stockout happens in the next two weeks is decided by the current stock position plus future randomness. There is no long-range pattern for a time-series Transformer to find.</p>
+  <p>The AI component is now a gradient-boosted tree model: the family that wins at this data scale (Grinsztajn et al., NeurIPS 2022), that the anchor paper also tested, and whose behaviour can be explained to reviewers and participants. PatchTST code and results are archived in <code>archive/patchtst/</code>; nothing was deleted.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Part 1 · External validation</span>
+  <h2>Benchmark against a published paper</h2>
+  <p><strong>Ntakolia, Kokkotis, Karlsson &amp; Moustakidis (2021)</strong>, <em>An Explainable Machine Learning Model for Material Backorder Prediction in Inventory Management</em>, Sensors 21(23), 7926. Public Kaggle data: 1,929,935 SKUs, 13,981 (0.72 %) went on backorder. Their protocol, rebuilt: combine the two Kaggle files, undersample to 1:1, 80/20 split. Our test set has 5,593 rows; theirs has 5,588.</p>
+
+  <div class="chart" role="img" aria-label="Accuracy on the balanced backorder test set: paper-reported values versus our five-seed means with standard deviation whiskers">
+    <svg id="bench" viewBox="0 0 760 300"></svg>
+  </div>
+  <p class="caption">Accuracy on the balanced test set. Amber: values printed in the paper (single split, no seed stated). Teal: our 5-seed means, whiskers ±1 s.d. The recommended model is the filled teal marker.</p>
+
+  <div class="tablebox"><table>
+    <thead><tr><th>Model</th><th>Device</th><th class="n">Accuracy</th><th class="n">AUROC</th></tr></thead>
+    <tbody>
+      <tr class="ref"><td>Paper · LightGBM (reported)</td><td>—</td><td class="n">87.78 %</td><td class="n">0.95</td></tr>
+      <tr class="ref"><td>Paper · XGBoost (reported)</td><td>—</td><td class="n">88.53 %</td><td class="n">0.95</td></tr>
+      <tr class="ref"><td>Paper · Balanced Bagging, their best (reported)</td><td>—</td><td class="n">88.85 %</td><td class="n">0.95</td></tr>
+      <tr><td>XGBoost, paper settings</td><td><span class="tag gpu">CUDA</span></td><td class="n">89.19 ± 0.48 %</td><td class="n">0.9529 ± 0.0023</td></tr>
+      <tr><td>XGBoost EasyEnsemble</td><td><span class="tag gpu">CUDA</span></td><td class="n">89.63 ± 0.38 %</td><td class="n">0.9581 ± 0.0021</td></tr>
+      <tr><td>LightGBM, paper settings (A)</td><td>CPU</td><td class="n">90.30 ± 0.42 %</td><td class="n">0.9582 ± 0.0023</td></tr>
+      <tr><td>+ inventory-position features (B)</td><td>CPU</td><td class="n">90.24 ± 0.48 %</td><td class="n">0.9577 ± 0.0027</td></tr>
+      <tr><td>+ stacked with logistic regression (C)</td><td>CPU</td><td class="n">90.12 ± 0.46 %</td><td class="n">0.9578 ± 0.0026</td></tr>
+      <tr><td>C as an EasyEnsemble (D)</td><td>CPU</td><td class="n">90.55 ± 0.42 %</td><td class="n">0.9627 ± 0.0019</td></tr>
+      <tr class="pick"><td><span class="tag pick">RECOMMENDED</span> LightGBM EasyEnsemble (E)</td><td>CPU</td><td class="n">90.65 ± 0.49 %</td><td class="n">0.9635 ± 0.0019</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>What made the difference</h3>
+  <p>The paper balances the data by discarding about 1.9 million on-time SKUs. Model E trains five extra LightGBM models, each on the same backorder rows plus a fresh sample of those discarded rows, and averages them (EasyEnsemble; Liu, Wu &amp; Zhou 2009). Test rows never enter a bag; the script asserts it. Extra features and stacking with logistic regression added nothing, so the final model is LightGBM alone.</p>
+
+  <div class="tablebox"><table>
+    <thead><tr><th>Seed</th><th class="n">A accuracy</th><th class="n">E accuracy</th><th class="n">Δ accuracy</th><th class="n">Δ AUROC</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td class="n">89.67 %</td><td class="n">89.70 %</td><td class="n">+0.03 pt</td><td class="n">+0.0059</td></tr>
+      <tr><td>1</td><td class="n">90.88 %</td><td class="n">91.02 %</td><td class="n">+0.14 pt</td><td class="n">+0.0047</td></tr>
+      <tr><td>2</td><td class="n">90.02 %</td><td class="n">90.86 %</td><td class="n">+0.84 pt</td><td class="n">+0.0052</td></tr>
+      <tr><td>3</td><td class="n">90.45 %</td><td class="n">90.97 %</td><td class="n">+0.52 pt</td><td class="n">+0.0047</td></tr>
+      <tr><td>4</td><td class="n">90.49 %</td><td class="n">90.68 %</td><td class="n">+0.19 pt</td><td class="n">+0.0058</td></tr>
+      <tr class="pick"><td><strong>Mean</strong></td><td class="n">90.30 %</td><td class="n">90.65 %</td><td class="n"><strong>+0.34 pt</strong></td><td class="n"><strong>+0.0053</strong></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout">
+    <p><strong>Claim the paired gain, not the headline gap.</strong> The paper's own LightGBM, re-run, already scores 90.30 %. Most of the 2.9-point gap to their printed 87.78 % is reproduction noise, and a reviewer who re-runs it will see that. The defensible improvement is +0.34 pt accuracy and +0.005 AUROC over a faithful reproduction, on 5 of 5 seeds.</p>
+  </div>
+  <blockquote>“Reproducing the protocol of Ntakolia et al. (2021) on the public Kaggle backorder dataset, our LightGBM baseline reached 90.30 ± 0.42 % accuracy (AUROC 0.958) over five random splits, against 87.78 % reported. Training the same model as an EasyEnsemble over the majority-class records that undersampling discards raised this to 90.65 ± 0.49 % (AUROC 0.9635 ± 0.0019), improving on the reproduced baseline on all five splits.”</blockquote>
+</section>
+
+<section id="public">
+  <span class="eyebrow">Part 2 · The datasets behind the simulator</span>
+  <h2>LightGBM on Walmart M5, DataCo and Olist</h2>
+  <p>The simulator's demand comes from Walmart's M5 data, its disruption rate from DataCo and its lead times from Olist. Each dataset was run against a published result, under that paper's own protocol, before any comparison was made.</p>
+
+  <h3>Walmart M5: the M5 Accuracy competition</h3>
+  <p><strong>Makridakis, Spiliotis &amp; Assimakopoulos (2022)</strong>, International Journal of Forecasting 38(4). This is the official evaluation phase: train through day 1941, forecast days 1942–1969 for all 30,490 products, and score by WRMSSE over 42,840 series at 12 aggregation levels. The hidden test file and the weights come from the organisers' own release. Before training, our scorer reproduced two published scores exactly, ES_bu 0.670981 and seasonal naïve 0.847017, so our number is the leaderboard's number.</p>
+  <div class="chart" role="img" aria-label="M5 private-leaderboard WRMSSE, lower is better: our LightGBM at 0.569 sits between 38th and 39th place, far ahead of the best statistical benchmark">
+    <svg id="m5" viewBox="0 0 760 290"></svg>
+  </div>
+  <p class="caption">WRMSSE on the private leaderboard; lower is better. Amber: published entries. Teal: ours. 5,507 teams entered.</p>
+  <div class="tablebox"><table>
+    <thead><tr><th>Entry</th><th class="n">WRMSSE</th><th class="n">vs ES_bu</th></tr></thead>
+    <tbody>
+      <tr class="ref"><td>1st · YJ_STU (LightGBM-based)</td><td class="n">0.5204</td><td class="n">−22.4 %</td></tr>
+      <tr class="ref"><td>10th place</td><td class="n">0.5475</td><td class="n">−18.4 %</td></tr>
+      <tr class="ref"><td>38th place</td><td class="n">0.5683</td><td class="n">−15.3 %</td></tr>
+      <tr class="pick"><td><span class="tag pick">OURS</span> LightGBM, one model per store, Tweedie</td><td class="n">0.5691</td><td class="n">−15.2 %</td></tr>
+      <tr class="ref"><td>39th place</td><td class="n">0.5698</td><td class="n">−15.1 %</td></tr>
+      <tr class="ref"><td>50th place</td><td class="n">0.5760</td><td class="n">−14.2 %</td></tr>
+      <tr class="ref"><td>ES_bu, best statistical benchmark</td><td class="n">0.6710</td><td class="n">—</td></tr>
+      <tr class="ref"><td>Seasonal naïve</td><td class="n">0.8470</td><td class="n">+26.2 %</td></tr>
+    </tbody>
+  </table></div>
+  <p>The model would have ranked <strong>39th of 5,507 teams</strong> (top 1 %). Every tuning choice used days 1914–1941 only. One earlier run was stopped <em>before</em> it produced a test score, because it had chosen too few boosting rounds; that decision was made on the validation window, and it's recorded in the script.</p>
+
+  <h3>DataCo and Olist: Li (2026), shipment prioritisation</h3>
+  <p><strong>Li (2026)</strong>, arXiv:2607.18573, AIIIP 2026, takes the leakage-controlled approach DataCo needs: only features known at purchase, five time-ordered folds. Its question is operational: reviewing only 10 % of orders, how much delay exposure (days late × order value) does ranking by a model's predictions catch, compared with simply checking the most valuable orders first (VALUE_ONLY)? We rebuilt the data exactly (Olist 96,470 orders, 8.11 % late, mean value 137.04; DataCo 103,400 late rows). We ran their XGBoost with their settings on the GPU, then LightGBM on the identical features and folds.</p>
+  <div class="tablebox"><table>
+    <thead><tr><th>Capture@10 %</th><th class="n">DataCo paper</th><th class="n">DataCo XGBoost</th><th class="n">DataCo LightGBM</th><th class="n">Olist paper</th><th class="n">Olist XGBoost</th><th class="n">Olist LightGBM</th></tr></thead>
+    <tbody>
+      <tr class="ref"><td>Value-only (no model)</td><td class="n">.222</td><td class="n">.225</td><td class="n">—</td><td class="n">.464</td><td class="n">.464</td><td class="n">—</td></tr>
+      <tr><td>Late probability only</td><td class="n">.108</td><td class="n">.111</td><td class="n">.111</td><td class="n">.150</td><td class="n">.269</td><td class="n">.211</td></tr>
+      <tr><td>Severity only (M0)</td><td class="n">.212</td><td class="n">.213</td><td class="n">.214</td><td class="n">.144</td><td class="n">.273</td><td class="n">.263</td></tr>
+      <tr><td>Late probability × value</td><td class="n">.287</td><td class="n">.278</td><td class="n">.284</td><td class="n">.430</td><td class="n">.495</td><td class="n">.448</td></tr>
+      <tr class="pick"><td>Severity × value (M1)</td><td class="n">.323</td><td class="n">.322</td><td class="n">.322</td><td class="n">.415</td><td class="n">.505</td><td class="n">.476</td></tr>
+      <tr><td>M1 − value-only, 95 % CI</td><td class="n">+.101</td><td class="n">+.100 [.096, .103]</td><td class="n">+.100 [.096, .103]</td><td class="n">−.049</td><td class="n">+.041 [.022, .061]</td><td class="n">+.011 [−.012, .032]</td></tr>
+      <tr><td>Severity rank correlation ρ</td><td class="n">.386</td><td class="n">.422</td><td class="n">.423</td><td class="n">.075</td><td class="n">.163</td><td class="n">.119</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li><strong>DataCo: replicated, and LightGBM ties XGBoost.</strong> Our XGBoost gives .322 where the paper reports .323; LightGBM is identical (difference +.000, CI ±.001). Both beat value sorting by 10 points, as the paper found.</li>
+    <li><strong>Olist: we beat the paper, and so does our XGBoost.</strong> The paper's model loses to value sorting (−4.9 points). With our purchase-time features (seller and customer location, their distance, the promised delivery window, payment details), XGBoost beats value sorting by +4.1 points, CI clear of zero. The gain comes from the features, not the model: LightGBM on the same features lands between the two (+1.1 points, CI crosses zero).</li>
+    <li><strong>What this means for the study:</strong> LightGBM is competitive everywhere (top 1 % on M5, level on DataCo), but it doesn't win everywhere. On Olist, XGBoost with the paper's conservative settings (180 shallow trees) handled the drift between time blocks better.</li>
+  </ul>
+  <div class="callout">
+    <p><strong>How to cite these.</strong> M5 is the strongest result: an official leaderboard, a verified scorer and a held-out test. The DataCo comparison is a clean replication. The Olist gain is real but single-run and comes from feature engineering, so report it as “richer purchase-time features let a model clear the value-only gate on Olist, reversing the paper's conclusion”. It's not a LightGBM win.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Part 3 · The study's own data</span>
+  <h2>Training on the simulator</h2>
+  <p>The model participants' advice is anchored to predicts a <strong>stockout within the next two weeks</strong> in the supplier → warehouse → customer simulator, from 116 lag and rolling features of the state the participant sees.</p>
+
+  <h3>Dataset profile</h3>
+  <p class="caption" style="font-size:14px">No participants have been run yet: collection is waiting on the ethics amendment and OSF pre-registration. There are no participant demographics to report, so this profiles the training data. Participant demographics belong in the report after the pilot.</p>
+  <div class="grid2">
+    <div class="profile">
+      <h3>Corpus</h3>
+      <div class="row"><span>Demand series (M5 store–department)</span><b>70</b></div>
+      <div class="row"><span>Simulated episodes</span><b>520</b></div>
+      <div class="row"><span>Weeks per episode</span><b>100</b></div>
+      <div class="row"><span>Total rows (episode-weeks)</span><b>52,000</b></div>
+      <div class="row"><span>Rows modelled (after 48-week lookback)</span><b>24,960</b></div>
+      <div class="row"><span>Features</span><b>116</b></div>
+      <div class="row"><span>Stockout-within-2-weeks rate</span><b>21.5 %</b></div>
+      <div class="row"><span>… per series (min / median / max)</span><b>0 / 18.8 / 71.9 %</b></div>
+      <div class="row"><span>Majority-class accuracy floor</span><b>78.5 %</b></div>
+    </div>
+    <div class="profile">
+      <h3>Operating conditions</h3>
+      <div class="row"><span>Weekly demand, mean ± s.d.</span><b>141.9 ± 39.3</b></div>
+      <div class="row"><span>Weekly demand, 5th–95th pct</span><b>86–200 units</b></div>
+      <div class="row"><span>On-hand inventory, mean</span><b>637 units</b></div>
+      <div class="row"><span>Backorders, mean</span><b>17.2 units</b></div>
+      <div class="row"><span>Lead time, mean</span><b>1.70 weeks</b></div>
+      <div class="row"><span>Weeks under disruption</span><b>7.6 %</b></div>
+      <div class="row"><span>Weeks with transport down</span><b>1.5 %</b></div>
+      <div class="row"><span>Service level, mean</span><b>94.3 %</b></div>
+      <div class="row"><span>Cost per week, mean</span><b>729.7</b></div>
+    </div>
+  </div>
+  <div class="profile">
+    <h3>Ordering policies that generated the episodes</h3>
+    <div class="bars" id="policy"></div>
+    <p class="caption">Share of the 520 episodes. The mix of good, noisy and biased ordering gives the model both well-run and badly-run warehouses to learn from, as participants will produce.</p>
+  </div>
+
+  <h3>Results · 5-fold cross-validation by series</h3>
+  <p>Every one of the 70 demand series is a test series exactly once, never seen in training or validation. This replaces the earlier single split of 14 series. All probabilities are Platt-calibrated on the validation series. Intervals are a bootstrap that resamples whole series, 2,000 draws.</p>
+
+  <div class="chart" role="img" aria-label="AUROC with 95 percent series-clustered confidence intervals for five models on the simulator; all intervals overlap almost completely">
+    <svg id="sim" viewBox="0 0 760 250"></svg>
+  </div>
+  <p class="caption">AUROC with 95 % series-clustered confidence intervals. The intervals overlap almost completely: the five models are practically equivalent on this task.</p>
+
+  <div class="tablebox"><table>
+    <thead><tr><th>Model</th><th>Device</th><th class="n">Accuracy</th><th class="n">AUROC</th><th class="n">PR-AUC</th><th class="n">F1</th><th class="n">ECE</th><th class="n">Train (s)</th></tr></thead>
+    <tbody>
+      <tr><td>Logistic regression</td><td>CPU</td><td class="n">0.869</td><td class="n">0.893</td><td class="n">0.748</td><td class="n">0.666</td><td class="n">0.012</td><td class="n">1</td></tr>
+      <tr class="pick"><td><span class="tag pick">RECOMMENDED</span> LightGBM</td><td>CPU</td><td class="n">0.862</td><td class="n">0.891</td><td class="n">0.741</td><td class="n">0.657</td><td class="n">0.009</td><td class="n">6</td></tr>
+      <tr><td>LightGBM EasyEnsemble</td><td>CPU</td><td class="n">0.862</td><td class="n">0.891</td><td class="n">0.735</td><td class="n">0.653</td><td class="n">0.010</td><td class="n">19</td></tr>
+      <tr><td>XGBoost</td><td><span class="tag gpu">CUDA</span></td><td class="n">0.864</td><td class="n">0.893</td><td class="n">0.743</td><td class="n">0.657</td><td class="n">0.005</td><td class="n">7</td></tr>
+      <tr><td>XGBoost EasyEnsemble</td><td><span class="tag gpu">CUDA</span></td><td class="n">0.863</td><td class="n">0.893</td><td class="n">0.740</td><td class="n">0.659</td><td class="n">0.007</td><td class="n">24</td></tr>
+      <tr class="ref"><td>Majority class</td><td>—</td><td class="n">0.785</td><td class="n">0.500</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    </tbody>
+  </table></div>
+  <p class="caption">Accuracy at its own validation-tuned threshold; F1, precision and recall at the F1-optimal threshold. Training time summed over the five folds.</p>
+
+  <div class="tablebox"><table>
+    <thead><tr><th>Paired difference vs LightGBM</th><th class="n">Δ AUROC, 95 % CI</th><th class="n">Δ PR-AUC, 95 % CI</th><th>Reading</th></tr></thead>
+    <tbody>
+      <tr><td>Logistic regression</td><td class="n">[−0.0007, +0.0043]</td><td class="n">[+0.0005, +0.0134]</td><td>Slightly better PR-AUC</td></tr>
+      <tr><td>LightGBM EasyEnsemble</td><td class="n">[−0.0014, +0.0009]</td><td class="n">[−0.0087, −0.0025]</td><td>Slightly worse: bagging does not transfer</td></tr>
+      <tr><td>XGBoost (CUDA)</td><td class="n">[+0.0006, +0.0027]</td><td class="n">[−0.0007, +0.0040]</td><td>AUROC +0.002, negligible</td></tr>
+      <tr><td>XGBoost EasyEnsemble (CUDA)</td><td class="n">[+0.0003, +0.0027]</td><td class="n">[−0.0041, +0.0022]</td><td>AUROC +0.002, negligible</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>How to read this</h3>
+  <ul>
+    <li><strong>The model works.</strong> AUROC 0.891 on series it has never seen, and 86.2 % accuracy against a 78.5 % majority floor, with calibration error under 0.01. That is the reliability anchor the study needs.</li>
+    <li><strong>Model families are tied here.</strong> The largest AUROC difference is 0.002, statistically detectable but far too small to matter. On the simulator the stockout is mostly decided by the current stock position, so the ceiling is set by the task, not the model.</li>
+    <li><strong>EasyEnsemble doesn't carry over, as predicted.</strong> It won on Kaggle by recovering rows that undersampling threw away. The simulator discards nothing, so the bags only reshuffle data the plain model already uses.</li>
+    <li><strong>Why LightGBM, not XGBoost.</strong> XGBoost is 0.002 AUROC higher on the simulator, but a full point lower on the external benchmark (89.63 % vs 90.65 %). The model we cite as validated should be the one that was validated.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>About the GPU run.</strong> The installed LightGBM was built without GPU support, and rebuilding it needs the CUDA toolkit and CMake, neither of which is on this machine. XGBoost ran on the RTX 4060 (CUDA confirmed per fit; about 45 % utilisation in bursts). With 25k rows the GPU gives no speed advantage: 7 s vs 6 s for LightGBM on CPU across all five folds. The recommended model needs no GPU.</p>
+  </div>
+</section>
+
+<section id="epochs">
+  <span class="eyebrow">Part 4 · Updated 25 September</span>
+  <h2>Ten models, 50 vs 100 epochs</h2>
+  <p>Every model was trained on the same simulator data and scored on identical test rows, with 5-fold cross-validation across all 70 demand series. Neural models trained a fixed 100 epochs and were scored at epoch 50, at epoch 100, and at the epoch the validation data picks. For boosted trees, the equivalent is 50 trees, 100 trees, and the early-stopped count.</p>
+  <div class="tablebox"><table>
+    <thead><tr><th>Model</th><th class="n">AUROC ep 50</th><th class="n">ep 100</th><th class="n">best</th><th>vs LightGBM</th></tr></thead>
+    <tbody>
+      <tr><td>Logistic regression</td><td class="n">0.893</td><td class="n">0.893</td><td class="n">0.893</td><td>tie</td></tr>
+      <tr><td>XGBoost <span class="tag gpu">CUDA</span></td><td class="n">0.887</td><td class="n">0.890</td><td class="n">0.893</td><td>+0.002, tiny</td></tr>
+      <tr><td>CNN</td><td class="n">0.871</td><td class="n">0.832</td><td class="n">0.892</td><td>tie</td></tr>
+      <tr class="pick"><td><span class="tag pick">STUDY MODEL</span> LightGBM</td><td class="n">0.886</td><td class="n">0.890</td><td class="n">0.891</td><td>reference</td></tr>
+      <tr><td>GRU</td><td class="n">0.885</td><td class="n">0.886</td><td class="n">0.887</td><td>LightGBM better</td></tr>
+      <tr><td>LSTM</td><td class="n">0.888</td><td class="n">0.887</td><td class="n">0.886</td><td>LightGBM better</td></tr>
+      <tr><td>JointPatchTransformer</td><td class="n">0.880</td><td class="n">0.849</td><td class="n">0.886</td><td>LightGBM better</td></tr>
+      <tr><td>Transformer (vanilla)</td><td class="n">0.878</td><td class="n">0.871</td><td class="n">0.883</td><td>LightGBM better</td></tr>
+      <tr><td>MLP</td><td class="n">0.848</td><td class="n">0.833</td><td class="n">0.882</td><td>LightGBM better</td></tr>
+      <tr><td>PatchTST v2</td><td class="n">0.846</td><td class="n">0.827</td><td class="n">0.857</td><td>LightGBM better by 0.034</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li><strong>LightGBM is top tier, not the outright winner.</strong> The top four models are within 0.002 AUROC. The stockout is mostly decided by the current stock position, so the task sets the ceiling.</li>
+    <li><strong>It is significantly better than six deep-learning models,</strong> including PatchTST by 0.034 (series-clustered 95 % intervals).</li>
+    <li><strong>Longer training made most neural models worse:</strong> CNN 0.871 → 0.832, JointPatchTransformer 0.880 → 0.849, PatchTST 0.846 → 0.827. That is overfitting; their best epochs were mostly 6–23. LightGBM improved from 50 to 100 trees and did not overfit.</li>
+  </ul>
+
+  <h3>The model participants actually see</h3>
+  <p>A session lasts only 35 weeks, so the benchmarked model's 48-week features do not exist live. The live LightGBM uses the current state plus four weeks of history. It reaches AUROC <strong>0.897</strong> (cross-validated by series), <strong>0.902</strong> on the demand participants play (never trained on), and calibration error 0.006, so a displayed 30 % means about 30 %. The recommended orders stay scripted so reliability is exactly 80 % or 60 %. On error weeks the risk is computed from the stock level the AI misreads, so wrong advice looks like a real model's mistake.</p>
+  <div class="callout">
+    <p><strong>How to write it.</strong> "LightGBM performed in the top tier (AUROC 0.891), statistically equivalent to logistic regression and XGBoost and significantly better than six deep architectures including PatchTST; it was chosen for its external validation, calibration and speed in live use." Do not write that it outperformed all models.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Caution</span>
+  <h2>The benchmark we rejected</h2>
+  <p><strong>Ahmed et al. (2025), Scientific Reports</strong> reports 96 % on DataCo late-delivery prediction with SOM+ANN. DataCo's late-delivery label is simply “real shipping days &gt; scheduled days” (that rule reproduces 97.6 % of labels), and the paper feeds the real-shipping-days column, known only after delivery, in as an input.</p>
+  <div class="tablebox"><table>
+    <thead><tr><th>LightGBM on DataCo, input features</th><th class="n">Accuracy</th><th class="n">AUROC</th></tr></thead>
+    <tbody>
+      <tr><td>All columns, as in the paper</td><td class="n">100.0 %</td><td class="n">1.000</td></tr>
+      <tr><td>Only what is known before dispatch</td><td class="n">77.2 %</td><td class="n">0.859</td></tr>
+    </tbody>
+  </table></div>
+  <p>Beating 96 % there is trivial and meaningless. It is worth one sentence in the paper as a caution about that dataset.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Disclosure</span>
+  <h2>Caveats</h2>
+  <ul>
+    <li>The anchor paper states no random seed, so its exact split cannot be recreated. Hence five seeds and paired differences.</li>
+    <li>We used the paper's selected hyper-parameters (LightGBM: 520 trees, 50 leaves; XGBoost: depth 9, γ 0.7), not its grid search.</li>
+    <li>Benchmark accuracy is at a 0.5 threshold on a balanced test set, as in the paper. On real data (0.72 % positive), AUROC and calibration matter more.</li>
+    <li>EasyEnsemble probabilities are averaged over balanced bags and are not calibrated to the real base rate. The simulator models were Platt-calibrated before scoring; keep that step for anything shown to participants (van den Goorbergh et al., JAMIA 2022).</li>
+    <li>On the simulator, logistic regression is marginally better on PR-AUC. Report it; it strengthens the point that the task, not the architecture, sets the ceiling.</li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">Sources · in lightgbm-pivot/papers/</span>
+  <h2>Papers</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>Paper</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>Ntakolia et al. 2021, Sensors · <a href="https://doi.org/10.3390/s21237926">doi</a></td><td><span class="tag pick">ANCHOR</span> Benchmark followed and beaten</td></tr>
+      <tr><td>Ahmed et al. 2025, Scientific Reports · <a href="https://doi.org/10.1038/s41598-025-11510-z">doi</a></td><td><span class="tag no">REJECTED</span> DataCo leakage example</td></tr>
+      <tr><td>Islam &amp; Amin 2020, J Big Data · <a href="https://doi.org/10.1186/s40537-020-00345-2">doi</a></td><td>Second study on the same backorder data</td></tr>
+      <tr><td>Ke et al. 2017, NeurIPS: LightGBM</td><td>Model citation</td></tr>
+      <tr><td>Chen &amp; Guestrin 2016, KDD: XGBoost</td><td>GPU comparison model</td></tr>
+      <tr><td>Grinsztajn et al. 2022, NeurIPS · <a href="https://arxiv.org/abs/2207.08815">arXiv</a></td><td>Why trees win at this data scale</td></tr>
+      <tr><td>Zeng et al. 2023, AAAI · <a href="https://arxiv.org/abs/2205.13504">arXiv</a></td><td>Linear models rival Transformers on time series</td></tr>
+      <tr><td>Nie et al. 2023, ICLR: PatchTST · <a href="https://arxiv.org/abs/2211.14730">arXiv</a></td><td>Cited for why it was dropped</td></tr>
+      <tr><td>Hollmann et al. 2025, Nature: TabPFN</td><td>Possible future comparison</td></tr>
+      <tr><td>van den Goorbergh et al. 2022, JAMIA</td><td>Imbalance corrections distort probabilities</td></tr>
+      <tr><td>Liu, Wu &amp; Zhou 2009, IEEE TSMC-B (paywalled, cite only)</td><td>EasyEnsemble method</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Next</span>
+  <h2>What remains</h2>
+  <ol>
+    <li>Set the 80 % / 60 % reliability conditions against this LightGBM's measured performance and update the method sentence in <code>RESULTS.md</code>.</li>
+    <li>Rewrite the PatchTST paragraphs in the proposal (<code>Document (14).docx</code>) around this benchmark.</li>
+    <li>The actual blockers for the study: ethics amendment, OSF pre-registration, and the AHFE abstract due 4 December 2026.</li>
+  </ol>
+  <p class="meta">Reproduce: <code>python lightgbm-pivot/backorder_benchmark.py</code> · <code>xgb_gpu_benchmark.py</code> · <code>simulator_training.py</code></p>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var NS="http://www.w3.org/2000/svg";
+  function el(tag,attrs,parent,text){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+
+  function dotChart(svg,rows,lo,hi,step,fmt,x0){
+    var W=760,left=x0,right=W-24,top=14,rowH=30,H=top+rows.length*rowH+34;
+    svg.setAttribute("viewBox","0 0 "+W+" "+H);
+    var sx=function(v){return left+(v-lo)/(hi-lo)*(right-left);};
+    for(var v=lo;v<=hi+1e-9;v+=step){
+      var x=sx(v);
+      el("line",{x1:x,x2:x,y1:top-4,y2:top+rows.length*rowH,"class":"grid"},svg);
+      el("text",{x:x,y:top+rows.length*rowH+18,"text-anchor":"middle"},svg,fmt(v));
+    }
+    rows.forEach(function(r,i){
+      var y=top+i*rowH+rowH/2;
+      el("text",{x:left-12,y:y+4,"text-anchor":"end","class":"lbl"},svg,r.label);
+      if(r.lo!=null){el("line",{x1:sx(r.lo),x2:sx(r.hi),y1:y,y2:y,"class":"whisk "+r.cls},svg);
+        el("line",{x1:sx(r.lo),x2:sx(r.lo),y1:y-5,y2:y+5,"class":"whisk "+r.cls},svg);
+        el("line",{x1:sx(r.hi),x2:sx(r.hi),y1:y-5,y2:y+5,"class":"whisk "+r.cls},svg);}
+      var c=el("circle",{cx:sx(r.v),cy:y,r:r.pick?7:5.5,"class":r.cls},svg);
+      if(r.hollow){c.setAttribute("style","fill:var(--paper);stroke-width:2");}
+      el("text",{x:(r.hi!=null?sx(r.hi):sx(r.v))+10,y:y+4},svg,r.txt);
+    });
+  }
+
+  dotChart(document.getElementById("bench"),[
+    {label:"Paper · LightGBM",v:87.78,cls:"paper",txt:"87.78"},
+    {label:"Paper · XGBoost",v:88.53,cls:"paper",txt:"88.53"},
+    {label:"Paper · best model",v:88.85,cls:"paper",txt:"88.85"},
+    {label:"XGBoost (CUDA)",v:89.19,lo:88.71,hi:89.67,cls:"ours",hollow:true,txt:"89.19"},
+    {label:"XGBoost EasyEns. (CUDA)",v:89.63,lo:89.25,hi:90.01,cls:"ours",hollow:true,txt:"89.63"},
+    {label:"LightGBM (A)",v:90.30,lo:89.88,hi:90.72,cls:"ours",hollow:true,txt:"90.30"},
+    {label:"LightGBM EasyEns. (E)",v:90.65,lo:90.16,hi:91.14,cls:"pick",pick:true,txt:"90.65"}
+  ],87.5,91.5,0.5,function(v){return v.toFixed(1)+"%";},190);
+
+  dotChart(document.getElementById("sim"),[
+    {label:"Logistic regression",v:0.8932,lo:0.876,hi:0.909,cls:"other",txt:"0.893"},
+    {label:"LightGBM",v:0.8913,lo:0.874,hi:0.906,cls:"pick",pick:true,txt:"0.891"},
+    {label:"LightGBM EasyEns.",v:0.8911,lo:0.874,hi:0.906,cls:"other",txt:"0.891"},
+    {label:"XGBoost (CUDA)",v:0.8930,lo:0.876,hi:0.908,cls:"other",txt:"0.893"},
+    {label:"XGBoost EasyEns. (CUDA)",v:0.8928,lo:0.876,hi:0.907,cls:"other",txt:"0.893"}
+  ],0.865,0.915,0.01,function(v){return v.toFixed(2);},190);
+
+  (function(){
+    var svg=document.getElementById("m5");
+    var rows=[
+      {label:"1st · YJ_STU",v:0.5204,cls:"paper"},
+      {label:"10th place",v:0.5475,cls:"paper"},
+      {label:"38th place",v:0.5683,cls:"paper"},
+      {label:"OURS · LightGBM",v:0.5691,cls:"pick",pick:true},
+      {label:"39th place",v:0.5698,cls:"paper"},
+      {label:"50th place",v:0.5760,cls:"paper"},
+      {label:"ES_bu benchmark",v:0.6710,cls:"other"}
+    ];
+    rows.forEach(function(r){r.txt=r.v.toFixed(4);});
+    dotChart(svg,rows,0.50,0.70,0.05,function(v){return v.toFixed(2);},190);
+  })();
+
+  var pol=[["optimal",34.2],["noisy",24.2],["under",12.9],["over",11.7],["naive",10.4],["random",6.5]];
+  var box=document.getElementById("policy");
+  pol.forEach(function(p){
+    var d=document.createElement("div");d.className="bar";
+    d.innerHTML="<span>"+p[0]+"</span><span><i style=\"width:"+(p[1]/34.2*100)+"%\"></i></span><span>"+p[1].toFixed(1)+"%</span>";
+    box.appendChild(d);
+  });
+})();
+</script>

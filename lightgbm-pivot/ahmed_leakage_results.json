@@ -1,0 +1,39 @@
+{
+  "rows": 180519,
+  "late_rate": 0.5482913155955883,
+  "majority_floor": 0.5482913155955883,
+  "rule_matches_label": 0.9754984239886106,
+  "feature_sets": {
+    "all_columns": {
+      "n_features": 38,
+      "dropped": [],
+      "accuracy_mean": 1.0,
+      "accuracy_sd": 0.0,
+      "auroc_mean": 1.0,
+      "auroc_sd": 0.0
+    },
+    "no_delivery_status": {
+      "n_features": 37,
+      "dropped": [
+        "Delivery Status"
+      ],
+      "accuracy_mean": 1.0,
+      "accuracy_sd": 0.0,
+      "auroc_mean": 1.0,
+      "auroc_sd": 4.965068306494546e-17
+    },
+    "pre_dispatch": {
+      "n_features": 34,
+      "dropped": [
+        "Days for shipping (real)",
+        "Delivery Status",
+        "Order Status",
+        "shipping date (DateOrders)"
+      ],
+      "accuracy_mean": 0.8157323288278306,
+      "accuracy_sd": 0.0019965764176420216,
+      "auroc_mean": 0.8995454237217657,
+      "auroc_sd": 0.00113728457517293
+    }
+  }
+}

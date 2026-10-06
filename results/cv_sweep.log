@@ -1,0 +1,11 @@
+=== FOLD 0 ===
+  seed 0  40e    206s  acc 0.864  AUROC 0.868  PR-AUC 0.678  F1 0.561  ECE 0.011 (raw 0.022)
+  seed 1  34e    194s  acc 0.860  AUROC 0.860  PR-AUC 0.662  F1 0.560  ECE 0.010 (raw 0.025)
+  seed 2  37e    205s  acc 0.866  AUROC 0.867  PR-AUC 0.683  F1 0.554  ECE 0.010 (raw 0.017)
+  accuracy         0.863+/-0.003        0.864        0.855
+  auroc            0.865+/-0.003        0.900        0.897
+  pr_auc           0.674+/-0.009        0.762        0.752
+  ece              0.010+/-0.001        0.014        0.013  <-- beats BOTH baselines
+=== FOLD 1 ===
+  seed 0  39e    191s  acc 0.837  AUROC 0.857  PR-AUC 0.676  F1 0.501  ECE 0.027 (raw 0.021)
+  seed 1  43e    177s  acc 0.844  AUROC 0.862  PR-AUC 0.684  F1 0.548  ECE 0.014 (raw 0.025)

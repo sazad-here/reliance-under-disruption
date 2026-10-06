@@ -1,0 +1,15 @@
+# Runtime dependencies for the study web app (Cloud Run image).
+# Pinned to the versions of the working development environment (Python 3.13).
+# All have manylinux wheels for CPython 3.13, so no compiler is needed in the image.
+#
+# lightgbm MUST stay at the version that trained models/live_risk_lgbm.txt
+# (see "lightgbm_version" in models/live_risk_meta.json). Change both together.
+flask==3.1.3
+werkzeug==3.1.8
+numpy==2.2.3
+pandas==2.2.3
+scipy==1.15.1
+scikit-learn==1.6.1
+lightgbm==4.7.0
+psycopg[binary]==3.3.6
+gunicorn==26.2.0

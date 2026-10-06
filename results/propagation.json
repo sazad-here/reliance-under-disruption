@@ -1,0 +1,66 @@
+[
+  {
+    "label": "fitted parameters (current)",
+    "mean_periods_affected": 1.77,
+    "median_periods_affected": 1.0,
+    "pct_reaching_3_periods": 22.2,
+    "mean_penalty": 214.3,
+    "mean_peak_lag": 1.99
+  },
+  {
+    "label": "longer lead time (nominal 2)",
+    "mean_periods_affected": 1.75,
+    "median_periods_affected": 1.0,
+    "pct_reaching_3_periods": 20.7,
+    "mean_penalty": 228.6,
+    "mean_peak_lag": 2.79
+  },
+  {
+    "label": "heavier delay tail",
+    "mean_periods_affected": 1.81,
+    "median_periods_affected": 1.0,
+    "pct_reaching_3_periods": 25.4,
+    "mean_penalty": 196.3,
+    "mean_peak_lag": 2.28
+  },
+  {
+    "label": "shortage 10x holding",
+    "mean_periods_affected": 1.77,
+    "median_periods_affected": 1.0,
+    "pct_reaching_3_periods": 22.2,
+    "mean_penalty": 480.3,
+    "mean_peak_lag": 2.01
+  },
+  {
+    "label": "shortage 20x holding",
+    "mean_periods_affected": 1.77,
+    "median_periods_affected": 1.0,
+    "pct_reaching_3_periods": 22.2,
+    "mean_penalty": 1012.2,
+    "mean_peak_lag": 2.02
+  },
+  {
+    "label": "leaner opening stock",
+    "mean_periods_affected": 1.77,
+    "median_periods_affected": 1.0,
+    "pct_reaching_3_periods": 22.2,
+    "mean_penalty": 214.3,
+    "mean_peak_lag": 1.99
+  },
+  {
+    "label": "lead 2 + heavy tail",
+    "mean_periods_affected": 1.82,
+    "median_periods_affected": 1.0,
+    "pct_reaching_3_periods": 23.7,
+    "mean_penalty": 209.1,
+    "mean_peak_lag": 3.07
+  },
+  {
+    "label": "lead 2 + heavy tail + shortage 10x",
+    "mean_periods_affected": 1.82,
+    "median_periods_affected": 1.0,
+    "pct_reaching_3_periods": 23.7,
+    "mean_penalty": 463.3,
+    "mean_peak_lag": 3.09
+  }
+]

@@ -1,0 +1,814 @@
+{
+  "WARNING": "SIMULATED -- not study data. Synthetic participants driven through the real app code to test the analysis pipeline.",
+  "source": "E:\\trae project\\New folder (2)\\data\\simulated\\sim_effect.sqlite3",
+  "delta": 60,
+  "exclusions": {
+    "n_participant_rows": 80,
+    "n_excluded": 6,
+    "n_analysed": 74,
+    "n_client_error_flagged_kept": 0,
+    "by_condition": {
+      "high": {
+        "recruited": 40,
+        "excluded": 5,
+        "analysed": 35,
+        "any_reason": {
+          "incomplete": 2,
+          "fast_stage1": 0,
+          "constant_own": 1,
+          "withdrawn": 2,
+          "technical_fault": 1
+        },
+        "primary_reason": {
+          "incomplete": 2,
+          "fast_stage1": 0,
+          "constant_own": 1,
+          "withdrawn": 1,
+          "technical_fault": 1
+        },
+        "withdrawn_with_deletion": 1,
+        "client_error_flagged_kept": 0
+      },
+      "low": {
+        "recruited": 40,
+        "excluded": 1,
+        "analysed": 39,
+        "any_reason": {
+          "incomplete": 0,
+          "fast_stage1": 1,
+          "constant_own": 0,
+          "withdrawn": 0,
+          "technical_fault": 0
+        },
+        "primary_reason": {
+          "incomplete": 0,
+          "fast_stage1": 1,
+          "constant_own": 0,
+          "withdrawn": 0,
+          "technical_fault": 0
+        },
+        "withdrawn_with_deletion": 0,
+        "client_error_flagged_kept": 0
+      }
+    },
+    "trial_level": {
+      "main_trials_analysed": 2220,
+      "woa_undefined_q_ai_eq_q_own": 14,
+      "woa_undefined_by_condition": {
+        "high": 5,
+        "low": 9
+      },
+      "note": "dropped from Weight-of-Advice analyses only; kept for all other measures"
+    }
+  },
+  "confirmatory": {
+    "family": [
+      "H1",
+      "H2",
+      "H3",
+      "H4a",
+      "H4b",
+      "AR"
+    ],
+    "alpha": 0.05,
+    "tests": {
+      "H1": {
+        "id": "H1",
+        "outcome": "WoA (untransformed)",
+        "model": "woa ~ rel_c + ai_correct + C(block) + (1|pid)",
+        "test": "Reliability (80 % - 60 %)",
+        "predicted_sign": 1,
+        "term": "rel_c",
+        "estimate": 0.2073590484937486,
+        "se": 0.02608641147437752,
+        "ci_low": 0.15623062111478173,
+        "ci_high": 0.2584874758727155,
+        "z": 7.948929606412897,
+        "p": 1.881299089633335e-15,
+        "d": 0.7414638454094586,
+        "d_ci_low": 0.558641438335721,
+        "d_ci_high": 0.9242862524831964,
+        "meta": {
+          "random_effects": "random intercept [REML, powell]",
+          "n_obs": 2206,
+          "n_participants": 74,
+          "converged": true,
+          "warnings": [],
+          "var_participant": 0.010149012469046747,
+          "var_residual": 0.06806166076548816
+        },
+        "other_terms": {
+          "Intercept": {
+            "term": "Intercept",
+            "estimate": 0.36365230421734257,
+            "se": 0.017338864073571814,
+            "ci_low": 0.32966875483224845,
+            "ci_high": 0.3976358536024367,
+            "z": 20.97324845931675,
+            "p": 1.1512851875244478e-97
+          },
+          "C(block)[T.1]": {
+            "term": "C(block)[T.1]",
+            "estimate": -0.021139241799327545,
+            "se": 0.013626379388075746,
+            "ci_low": -0.04784645485029804,
+            "ci_high": 0.0055679712516429475,
+            "z": -1.551346927697184,
+            "p": 0.12081856644224558
+          },
+          "C(block)[T.2]": {
+            "term": "C(block)[T.2]",
+            "estimate": 0.018179236837944354,
+            "se": 0.013746391365501383,
+            "ci_low": -0.0087631953683492,
+            "ci_high": 0.04512166904423791,
+            "z": 1.3224733935313275,
+            "p": 0.1860105634346071
+          },
+          "ai_correct": {
+            "term": "ai_correct",
+            "estimate": 0.15723197409472622,
+            "se": 0.012616635261518286,
+            "ci_low": 0.1325038231810198,
+            "ci_high": 0.18196012500843264,
+            "z": 12.462274674317955,
+            "p": 1.1990115493267257e-35
+          }
+        },
+        "p_holm": 9.406495448166674e-15,
+        "supported": true
+      },
+      "H2": {
+        "id": "H2",
+        "outcome": "Trust (TiA, 1-7)",
+        "model": "trust ~ rel_c * C(block) + (1|pid)",
+        "test": "Reliability x Block (Wald chi2, 2 df); estimate = divergence block 3 vs 1",
+        "predicted_sign": 0,
+        "chi2": 150.23035151093126,
+        "df": 2,
+        "term": "rel_c:C(block)[T.2]",
+        "estimate": 1.0946275946275914,
+        "se": 0.09075900558131733,
+        "ci_low": 0.9167432110124103,
+        "ci_high": 1.2725119782427725,
+        "z": 12.06081520634157,
+        "p": 2.3872266945610412e-33,
+        "d": 1.558456769264119,
+        "d_ci_low": 1.3051970093676306,
+        "d_ci_high": 1.8117165291606072,
+        "p_contrast": 1.7009092327727202e-33,
+        "meta": {
+          "random_effects": "random intercept [REML, lbfgs]",
+          "n_obs": 222,
+          "n_participants": 74,
+          "converged": true,
+          "warnings": [],
+          "var_participant": 0.41736507260481565,
+          "var_residual": 0.07597144617202448
+        },
+        "block1_rel_effect": {
+          "term": "rel_c",
+          "estimate": 0.18803418803418803,
+          "se": 0.16353893553377752,
+          "ci_low": -0.13249623821033668,
+          "ci_high": 0.5085646142787128,
+          "z": 1.1497823892546448,
+          "p": 0.2502335103791876
+        },
+        "p_holm": 1.4323360167366249e-32,
+        "supported": true
+      },
+      "H3": {
+        "id": "H3",
+        "outcome": "Post-error WoA",
+        "model": "woa ~ place_c * rel_c + (1|pid), post-error trials",
+        "test": "Placement (propagating - absorbed)",
+        "predicted_sign": -1,
+        "term": "place_c",
+        "estimate": -0.14158396915811278,
+        "se": 0.021572336804128074,
+        "ci_low": -0.18386497269007884,
+        "ci_high": -0.0993029656261467,
+        "z": -6.563218924480139,
+        "p": 5.265844668407505e-11,
+        "d": -0.5095443063805007,
+        "d_ci_low": -0.6617087409974454,
+        "d_ci_high": -0.3573798717635561,
+        "meta": {
+          "random_effects": "random intercept [REML, powell]",
+          "n_obs": 673,
+          "n_participants": 74,
+          "converged": true,
+          "warnings": [
+            "The MLE may be on the boundary of the parameter space."
+          ],
+          "var_participant": 0.009989182598866697,
+          "var_residual": 0.06721916537618836
+        },
+        "interaction": {
+          "term": "place_c:rel_c",
+          "estimate": 0.0884926741861979,
+          "se": 0.04314467360825615,
+          "ci_low": 0.003930667122265738,
+          "ci_high": 0.17305468125013007,
+          "z": 2.0510683425187386,
+          "p": 0.04026029173441768
+        },
+        "sensitivity_with_ai_correct": {
+          "term": "place_c",
+          "estimate": -0.11291953826675259,
+          "se": 0.021538463811147192,
+          "ci_low": -0.1551341519519039,
+          "ci_high": -0.0707049245816013,
+          "z": -5.242692294903191,
+          "p": 1.582503265114187e-07
+        },
+        "sensitivity_truncated_woa": {
+          "term": "place_c",
+          "estimate": -0.12758779256361646,
+          "se": 0.019803970538281142,
+          "ci_low": -0.16640286187570813,
+          "ci_high": -0.0887727232515248,
+          "z": -6.442535971106846,
+          "p": 1.174935050457207e-10
+        },
+        "post_error_trials_that_are_errors": {
+          "high/absorbed": {
+            "n": 105,
+            "share_ai_error": 0.06666666666666665
+          },
+          "high/propagating": {
+            "n": 105,
+            "share_ai_error": 0.19047619047619047
+          },
+          "low/absorbed": {
+            "n": 230,
+            "share_ai_error": 0.27391304347826084
+          },
+          "low/propagating": {
+            "n": 233,
+            "share_ai_error": 0.5751072961373391
+          }
+        },
+        "p_holm": 2.106337867363002e-10,
+        "supported": true
+      },
+      "H4a": {
+        "id": "H4a",
+        "outcome": "Decision error |Q_final - Q*|",
+        "model": "decision_error ~ rel_c + C(block) + (1|pid)",
+        "test": "Reliability (80 % - 60 %)",
+        "predicted_sign": -1,
+        "term": "rel_c",
+        "estimate": -6.954652014652022,
+        "se": 1.6041227184435383,
+        "ci_low": -10.098674794383493,
+        "ci_high": -3.810629234920551,
+        "z": -4.335486265913645,
+        "p": 1.4543825541634869e-05,
+        "d": -0.21512251491393108,
+        "d_ci_low": -0.3123739785238417,
+        "d_ci_high": -0.11787105130402051,
+        "meta": {
+          "random_effects": "random intercept [REML, powell]",
+          "n_obs": 2220,
+          "n_participants": 74,
+          "converged": true,
+          "warnings": [],
+          "var_participant": 13.062328390762222,
+          "var_residual": 1032.0887569812228
+        },
+        "p_holm": 4.3631476624904606e-05,
+        "supported": true
+      },
+      "H4b": {
+        "id": "H4b",
+        "outcome": "Post-error decision error",
+        "model": "decision_error ~ rel_c * place_c + (1|pid), post-error trials",
+        "test": "Reliability x Placement (gap widens after propagating)",
+        "predicted_sign": -1,
+        "term": "rel_c:place_c",
+        "estimate": -4.173137973137974,
+        "se": 5.760206470759222,
+        "ci_low": -15.462935288393103,
+        "ci_high": 7.1166593421171545,
+        "z": -0.7244771510053069,
+        "p": 0.4687728498208521,
+        "d": -0.11973080573922168,
+        "d_ci_low": -0.4436444979988537,
+        "d_ci_high": 0.20418288652041033,
+        "meta": {
+          "random_effects": "random intercept [REML, powell]",
+          "n_obs": 678,
+          "n_participants": 74,
+          "converged": true,
+          "warnings": [],
+          "var_participant": 12.41768936383194,
+          "var_residual": 1202.4071885730477
+        },
+        "sensitivity_with_ai_correct": {
+          "term": "rel_c:place_c",
+          "estimate": -1.0299785938643706,
+          "se": 5.641846230138388,
+          "ci_low": -12.087794098471326,
+          "ci_high": 10.027836910742584,
+          "z": -0.18256055763489082,
+          "p": 0.8551428346015558
+        },
+        "post_error_trials_that_are_errors": {
+          "high/absorbed": {
+            "n": 105,
+            "share_ai_error": 0.06666666666666665
+          },
+          "high/propagating": {
+            "n": 105,
+            "share_ai_error": 0.19047619047619047
+          },
+          "low/absorbed": {
+            "n": 234,
+            "share_ai_error": 0.2692307692307693
+          },
+          "low/propagating": {
+            "n": 234,
+            "share_ai_error": 0.5726495726495726
+          }
+        },
+        "p_holm": 0.4687728498208521,
+        "supported": false
+      },
+      "AR": {
+        "id": "AR",
+        "outcome": "Appropriate reliance (binary, Schemmer CA/IA trials)",
+        "model": "logit P(AR=1) ~ rel_c * C(block, sum) + (1|pid)  [ML, Gauss-Hermite 30]",
+        "test": "Reliability (log-odds, 80 % - 60 %)",
+        "predicted_sign": 0,
+        "term": "rel_c",
+        "estimate": 0.19468425809297085,
+        "se": 0.1450579495290381,
+        "ci_low": -0.0896241008977608,
+        "ci_high": 0.4789926170837025,
+        "z": 1.3421136774996147,
+        "p": 0.1795591397526094,
+        "odds_ratio": 1.2149273224538175,
+        "or_ci_low": 0.9142747957606713,
+        "or_ci_high": 1.6144472161859595,
+        "interaction_wald_chi2": 4.189057885342478,
+        "interaction_p": 0.1231282304506739,
+        "meta": {
+          "method": "ML GLMM, non-adaptive Gauss-Hermite quadrature (30 nodes)",
+          "n_obs": 1010,
+          "n_participants": 74,
+          "sigma_participant": 0.0011167037750846095,
+          "converged": false,
+          "terms": {
+            "Intercept": 0.9993136962573604,
+            "rel_c": 0.19468425809297085,
+            "block1": -0.17852273231073507,
+            "block2": 0.10855795101019965,
+            "rel_c:block1": -0.0076298707408199926,
+            "rel_c:block2": 0.6578293516402877
+          }
+        },
+        "robustness": {
+          "sensitivity_with_case_type": {
+            "estimate": 0.30354638335444084,
+            "se": 0.15250068166863273,
+            "ci_low": 0.004650537308460767,
+            "ci_high": 0.6024422294004209,
+            "p": 0.04654037521095234,
+            "share_IA_by_condition": {
+              "high": 0.24666666666666667,
+              "low": 0.5571428571428572
+            }
+          },
+          "gee_exchangeable": {
+            "estimate": 0.19568456019302108,
+            "se": 0.13973402150712363,
+            "p": 0.16139135008489724
+          },
+          "bayes_mixed_glm_vb": {
+            "posterior_mean": 0.19291358005394516,
+            "posterior_sd": 0.14189709213881796
+          }
+        },
+        "p_holm": 0.3591182795052188,
+        "supported": false
+      }
+    },
+    "secondary": {
+      "H1_truncated_woa": {
+        "id": "H1-trunc",
+        "term": "rel_c",
+        "estimate": 0.1919900337017014,
+        "se": 0.024256609885920655,
+        "ci_low": 0.1444479515632528,
+        "ci_high": 0.23953211584015,
+        "z": 7.914957391186755,
+        "p": 2.473377844315274e-15,
+        "d": 0.7381716481132031,
+        "d_ci_low": 0.5553797789196259,
+        "d_ci_high": 0.9209635173067803,
+        "meta": {
+          "random_effects": "random intercept [REML, powell]",
+          "n_obs": 2206,
+          "n_participants": 74,
+          "converged": true,
+          "warnings": [
+            "The MLE may be on the boundary of the parameter space."
+          ],
+          "var_participant": 0.008774338050084755,
+          "var_residual": 0.05887174404375994
+        }
+      },
+      "cost_block_level": {
+        "id": "H4-cost (secondary)",
+        "outcome": "Block cost (sum of 10 weeks)",
+        "term": "rel_c",
+        "estimate": -257.4268620268624,
+        "se": 113.3095540664268,
+        "ci_low": -479.50950885311255,
+        "ci_high": -35.34421520061227,
+        "z": -2.2718901697905194,
+        "p": 0.023093144789118458,
+        "d": -0.31158568256258057,
+        "d_ci_low": -0.580391247575609,
+        "d_ci_high": -0.04278011754955212,
+        "meta": {
+          "random_effects": "random intercept [REML, powell]",
+          "n_obs": 222,
+          "n_participants": 74,
+          "converged": true,
+          "warnings": [],
+          "var_participant": 13953.417790146725,
+          "var_residual": 668625.292575364
+        }
+      }
+    }
+  },
+  "exploratory": {
+    "rair_rsr": {
+      "rair": {
+        "high": {
+          "n": 35,
+          "mean": 0.8000902878633971,
+          "ci_low": 0.7548283329517422,
+          "ci_high": 0.8453522427750519
+        },
+        "low": {
+          "n": 39,
+          "mean": 0.626862026862027,
+          "ci_low": 0.5534780488727887,
+          "ci_high": 0.7002460048512652
+        },
+        "high_minus_low": {
+          "diff": 0.17322826100137012,
+          "ci_low": 0.0881871239162699,
+          "ci_high": 0.2582693980864703,
+          "p_welch": 0.0001342390746695919
+        }
+      },
+      "rsr": {
+        "high": {
+          "n": 35,
+          "mean": 0.5957142857142858,
+          "ci_low": 0.4671287933759479,
+          "ci_high": 0.7242997780526236
+        },
+        "low": {
+          "n": 39,
+          "mean": 0.8132358382358382,
+          "ci_low": 0.7616580497936263,
+          "ci_high": 0.8648136266780502
+        },
+        "high_minus_low": {
+          "diff": -0.21752155252155247,
+          "ci_low": -0.3549144073460926,
+          "ci_high": -0.08012869769701236,
+          "p_welch": 0.0026034769459074313
+        }
+      },
+      "rair_switch": {
+        "high": {
+          "n": 35,
+          "mean": 0.6384960371094826,
+          "ci_low": 0.560204697478914,
+          "ci_high": 0.7167873767400511
+        },
+        "low": {
+          "n": 39,
+          "mean": 0.3616198616198616,
+          "ci_low": 0.28854387113720775,
+          "ci_high": 0.43469585210251543
+        },
+        "high_minus_low": {
+          "diff": 0.27687617548962096,
+          "ci_low": 0.1716074217273439,
+          "ci_high": 0.382144929251898,
+          "p_welch": 1.548607204178669e-06
+        }
+      },
+      "rsr_keep": {
+        "high": {
+          "n": 35,
+          "mean": 0.5304761904761903,
+          "ci_low": 0.411589674108021,
+          "ci_high": 0.6493627068443597
+        },
+        "low": {
+          "n": 39,
+          "mean": 0.7739695489695491,
+          "ci_low": 0.7158439549902973,
+          "ci_high": 0.8320951429488008
+        },
+        "high_minus_low": {
+          "diff": -0.24349335849335874,
+          "ci_low": -0.3743991566365702,
+          "ci_high": -0.11258756035014728,
+          "p_welch": 0.00048154143714328944
+        }
+      },
+      "rsr_by_error_placement": {
+        "high/absorbed": {
+          "n": 31,
+          "mean": 0.5161290322580645,
+          "ci_low": 0.3541110584475716,
+          "ci_high": 0.6781470060685574
+        },
+        "high/propagating": {
+          "n": 30,
+          "mean": 0.7222222222222221,
+          "ci_low": 0.5775718673725897,
+          "ci_high": 0.8668725770718545
+        },
+        "low/absorbed": {
+          "n": 39,
+          "mean": 0.8123931623931625,
+          "ci_low": 0.7401660042601235,
+          "ci_high": 0.8846203205262015
+        },
+        "low/propagating": {
+          "n": 39,
+          "mean": 0.8256410256410257,
+          "ci_low": 0.7578223254453694,
+          "ci_high": 0.893459725836682
+        }
+      },
+      "ambiguity": {
+        "CA_trials": 587,
+        "IA_trials": 423,
+        "CA_final_right_but_not_switched": 126,
+        "IA_final_right_but_not_kept": 57,
+        "CA_anchor_ambiguous": 34,
+        "IA_anchor_ambiguous": 25,
+        "excluded_confirmation_or_both_wrong": 1210
+      }
+    },
+    "recovery": {
+      "onsets": [
+        6,
+        9,
+        13,
+        17,
+        21,
+        26
+      ],
+      "by_onset_condition": {
+        "week6/high": {
+          "n": 35,
+          "mean": 0.11428571428571428,
+          "ci_low": -0.02441200540258652,
+          "ci_high": 0.25298343397401507,
+          "share_impacted": 0.08571428571428572,
+          "n_censored": 0
+        },
+        "week6/low": {
+          "n": 39,
+          "mean": 0.41025641025641024,
+          "ci_low": 0.12495125749494673,
+          "ci_high": 0.6955615630178738,
+          "share_impacted": 0.20512820512820512,
+          "n_censored": 2
+        },
+        "week9/high": {
+          "n": 35,
+          "mean": 1.1714285714285715,
+          "ci_low": 0.6965706510939664,
+          "ci_high": 1.6462864917631765,
+          "share_impacted": 0.5142857142857142,
+          "n_censored": 3
+        },
+        "week9/low": {
+          "n": 39,
+          "mean": 1.0256410256410255,
+          "ci_low": 0.6218072966153996,
+          "ci_high": 1.4294747546666515,
+          "share_impacted": 0.5384615384615384,
+          "n_censored": 3
+        },
+        "week13/high": {
+          "n": 35,
+          "mean": 0.11428571428571428,
+          "ci_low": -0.1179708010648821,
+          "ci_high": 0.34654222963631065,
+          "share_impacted": 0.02857142857142857,
+          "n_censored": 1
+        },
+        "week13/low": {
+          "n": 39,
+          "mean": 0.3076923076923077,
+          "ci_low": 0.02790809309935305,
+          "ci_high": 0.5874765222852624,
+          "share_impacted": 0.15384615384615385,
+          "n_censored": 1
+        },
+        "week17/high": {
+          "n": 35,
+          "mean": 3.857142857142857,
+          "ci_low": 3.6682046863689672,
+          "ci_high": 4.046081027916747,
+          "share_impacted": 1.0,
+          "n_censored": 32
+        },
+        "week17/low": {
+          "n": 39,
+          "mean": 3.9743589743589745,
+          "ci_low": 3.922451431694565,
+          "ci_high": 4.026266517023384,
+          "share_impacted": 1.0,
+          "n_censored": 38
+        },
+        "week21/high": {
+          "n": 35,
+          "mean": 1.2857142857142858,
+          "ci_low": 0.7550405107773632,
+          "ci_high": 1.8163880606512084,
+          "share_impacted": 0.5714285714285714,
+          "n_censored": 2
+        },
+        "week21/low": {
+          "n": 39,
+          "mean": 1.4615384615384615,
+          "ci_low": 1.022539596461597,
+          "ci_high": 1.9005373266153258,
+          "share_impacted": 0.7435897435897436,
+          "n_censored": 2
+        },
+        "week26/high": {
+          "n": 35,
+          "mean": 0.2571428571428571,
+          "ci_low": -0.0234513541404604,
+          "ci_high": 0.5377370684261746,
+          "share_impacted": 0.11428571428571428,
+          "n_censored": 1
+        },
+        "week26/low": {
+          "n": 39,
+          "mean": 0.6410256410256411,
+          "ci_low": 0.23040138842140556,
+          "ci_high": 1.0516498936298766,
+          "share_impacted": 0.28205128205128205,
+          "n_censored": 4
+        }
+      },
+      "mean_per_participant_high_minus_low": {
+        "diff": -0.17008547008547037,
+        "ci_low": -0.3513369847635111,
+        "ci_high": 0.011166044592570368,
+        "p_welch": 0.06540660877863382
+      }
+    },
+    "perceived_vs_actual": {
+      "by_condition": {
+        "high": {
+          "perceived": {
+            "n": 35,
+            "mean": 76.62857142857143,
+            "ci_low": 73.3952988385891,
+            "ci_high": 79.86184401855377
+          },
+          "actual": {
+            "n": 35,
+            "mean": 80.0,
+            "ci_low": 80.0,
+            "ci_high": 80.0
+          },
+          "calibration_error": {
+            "n": 35,
+            "mean": -3.3714285714285714,
+            "ci_low": -6.604701161410906,
+            "ci_high": -0.13815598144623698
+          }
+        },
+        "low": {
+          "perceived": {
+            "n": 39,
+            "mean": 63.35897435897436,
+            "ci_low": 59.7016972529026,
+            "ci_high": 67.01625146504611
+          },
+          "actual": {
+            "n": 39,
+            "mean": 60.0,
+            "ci_low": 60.0,
+            "ci_high": 60.0
+          },
+          "calibration_error": {
+            "n": 39,
+            "mean": 3.358974358974359,
+            "ci_low": -0.29830274709739957,
+            "ci_high": 7.016251465046118
+          }
+        }
+      },
+      "manipulation_check_high_minus_low": {
+        "diff": 13.269597069597076,
+        "ci_low": 8.47033641584373,
+        "ci_high": 18.06885772335042,
+        "p_welch": 5.281223184368353e-07
+      },
+      "pearson_r_perceived_actual": {
+        "r": 0.5410065208834021,
+        "p": 6.476739125767731e-07,
+        "n": 74
+      }
+    },
+    "outcome_bias_split": {
+      "n_post_error_trials": 671,
+      "cells": {
+        "not_followed/good": {
+          "n": 358,
+          "mean": 0.3097869136609946,
+          "ci_low": 0.2796665242099923,
+          "ci_high": 0.3399073031119969
+        },
+        "not_followed/bad": {
+          "n": 123,
+          "mean": 0.3430844407572946,
+          "ci_low": 0.28321466689412494,
+          "ci_high": 0.40295421462046427
+        },
+        "followed/good": {
+          "n": 156,
+          "mean": 0.41461496998323166,
+          "ci_low": 0.36537248361007335,
+          "ci_high": 0.46385745635639
+        },
+        "followed/bad": {
+          "n": 34,
+          "mean": 0.36624520438004116,
+          "ci_low": 0.26216595086017597,
+          "ci_high": 0.47032445789990635
+        }
+      },
+      "followed_model": {
+        "model": "WoA_{t+1} ~ bad_outcome + rel_c + (1|pid)",
+        "term": "bad_outcome",
+        "estimate": -0.06188350091790688,
+        "se": 0.05376789786261743,
+        "ci_low": -0.167266645084314,
+        "ci_high": 0.043499643248500225,
+        "z": -1.1509377040557855,
+        "p": 0.24975786494629326,
+        "n_obs": 190
+      }
+    },
+    "tlx_by_block": {
+      "block1/high": {
+        "n": 35,
+        "mean": 10.222857142857142,
+        "ci_low": 9.771184692267425,
+        "ci_high": 10.67452959344686
+      },
+      "block1/low": {
+        "n": 39,
+        "mean": 9.87179487179487,
+        "ci_low": 9.416631939699784,
+        "ci_high": 10.326957803889957
+      },
+      "block2/high": {
+        "n": 35,
+        "mean": 10.217142857142859,
+        "ci_low": 9.677111570185803,
+        "ci_high": 10.757174144099915
+      },
+      "block2/low": {
+        "n": 39,
+        "mean": 10.266666666666667,
+        "ci_low": 9.842747448512327,
+        "ci_high": 10.690585884821008
+      },
+      "block3/high": {
+        "n": 35,
+        "mean": 10.434285714285716,
+        "ci_low": 9.957868376807447,
+        "ci_high": 10.910703051763985
+      },
+      "block3/low": {
+        "n": 39,
+        "mean": 10.092307692307692,
+        "ci_low": 9.554005544186573,
+        "ci_high": 10.63060984042881
+      }
+    }
+  }
+}

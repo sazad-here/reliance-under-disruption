@@ -1,0 +1,25 @@
+==============================================================================
+PATCHTST v2 -- cross-channel fusion, attention pooling, honest calibration
+==============================================================================
+  channels: 8 raw + 3 derived + 11 rolling = 22
+  windows:  14976 train / 4752 val / 5232 test
+C:\Users\ZhuanZ\AppData\Local\Programs\Python\Python313\Lib\site-packages\torch\nn\modules\transformer.py:392: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+  params:   199470  (v1 had 134,737)
+
+  seed 0  60e (best@32, best)    224s  acc 0.866  AUROC 0.868  PR-AUC 0.679  F1 0.566  ECE 0.011
+
+==============================================================================
+COMPARISON  (same corpus, same episode-level splits)
+==============================================================================
+  metric            PatchTST v2       LogReg    GradBoost
+  ------------------------------------------------------------
+  accuracy         0.866+/-0.000        0.864        0.855  <-- beats BOTH baselines
+  auroc            0.868+/-0.000        0.900        0.897
+  pr_auc           0.679+/-0.000        0.762        0.752
+  ece              0.011+/-0.000        0.014        0.013  <-- beats BOTH baselines
+
+  majority-class accuracy: 0.809
+  MC-dropout spread:       0.037
+
+  written -> results/patchtst_v2.json

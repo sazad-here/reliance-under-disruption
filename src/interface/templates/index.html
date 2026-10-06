@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warehouse Ordering Study</title>
+<!--
+  Same tokens and themes as task.html (UI v3.1, 28 Sep 2026). Visual polish only:
+  wording, ids, the desktop-only rule and the /api/start payload are unchanged.
+  v3.2 (28 Sep 2026): participation is voluntary and unpaid, recruited through the
+  SONA participant pool. The ID field accepts ?id= and ?participant= from the study
+  URL as well as the older platform parameter; the /api/start payload keeps its
+  field names (storage names only).
+  Motion 13.4.4 (MIT) is served from /static/vendor/motion/ (never a CDN); the
+  step transitions are 200 ms fade + rise and are skipped under reduced motion.
+-->
+<style>
+  :root { color-scheme:light;
+          --bg:#f2f4f7; --card:#ffffff; --card-2:#f6f8fa; --line:#d9dfe6; --line-2:#e7ebf0;
+          --ink:#121922; --ink-2:#394552; --muted:#586473;
+          --human:#2a78d6; --human-soft:#e7f0fb; --btn:#2468c0; --critical:#c33030; --critical-soft:#fbeaea;
+          --focus:#2468c0; --radius:14px; --radius-sm:8px;
+          --shadow-1:0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.04);
+          --shadow-2:0 18px 40px -16px rgba(16,24,40,.18), 0 2px 6px rgba(16,24,40,.05); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme:dark;
+          --bg:#0e1115; --card:#171b20; --card-2:#1d2228; --line:#2c333b; --line-2:#232930;
+          --ink:#edf0f3; --ink-2:#c6cdd5; --muted:#97a2ad;
+          --human:#3987e5; --human-soft:#15253a; --btn:#2468c0; --critical:#ec7272; --critical-soft:#331b1b;
+          --focus:#7cb0ee; --shadow-1:0 1px 2px rgba(0,0,0,.35); --shadow-2:0 18px 40px -16px rgba(0,0,0,.6); } }
+  :root[data-theme="dark"] { color-scheme:dark;
+          --bg:#0e1115; --card:#171b20; --card-2:#1d2228; --line:#2c333b; --line-2:#232930;
+          --ink:#edf0f3; --ink-2:#c6cdd5; --muted:#97a2ad;
+          --human:#3987e5; --human-soft:#15253a; --btn:#2468c0; --critical:#ec7272; --critical-soft:#331b1b;
+          --focus:#7cb0ee; --shadow-1:0 1px 2px rgba(0,0,0,.35); --shadow-2:0 18px 40px -16px rgba(0,0,0,.6); }
+  :root { --i-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+          --i-alert:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='M12 7.5v5.5M12 16.5h.01'/%3E%3C/svg%3E"); }
+  * { box-sizing:border-box; }
+  body { margin:0; padding-block:40px; padding-inline:16px;
+         font:16px/1.6 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+         color:var(--ink); background:var(--bg); -webkit-font-smoothing:antialiased; }
+  main { max-width:700px; margin:0 auto; background:var(--card); border:1px solid var(--line);
+         border-radius:var(--radius); padding:36px 40px; box-shadow:var(--shadow-2); }
+  @media (max-width:560px) { main { padding:22px; } }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 4px; text-wrap:balance; letter-spacing:-.01em; }
+  h2 { font-size:1.25rem; margin:0 0 8px; letter-spacing:-.005em; }
+  .sub { color:var(--muted); margin:0 0 24px; }
+  p, li { max-width:64ch; }
+  label { display:block; font-weight:600; margin:22px 0 6px; }
+  input[type=text] { width:100%; min-height:48px; padding:10px 14px; font:inherit; color:var(--ink); background:var(--card);
+                     border:2px solid var(--line); border-radius:var(--radius-sm); transition:border-color .15s, box-shadow .15s; }
+  input[type=text]:hover { border-color:var(--muted); }
+  input[type=text]:focus { border-color:var(--human); outline:none; box-shadow:0 0 0 4px var(--human-soft); }
+  input[aria-invalid="true"] { border-color:var(--critical) !important; }
+  ul { padding-left:20px; }
+  li { margin:3px 0; }
+  a { color:var(--human); text-underline-offset:3px; }
+  .consent { display:flex; gap:14px; align-items:flex-start; margin:22px 0; background:var(--card-2);
+             border:1.5px solid var(--line); border-radius:10px; padding:16px; cursor:pointer;
+             transition:border-color .15s, background-color .15s; }
+  .consent:has(input:checked) { border-color:var(--human); background:var(--human-soft); }
+  .consent input { margin-top:4px; width:20px; height:20px; accent-color:var(--human); flex:none; cursor:pointer; }
+  .q { margin:14px 0; padding:14px 16px; border:1px solid var(--line-2); border-radius:10px; background:var(--card-2); }
+  .q label { font-weight:500; margin:0 0 8px; }
+  .q label b { display:inline-grid; place-items:center; width:24px; height:24px; margin-right:8px; border-radius:50%;
+               background:var(--card); border:1px solid var(--line); font-size:.8rem; vertical-align:1px; }
+  .q input { width:200px; font-variant-numeric:tabular-nums; }
+  .actions { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:8px; }
+  button { min-height:48px; padding:12px 24px; font:inherit; font-weight:600; color:#fff;
+           background:var(--btn); border:0; border-radius:var(--radius-sm); cursor:pointer;
+           box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 1px 2px rgba(16,24,40,.12); transition:filter .15s; }
+  button:hover:not(:disabled) { filter:brightness(1.1); }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  .hint { font-size:.85rem; color:var(--muted); }
+  .kbd kbd { font:600 .74rem ui-monospace,"Cascadia Mono",Consolas,monospace; padding:1px 6px; border:1px solid var(--line);
+             border-bottom-width:2px; border-radius:4px; background:var(--card-2); color:var(--ink-2); }
+  .err { display:flex; gap:7px; align-items:flex-start; color:var(--critical); margin-top:12px; min-height:1.2em; font-weight:600; font-size:.95rem; }
+  .err:not(:empty)::before { content:""; flex:none; width:16px; height:16px; margin-top:4px; background:currentColor;
+         -webkit-mask:var(--i-alert) center/contain no-repeat; mask:var(--i-alert) center/contain no-repeat; }
+  .hide { display:none; }
+  .muted { color:var(--muted); font-size:.95rem; }
+  .steps { display:flex; gap:4px; margin:0 0 26px; padding:4px; list-style:none; font-size:.86rem; color:var(--muted);
+           border:1px solid var(--line); border-radius:10px; background:var(--card-2); }
+  .steps li { flex:1; display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:7px; margin:0; max-width:none; }
+  .steps li b { display:inline-grid; place-items:center; width:22px; height:22px; flex:none; border-radius:50%; font-size:.76rem;
+                background:var(--card); border:1px solid var(--line); color:var(--ink-2); }
+  .steps li[aria-current="step"] { background:var(--card); color:var(--ink); font-weight:600; box-shadow:inset 0 0 0 1.5px var(--human); }
+  .steps li[aria-current="step"] b { background:var(--btn); border-color:var(--btn); color:#fff; }
+  .steps li.done { color:var(--ink-2); }
+  .steps li.done b { color:transparent; position:relative; }
+  .steps li.done b::after { content:""; position:absolute; inset:5px; background:var(--ink-2);
+                            -webkit-mask:var(--i-check) center/contain no-repeat; mask:var(--i-check) center/contain no-repeat; }
+  /* Desktop-only notice: meaning is carried by the heading and text, not by colour. */
+  .notice { background:var(--card-2); border:1px solid var(--line); border-left:4px solid var(--human);
+            border-radius:10px; padding:16px 18px; margin:0 0 18px; }
+  .notice h2 { margin:0 0 6px; }
+  .notice p { margin:0 0 10px; }
+  .notice p:last-child { margin-bottom:0; }
+  ol.todo { padding-left:22px; margin:0 0 10px; }
+  ol.todo li { margin:4px 0; }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <!-- ===== desktop-only gate =====
+       Shown instead of consent when the device looks like a phone/tablet or the
+       window is too narrow for the warehouse screen. Re-checked on resize, so a
+       laptop user who widens the window gets straight through. The server
+       re-checks the same `device` fields on /api/start (code desktop_required). -->
+  <section id="desktopOnly" class="hide" aria-labelledby="desktopOnlyTitle">
+    <h1>Warehouse Ordering Study</h1>
+    <p class="sub">Decision-making with an AI forecasting assistant</p>
+    <div class="notice" role="status" aria-live="polite">
+      <h2 id="desktopOnlyTitle" tabindex="-1">Please use a desktop or laptop computer</h2>
+      <p>This study has to be done on a desktop or laptop computer with a keyboard.
+      A phone or tablet can't show the warehouse screen properly.</p>
+      <p><strong>What to do:</strong></p>
+      <ol class="todo">
+        <li>Open this same link on a desktop or laptop computer.</li>
+        <li>If you are already on a laptop or desktop, make your browser window
+        larger (maximise it). This page checks again automatically when the
+        window size changes.</li>
+      </ol>
+      <p>You can come back to this study later from your computer, using the same link.</p>
+    </div>
+  </section>
+
+  <!-- ===== step 1: information and consent ===== -->
+  <section id="step1">
+    <ol class="steps" aria-label="Before you start"><li aria-current="step"><b>1</b>Consent</li><li><b>2</b>Three quick questions</li><li><b>3</b>The task</li></ol>
+    <h1>Warehouse Ordering Study</h1>
+    <p class="sub">Decision-making with an AI forecasting assistant</p>
+
+    <p>You will manage a warehouse for 30 weeks. Each week you see the current
+    stock position and decide how many units to order. An AI assistant will offer
+    a recommendation, but <strong>you decide</strong>.</p>
+
+    <p>On every week you will be asked twice:</p>
+    <ul>
+      <li>first for <strong>your own order</strong>, before the assistant's advice appears;</li>
+      <li>then for your <strong>final order</strong>, after you have seen it.</li>
+    </ul>
+
+    <p>Five practice weeks come first. The session takes about 45&ndash;60 minutes,
+    including short questionnaires after every ten weeks. Taking part is voluntary
+    and unpaid.</p>
+
+    <p><a href="/info" target="_blank" rel="noopener" id="infolink">Read the participant information sheet</a>
+    (opens in a new tab). Please read it before you consent.</p>
+
+    <label for="pid">Participant ID</label>
+    <p class="hint" id="pidhint" style="margin:-2px 0 8px">Use the ID shown in SONA, or any code you will
+    remember (3&ndash;32 letters or numbers).</p>
+    <input type="text" id="pid" autocomplete="off" aria-describedby="pidhint">
+
+    <div class="consent">
+      <input type="checkbox" id="consent">
+      <label for="consent" style="margin:0;font-weight:400;cursor:pointer">
+        I have read the information sheet, I am 18 or older, and I consent to take
+        part. I understand that taking part is voluntary and unpaid, that I may stop
+        at any time without giving a reason, and that I may ask for my data to be
+        deleted.
+      </label>
+    </div>
+
+    <div class="actions">
+      <button id="next1" disabled aria-describedby="next1hint">Continue</button>
+      <span class="hint" id="next1hint">Enter your participant ID and tick the box to continue.</span>
+    </div>
+    <div class="err" id="err1"></div>
+  </section>
+
+  <!-- ===== step 2: numeracy screener ===== -->
+  <section id="step2" class="hide">
+    <ol class="steps" aria-label="Before you start"><li class="done"><b>1</b>Consent</li><li aria-current="step"><b>2</b>Three quick questions</li><li><b>3</b>The task</li></ol>
+    <h2>Three quick questions</h2>
+    <p class="muted">These check that the task will make sense to you. Please answer
+    without a calculator; there is no time limit. Enter a number for each.</p>
+    <div id="items"></div>
+    <div class="actions">
+      <button id="go">Submit and begin</button>
+      <span class="hint kbd"><kbd>Enter</kbd> moves to the next question</span>
+    </div>
+    <div class="err" id="err2" role="alert"></div>
+  </section>
+
+  <!-- ===== screened out ===== -->
+  <section id="screened" class="hide">
+    <h2>Thank you</h2>
+    <p>Based on your answers, this particular task is not a good fit, so the study ends
+    here. Thank you for your time. No task data has been recorded about you.</p>
+    <p class="muted">You may now close this window.</p>
+  </section>
+</main>
+
+<!-- Motion 13.4.4 (MIT, formerly Framer Motion), vanilla build, served from this app -->
+<script src="/static/vendor/motion/motion.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+// Section entrances: 200 ms fade + rise, never awaited, off under reduced motion.
+const M = (window.Motion && typeof window.Motion.animate === 'function') ? window.Motion : null;
+const reduceMQ = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+function reveal(el) {
+  if (!el || !M || reduceMQ.matches) return;
+  el.style.opacity = '0'; el.style.transform = 'translateY(8px)';
+  const a = M.animate(el, { opacity: [0, 1], y: [8, 0] }, { duration: 0.2, ease: 'easeOut' });
+  // Never leave a section faded if the tab was throttled mid-animation.
+  setTimeout(() => { if (el.style.opacity !== '1') { try { a.stop(); } catch (e) {} el.style.opacity = ''; el.style.transform = ''; } }, 700);
+}
+function showSection(id) { $(id).classList.remove('hide'); reveal($(id)); }
+
+// ---------- desktop-only gate ----------
+// The study is desktop-only: the warehouse screen needs width and a keyboard.
+// These five fields are also sent to /api/start so the server can apply the
+// same rule and log what device each participant used.
+const MIN_VIEWPORT_W = 1000;
+const MOBILE_UA = /Mobi|Android|iPhone|iPad/;
+function readDevice() {
+  let coarse = false;
+  try { coarse = window.matchMedia('(pointer: coarse)').matches; } catch (e) { coarse = false; }
+  return { ua: navigator.userAgent, screen_w: screen.width, screen_h: screen.height,
+           viewport_w: window.innerWidth, pointer_coarse: coarse };
+}
+function isDesktop(d) {
+  return d.viewport_w >= MIN_VIEWPORT_W && !d.pointer_coarse && !MOBILE_UA.test(d.ua);
+}
+let gateShown = false;       // desktop-only section currently visible
+let gateLocked = false;      // server said desktop_required: don't auto-hide on resize
+let consentPassed = false;   // once past step 1 the resize check no longer moves the user back
+function showGate(shown) {
+  if (shown === gateShown) return;
+  gateShown = shown;
+  $('desktopOnly').classList.toggle('hide', !shown);
+  if (shown) {
+    for (const id of ['step1', 'step2', 'screened']) $(id).classList.add('hide');
+    reveal($('desktopOnly'));
+    $('desktopOnlyTitle').focus();
+  } else {
+    showSection(consentPassed ? 'step2' : 'step1');
+  }
+}
+function checkDevice() {
+  if (gateLocked) return;
+  showGate(!isDesktop(readDevice()));
+}
+checkDevice();
+let resizeTimer = null;
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(checkDevice, 150); });
+
+const params = new URLSearchParams(window.location.search);
+// A recruitment ID can arrive in the study URL: ?id= or ?participant= (the SONA
+// study link), or the older platform parameter that the demos and tests use. It
+// pre-fills the field and is also sent as the recruitment ID (stored under the
+// existing column name, a storage name only).
+const URL_ID = params.get('PROLIFIC_PID') || params.get('id') || params.get('participant');
+if (URL_ID && !$('pid').value) $('pid').value = URL_ID.slice(0, 32);
+
+function refresh() {
+  const ready = !!($('pid').value.trim() && $('consent').checked);
+  $('next1').disabled = !ready;
+  $('next1hint').classList.toggle('hide', ready);
+}
+$('pid').addEventListener('input', refresh);
+$('consent').addEventListener('change', refresh);
+refresh();
+
+let ITEMS = [];
+$('next1').addEventListener('click', async () => {
+  $('err1').textContent = '';
+  try {
+    const res = await fetch('/api/numeracy-items');
+    ITEMS = await res.json();
+  } catch (e) { $('err1').textContent = 'Could not load the next step. Please reload.'; return; }
+  $('items').innerHTML = ITEMS.map((it, i) => `
+    <div class="q"><label for="${it.id}"><b aria-hidden="true">${i + 1}</b>${it.text}</label>
+    <input type="text" inputmode="decimal" id="${it.id}" autocomplete="off" aria-describedby="err2"></div>`).join('');
+  consentPassed = true;
+  $('step1').classList.add('hide'); showSection('step2');
+  $(ITEMS[0].id).focus();
+});
+
+// Enter moves to the next question, and submits from the last one.
+$('items').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || e.target.tagName !== 'INPUT') return;
+  e.preventDefault();
+  const i = ITEMS.findIndex(it => it.id === e.target.id);
+  if (i >= 0 && i < ITEMS.length - 1) $(ITEMS[i + 1].id).focus(); else $('go').click();
+});
+$('items').addEventListener('input', e => {
+  if (e.target.getAttribute('aria-invalid')) e.target.removeAttribute('aria-invalid');
+});
+
+$('go').addEventListener('click', async () => {
+  const answers = {};
+  let firstEmpty = null;
+  for (const it of ITEMS) {
+    const v = $(it.id).value.trim();
+    if (!v) { $(it.id).setAttribute('aria-invalid', 'true'); firstEmpty = firstEmpty || $(it.id); continue; }
+    answers[it.id] = v;
+  }
+  if (firstEmpty) { $('err2').textContent = 'Please answer every question.'; firstEmpty.focus(); return; }
+  $('go').disabled = true; $('err2').textContent = '';
+  try {
+    const res = await fetch('/api/start', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ participant_id: $('pid').value.trim(), consented: true,
+                             numeracy: answers, prolific_pid: URL_ID, device: readDevice() })
+    });
+    const data = await res.json();
+    if (data && data.code === 'desktop_required') {
+      // The server's check is authoritative; stay on the notice even if resized.
+      gateLocked = true; gateShown = false; showGate(true); $('go').disabled = false; return;
+    }
+    if (!res.ok) throw new Error(data.error || 'could not start');
+    if (data.screened_out) {
+      $('step2').classList.add('hide'); showSection('screened'); return;
+    }
+    window.location = '/task';
+  } catch (e) { $('err2').textContent = e.message; $('go').disabled = false; }
+});
+</script>
+</body>
+</html>

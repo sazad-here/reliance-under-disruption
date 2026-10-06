@@ -1,0 +1,22 @@
+# Files uploaded by `gcloud builds submit` (Cloud Build) -- same allow-list
+# as .dockerignore, plus the Dockerfile itself which Cloud Build needs.
+# Without this file gcloud would fall back to .gitignore and upload far more.
+*
+
+!Dockerfile
+!.dockerignore
+!requirements.txt
+!src/
+!src/**
+!models/
+!models/live_risk_lgbm.txt
+!models/live_risk_meta.json
+!data/
+!data/processed/
+!data/processed/fitted_params.json
+!data/processed/m5_weekly.npy
+
+**/__pycache__/
+**/*.pyc
+src/tests/
+**/*.sqlite3*

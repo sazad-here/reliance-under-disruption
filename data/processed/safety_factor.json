@@ -1,0 +1,8 @@
+{
+  "calibrated_z": 1.26,
+  "myopic_z": 0.967,
+  "mean_cost_calibrated": 6967.1,
+  "mean_cost_myopic": 7239.3,
+  "n_seeds": 300,
+  "note": "z calibrated by grid search on the simulator because the myopic newsvendor ratio understates the base-stock level in a system that carries backorders forward. Report this choice in the method."
+}

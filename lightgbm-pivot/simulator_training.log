@@ -1,0 +1,52 @@
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+Potential solutions:
+- Use a data structure that matches the device ordinal in the booster.
+- Set the device for booster before call to inplace_predict.
+
+
+  return func(**kwargs)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+corpus f953645593cab9a1 | 24960 rows | 70 series | 116 features | positive 0.215
+fold 0  train 15456 / val 3840 / test 5664 series-disjoint rows   logi 0.887  Ligh 0.888  Ligh 0.885  XGBo 0.889  XGBo 0.888
+fold 1  train 15696 / val 5424 / test 3840 series-disjoint rows   logi 0.876  Ligh 0.873  Ligh 0.873  XGBo 0.875  XGBo 0.876
+fold 2  train 14448 / val 5088 / test 5424 series-disjoint rows   logi 0.897  Ligh 0.896  Ligh 0.897  XGBo 0.899  XGBo 0.898
+fold 3  train 14928 / val 4944 / test 5088 series-disjoint rows   logi 0.919  Ligh 0.914  Ligh 0.913  XGBo 0.916  XGBo 0.916
+fold 4  train 14352 / val 5664 / test 4944 series-disjoint rows   logi 0.878  Ligh 0.875  Ligh 0.877  XGBo 0.875  XGBo 0.876
+
+model                        device     acc   AUROC  PR-AUC     F1    ECE train s    bags
+logistic regression             cpu   0.869   0.893   0.748  0.666  0.011       1       1
+LightGBM                        cpu   0.862   0.891   0.741  0.657  0.009       6       1
+LightGBM EasyEnsemble           cpu   0.862   0.891   0.735  0.653  0.010      19       4
+XGBoost (CUDA)                 cuda   0.864   0.893   0.743  0.657  0.005       7       1
+XGBoost EasyEnsemble (CUDA)    cuda   0.863   0.893   0.740  0.659  0.007      24       4
+
+majority-class accuracy 0.785
+  logistic regression          dAUROC vs LightGBM 95% CI [-0.0007, +0.0043]   dPR-AUC [+0.0005, +0.0134]
+  LightGBM EasyEnsemble        dAUROC vs LightGBM 95% CI [-0.0014, +0.0009]   dPR-AUC [-0.0087, -0.0025]
+  XGBoost (CUDA)               dAUROC vs LightGBM 95% CI [+0.0006, +0.0027]   dPR-AUC [-0.0007, +0.0040]
+  XGBoost EasyEnsemble (CUDA)  dAUROC vs LightGBM 95% CI [+0.0003, +0.0027]   dPR-AUC [-0.0041, +0.0022]
+
+written -> E:\trae project\New folder (2)\lightgbm-pivot\simulator_results.json

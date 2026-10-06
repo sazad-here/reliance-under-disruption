@@ -1,0 +1,78 @@
+protocol identification (VALUE_ONLY needs no model):
+  DataCo value=Sales                      blocks=count VALUE_ONLY 0.2245 (published .222)
+  DataCo value=Sales                      blocks=time  VALUE_ONLY 0.2247 (published .222)
+  DataCo value=Order Item Total           blocks=count VALUE_ONLY 0.2292 (published .222)
+  DataCo value=Order Item Total           blocks=time  VALUE_ONLY 0.2292 (published .222)
+  DataCo value=Order Item Product Price   blocks=count VALUE_ONLY 0.3107 (published .222)
+  DataCo value=Order Item Product Price   blocks=time  VALUE_ONLY 0.3106 (published .222)
+  DataCo value=Sales per customer         blocks=count VALUE_ONLY 0.2292 (published .222)
+  DataCo value=Sales per customer         blocks=time  VALUE_ONLY 0.2292 (published .222)
+  Olist  blocks=count VALUE_ONLY 0.4638 (published .464)
+  Olist  blocks=time  VALUE_ONLY 0.4665 (published .464)
+  -> DataCo value 'Sales', blocks by count; Olist blocks by count
+
+
+
+  return func(**kwargs)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  dataco fold 1  train  30087  test  30086
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  dataco fold 2  train  60173  test  30087
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  dataco fold 3  train  90260  test  30086
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  dataco fold 4  train 120346  test  30087
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  dataco fold 5  train 150433  test  30086
+
+DATACO  Capture@10%          published   XGB(ours)   LightGBM
+  PROB_ONLY               0.108       0.111      0.111
+  M0                      0.212       0.213      0.214
+  BINARYxVALUE            0.287       0.278      0.284
+  M1                      0.323       0.322      0.322
+  RANDOM                  0.100       0.100          -
+  VALUE_ONLY              0.222       0.225          -
+  severity rho            0.386       0.422      0.423
+  severity R2             0.270       0.274      0.276
+  late AUROC                  -       0.776      0.774
+  lgbm_M1 - VALUE_ONLY               +0.100  [+0.096, +0.103]  CLEARS
+  xgb_M1 - VALUE_ONLY                +0.100  [+0.096, +0.103]  CLEARS
+  lgbm_M1 - xgb_M1                   +0.000  [-0.001, +0.001]
+  lgbm_BINARYxVALUE - VALUE_ONLY     +0.061  [+0.058, +0.065]  CLEARS
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  olist fold 1  train  16079  test  16078
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  olist fold 2  train  32157  test  16078
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  olist fold 3  train  48235  test  16079
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  olist fold 4  train  64314  test  16078
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  olist fold 5  train  80392  test  16078
+
+OLIST  Capture@10%          published   XGB(ours)   LightGBM
+  PROB_ONLY               0.150       0.269      0.211
+  M0                      0.144       0.273      0.263
+  BINARYxVALUE            0.430       0.495      0.448
+  M1                      0.415       0.505      0.476
+  RANDOM                  0.097       0.100          -
+  VALUE_ONLY              0.464       0.464          -
+  severity rho            0.075       0.163      0.119
+  severity R2            -0.019       0.013      0.007
+  late AUROC                  -       0.675      0.599
+  lgbm_M1 - VALUE_ONLY               +0.011  [-0.012, +0.032]
+  xgb_M1 - VALUE_ONLY                +0.041  [+0.022, +0.061]  CLEARS
+  lgbm_M1 - xgb_M1                   -0.030  [-0.050, -0.012]
+  lgbm_BINARYxVALUE - VALUE_ONLY     -0.017  [-0.036, +0.003]
+
+written -> E:\trae project\New folder (2)\lightgbm-pivot\li2026_results.json

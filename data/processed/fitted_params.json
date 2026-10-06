@@ -1,0 +1,59 @@
+{
+  "olist": {
+    "measure": "realised purchase-to-delivery lead time (NOT actual-minus-estimated)",
+    "preprocessing": {
+      "rows_total": 99441,
+      "rows_delivered": 96478,
+      "rows_with_dates": 96470,
+      "rows_after_outlier_cut": 96164,
+      "pct_removed": 0.32,
+      "max_lead_days": 60
+    },
+    "lead_time_nominal": 1,
+    "delay_pmf": [
+      0.5176,
+      0.2857,
+      0.1149,
+      0.0818
+    ],
+    "mean_lead_periods": 1.826,
+    "sd_lead_periods": 1.155,
+    "delay_variance": 0.9024,
+    "lead_days_mean": 12.32,
+    "lead_days_median": 10.2,
+    "_rejected_measure": {
+      "note": "what plan section 04 asked for; kept for the audit trail",
+      "pct_arriving_early": 91.9,
+      "median_gap_days": -11.95,
+      "delay_pmf_would_be": [
+        0.9218,
+        0.0466,
+        0.0186,
+        0.0131
+      ]
+    }
+  },
+  "dataco": {
+    "n_rows": 180519,
+    "late_delivery_rate": 0.5483,
+    "mean_slip_days": 0.93,
+    "severe_slip_rate": 0.2368,
+    "disruption_rate_per_period": 0.0777
+  },
+  "m5": {
+    "n_series": 70,
+    "n_weeks": 273,
+    "coefficient_of_variation": 0.2625,
+    "demand_mean": 140.0,
+    "demand_sd": 36.75,
+    "seasonality": [
+      1.21,
+      1.197,
+      0.957,
+      0.885,
+      0.874,
+      0.88,
+      0.997
+    ]
+  }
+}

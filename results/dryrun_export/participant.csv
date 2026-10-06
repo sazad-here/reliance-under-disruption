@@ -1,0 +1,2 @@
+participant_id,condition,prolific_pid,seed,numeracy_score,started_utc,finished_utc,perceived_reliability,consented,excluded,exclusion_reason,app_version,params_json
+DRYRUN-01,low,,328676429,,2026-09-20T22:39:37.814+00:00,2026-09-20T22:39:37.843+00:00,65,1,0,,1.0.0,"{""delay_pmf"": [0.5176, 0.2857, 0.1149, 0.0818], ""demand_mean"": 140.0, ""demand_sd"": 36.75, ""holding_cost"": 1.0, ""horizon"": 30, ""initial_inventory"": 455, ""lead_time_nominal"": 1, ""max_order"": 600, ""seasonality"": [1.21, 1.197, 0.957, 0.885, 0.874, 0.88, 0.997], ""shortage_cost"": 5.0}"

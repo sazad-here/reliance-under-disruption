@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warehouse</title>
+<!--
+  UI v2 (24 Sep 2026). Design rules for an EXPERIMENT interface, not a product:
+   * identical in both reliability conditions -- nothing here reads the condition;
+   * nothing about the future (disruption calendar, Q*) is ever shown;
+   * accepting and rejecting advice cost the same effort: no one-click "use AI"
+     button, both orders typed, so Weight of Advice is not shifted by ergonomics;
+   * only information the participant has already seen is summarised (trend
+     lines of past weeks), to lower working-memory load, not to add cues.
+  Human = blue, AI = violet (light) / magenta (dark): pairs validated for
+  colour-vision deficiency with the dataviz validator; AI identity is also
+  carried by a label and an icon, never colour alone.
+
+  UI v3 (28 Sep 2026), same rules, plus:
+   * two-column console layout after Tabler (MIT): warehouse on the left, the one
+     decision in progress in a sticky column on the right;
+   * a 3D warehouse (static/js/warehouse3d.js, three.js MIT, vendored) that pictures
+     ONLY the panel's numbers -- stock, on-order total, unmet orders, supplier and
+     transport status. No delivery timing, no Q*, nothing about the AI. Switch it
+     off with WAREHOUSE_3D=0; every session logs which view it got (session_start.ui);
+   * "?" help that defines each number without adding task information;
+   * a skippable guided tour in practice week 1 only.
+
+  UI v3.1 (28 Sep 2026), visual polish only -- same rules, same information, same ids,
+  same 8 #state cells in the same order:
+   * Motion 13.4.4 (motion.dev, MIT; formerly Framer Motion), vanilla build vendored at
+     static/vendor/motion/motion.js, never a CDN. Every animation is opacity/transform,
+     constant duration, interruptible, never awaited before input is enabled, and off
+     under prefers-reduced-motion (checked live on every call) or if Motion fails to load:
+       - the four step cards (#s1, #s2ai, #s2, #out) enter with ONE identical 180 ms
+         fade + 6 px rise; #s2ai and #s2 start in the same frame with the same values.
+         The AI card's order and risk % are written in final form before it appears
+         (no count-up); nothing pulses, bounces or repeats;
+       - "What happened" cells: 40 ms stagger; each past-outcome number counts up from 0
+         in a constant 250 ms and snaps to its exact text when Continue is pressed;
+       - stepper: one highlight slides between steps (220 ms); timeline: the "this week"
+         block settles in (200 ms); buttons: 0.97 press scale; questionnaire, gate,
+         closing question, debrief and withdrawal screens: 180-200 ms fade + rise;
+       - a card hidden mid-entrance has its animation cancelled, and a 700 ms safety net
+         clears any entrance a throttled tab failed to finish, so nothing stays faded;
+       - the AI risk bar's CSS width transition was REMOVED so it never grows from the
+         previous week's value.
+   * nothing reads the condition, ai_correct, placement or risk level; t1 still starts
+     at the end of paintState and t2 when the advice is shown, exactly as before.
+   * decision column: each step card has the same header (step number + title); the
+     human cards (#s1, #s2) now carry a blue rail matching the AI card's violet rail,
+     and "Your order" / "AI suggestion" echo as two equal tiles. The AI card's own
+     figures keep their v3 size. A lock badge marks the submitted own order (the input
+     was already disabled). Validation messages keep their wording; they now also set
+     aria-invalid on the field and clear when typing resumes; an unanswered
+     questionnaire item is marked in place and receives focus.
+   * tokens refined (light + dark): button fill #2468c0 (white text 5.5:1), darker
+     critical ink, a separate AI text ink in dark mode (>= 4.5:1), sentence-case
+     labels, tabular numbers throughout, SVG icons only (the delta arrows too).
+     index.html and info.html share the tokens (info.html: styles only).
+
+  UI v3.2 (28 Sep 2026): voluntary, unpaid participation via the SONA participant pool.
+   * no compensation, recruitment-platform or completion-code text on participant pages; the debrief
+     and withdrawal screens say choices "have no consequences for you";
+   * milestones: fixed sentences after main weeks 5, 15 and 25 (inside the "What happened"
+     card, below any stockout alert) and a progress line on the questionnaire screens after
+     weeks 10, 20 and 30. They depend ONLY on the week number -- never on outcomes, costs,
+     correctness, the AI or the condition -- carry an SVG flag icon, add no animation of
+     their own (the card's existing 180 ms entrance), block nothing, and leave t1/t2 as
+     they were. None in practice; the practice-end gate text is only warmer;
+   * debrief: "Your 30 weeks" timeline (from /api/debrief "weeks", served only after
+     finish) with shape + colour encoding, legend, hover/focus/arrow-key readout and a
+     table view; and a "Why this matters" section. The completion-code box is removed.
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --bg:#f2f4f7; --card:#ffffff; --card-2:#f6f8fa; --line:#d9dfe6; --line-2:#e7ebf0;
+    --ink:#121922; --ink-2:#394552; --muted:#586473;
+    --human:#2a78d6; --human-soft:#e7f0fb; --btn:#2468c0; --btn-ink:#ffffff;
+    --ai:#4a3aa7; --ai-ink:#4a3aa7; --ai-soft:#f0eefa; --ai-track:#dcd8f1;
+    --critical:#c33030; --critical-soft:#fbeaea; --good:#0f7a0f;
+    --warn-ink:#8a4b00; --warn-soft:#fff4e0; --warn-line:#f0cf93;
+    --focus:#2468c0; --radius:12px; --radius-sm:8px;
+    --shadow-1:0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.04);
+    --shadow-2:0 12px 32px -8px rgba(16,24,40,.22), 0 2px 6px rgba(16,24,40,.08);
+    --ease-out:cubic-bezier(.22,.8,.24,1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg:#0e1115; --card:#171b20; --card-2:#1d2228; --line:#2c333b; --line-2:#232930;
+      --ink:#edf0f3; --ink-2:#c6cdd5; --muted:#97a2ad;
+      --human:#3987e5; --human-soft:#15253a; --btn:#2468c0; --btn-ink:#ffffff;
+      --ai:#d55181; --ai-ink:#df6598; --ai-soft:#2a1922; --ai-track:#4a2a38;
+      --critical:#ec7272; --critical-soft:#331b1b; --good:#5fc45f;
+      --warn-ink:#f2c078; --warn-soft:#2d2313; --warn-line:#5c4722;
+      --focus:#7cb0ee;
+      --shadow-1:0 1px 2px rgba(0,0,0,.35);
+      --shadow-2:0 14px 36px -8px rgba(0,0,0,.6), 0 2px 6px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg:#0e1115; --card:#171b20; --card-2:#1d2228; --line:#2c333b; --line-2:#232930;
+    --ink:#edf0f3; --ink-2:#c6cdd5; --muted:#97a2ad;
+    --human:#3987e5; --human-soft:#15253a; --btn:#2468c0; --btn-ink:#ffffff;
+    --ai:#d55181; --ai-ink:#df6598; --ai-soft:#2a1922; --ai-track:#4a2a38;
+    --critical:#ec7272; --critical-soft:#331b1b; --good:#5fc45f;
+    --warn-ink:#f2c078; --warn-soft:#2d2313; --warn-line:#5c4722;
+    --focus:#7cb0ee;
+    --shadow-1:0 1px 2px rgba(0,0,0,.35);
+    --shadow-2:0 14px 36px -8px rgba(0,0,0,.6), 0 2px 6px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding-block:20px 72px; padding-inline:16px;
+         font:16px/1.55 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+         color:var(--ink); background:var(--bg); -webkit-font-smoothing:antialiased; }
+  main { max-width:880px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
+  h1, h2 { margin:0; text-wrap:balance; letter-spacing:-.005em; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px;
+          box-shadow:var(--shadow-1); }
+  .hide { display:none !important; }
+  .muted { color:var(--muted); font-size:.92rem; }
+  .err { display:flex; gap:7px; align-items:flex-start; color:var(--critical); margin-top:8px; min-height:1.3em;
+         font-size:.92rem; font-weight:600; }
+  .err:not(:empty)::before { content:""; flex:none; width:16px; height:16px; margin-top:3px; background:currentColor;
+         -webkit-mask:var(--i-alert) center/contain no-repeat; mask:var(--i-alert) center/contain no-repeat; }
+  :root { --i-alert:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='M12 7.5v5.5M12 16.5h.01'/%3E%3C/svg%3E");
+          --i-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E"); }
+  button { font:inherit; font-weight:600; padding:11px 20px; min-height:44px; border-radius:var(--radius-sm); border:1px solid transparent;
+           color:var(--btn-ink); background:var(--btn); cursor:pointer; transition:filter .15s, background-color .15s, box-shadow .15s;
+           box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 1px 2px rgba(16,24,40,.12); }
+  button:hover:not(:disabled) { filter:brightness(1.1); }
+  button:active:not(:disabled) { filter:brightness(.95); }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  .ghost { background:var(--card-2); color:var(--ink); border:1px solid var(--line); box-shadow:none; }
+  .ghost:hover:not(:disabled) { filter:none; background:var(--line-2); }
+  .danger { background:var(--critical); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .danger { background:#b42b2b; } }
+  :root[data-theme="dark"] .danger { background:#b42b2b; }
+  .linkbtn { background:none; color:var(--muted); text-decoration:underline; text-underline-offset:3px; min-height:24px; padding:4px 6px;
+             font-weight:400; font-size:.88rem; box-shadow:none; }
+  .linkbtn:hover:not(:disabled) { filter:none; color:var(--ink); }
+  .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+  a { color:var(--human); text-underline-offset:3px; }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
+
+  /* ---- header: week, phase, timeline ---- */
+  .top { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 16px; }
+  .top h1 { display:flex; align-items:center; gap:10px; font-size:1.3rem; font-weight:700; font-variant-numeric:tabular-nums; }
+  .top h1 svg { color:var(--muted); flex:none; }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; }
+  .chip { font-size:.8rem; font-weight:600; padding:4px 12px; border-radius:999px; background:var(--card-2);
+          border:1px solid var(--line); color:var(--ink-2); font-variant-numeric:tabular-nums; }
+  .timeline { display:grid; gap:3px; margin-top:14px; }
+  .timeline i { display:block; height:10px; border-radius:3px; background:var(--line-2); border:1px solid var(--line); }
+  .timeline i.past { background:var(--muted); border-color:var(--muted); opacity:.45; }
+  .timeline i.past.so { background:var(--critical); border-color:var(--critical); opacity:1; }
+  .timeline i.now { background:var(--human); border-color:var(--human); transform-origin:50% 100%; }
+  .tl-legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; font-size:.78rem; color:var(--muted); }
+  .tl-legend span::before { content:""; display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px;
+                            vertical-align:-1px; background:var(--k); }
+
+  /* ---- stepper: one sliding highlight (#stepRail) behind the active step ---- */
+  .stepper-wrap { position:relative; padding:4px; border-radius:var(--radius); background:var(--card);
+                  border:1px solid var(--line); box-shadow:var(--shadow-1); }
+  .step-rail { position:absolute; left:0; top:4px; bottom:4px; width:0; border-radius:var(--radius-sm); pointer-events:none;
+               background:var(--human-soft); box-shadow:inset 0 0 0 1.5px var(--human); will-change:transform; }
+  .step-rail.ai { background:var(--ai-soft); box-shadow:inset 0 0 0 1.5px var(--ai); }
+  .stepper-wrap.no-rail .step-rail { display:none; }
+  .stepper { position:relative; display:flex; gap:4px; list-style:none; margin:0; padding:0; flex-wrap:wrap; }
+  .stepper li { flex:1 1 150px; display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:var(--radius-sm);
+                font-size:.9rem; color:var(--muted); border:1.5px solid transparent; background:transparent; transition:color .2s; }
+  .stepper li b { display:inline-grid; place-items:center; width:24px; height:24px; border-radius:50%; flex:none;
+                  background:var(--card-2); border:1px solid var(--line); font-size:.8rem; color:var(--ink-2);
+                  font-variant-numeric:tabular-nums; transition:background-color .2s, border-color .2s, color .2s; }
+  .stepper li.done { color:var(--ink-2); }
+  .stepper li.done b { color:transparent; position:relative; background:var(--line-2); }
+  .stepper li.done b::after { content:""; position:absolute; inset:5px; background:var(--ink-2);
+                              -webkit-mask:var(--i-check) center/contain no-repeat; mask:var(--i-check) center/contain no-repeat; }
+  .stepper li[aria-current="step"] { color:var(--ink); font-weight:600; }
+  .stepper li[aria-current="step"] b { background:var(--btn); border-color:var(--btn); color:#fff; }
+  .stepper li.ai[aria-current="step"] b { background:var(--ai); border-color:var(--ai); }
+  .stepper-wrap.no-rail li[aria-current="step"] { border-color:var(--human); background:var(--human-soft); }
+  .stepper-wrap.no-rail li.ai[aria-current="step"] { border-color:var(--ai); background:var(--ai-soft); }
+
+  /* ---- warehouse state ---- */
+  .groups { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+  .group h2 { font-size:.85rem; color:var(--muted); font-weight:600; margin-bottom:8px; }
+  #state { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+  @media (max-width:720px) { #state { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  .cell { background:var(--card-2); border:1px solid var(--line-2); border-radius:var(--radius-sm); padding:10px 12px 11px; min-width:0; }
+  .cell .k { display:flex; align-items:flex-start; justify-content:space-between; gap:6px;
+            font-size:.8rem; font-weight:500; color:var(--muted); line-height:1.35; }
+  .cell .k .tip { flex:none; margin:0; }
+  /* mid widths: state labels may take two lines; keep the numbers on one baseline */
+  @media (min-width:1061px) and (max-width:1320px) { #state .cell .k { min-height:2.7em; } }
+  .cell .v { font-size:1.45rem; font-weight:700; margin-top:2px; letter-spacing:-.01em; }
+  .cell .u { font-size:.8rem; font-weight:500; color:var(--muted); margin-left:3px; }
+  .cell.key { background:var(--card); border-color:var(--line); }
+  .spark { display:block; width:100%; height:26px; margin-top:4px; }
+  .spark .ln { fill:none; stroke:var(--muted); stroke-width:1.6; stroke-linejoin:round; stroke-linecap:round; opacity:.7; }
+  .spark .end { fill:var(--human); stroke:var(--card-2); stroke-width:2; }
+  .cell.key .spark .end { stroke:var(--card); }
+  .spark-cap { font-size:.7rem; color:var(--muted); }
+  .alert { display:flex; gap:10px; align-items:flex-start; margin-top:12px; padding:11px 14px; border-radius:var(--radius-sm);
+           background:var(--warn-soft); border:1px solid var(--warn-line); color:var(--warn-ink); font-weight:600; }
+  .alert.crit { background:var(--critical-soft); border-color:var(--critical); color:var(--critical); }
+  .alert svg { flex:none; margin-top:2px; }
+
+  /* ---- decision cards: same header (step number + title) on all four ---- */
+  .dhead { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .stepno { display:inline-grid; place-items:center; width:26px; height:26px; flex:none; border-radius:50%;
+            font-size:.82rem; font-weight:700; color:#fff; background:var(--btn); font-variant-numeric:tabular-nums; }
+  .ai .stepno { background:var(--ai); }
+  .out .stepno { background:var(--ink-2); color:var(--card); }
+  .decide label, .dtitle { display:block; font-weight:700; font-size:1.05rem; margin:0; }
+  .decide .lead { margin:6px 0 0; }
+  .card.human { border-left:5px solid var(--human); }
+  .field { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:12px; }
+  input[type=number] { width:180px; min-height:50px; padding:10px 12px; font:inherit; font-size:1.35rem; font-weight:700;
+                       font-variant-numeric:tabular-nums; color:var(--ink); background:var(--card); border:2px solid var(--line);
+                       border-radius:var(--radius-sm); transition:border-color .15s, box-shadow .15s; }
+  input[type=number]:hover:not(:disabled) { border-color:var(--muted); }
+  input[type=number]:focus { border-color:var(--human); outline:none; box-shadow:0 0 0 4px var(--human-soft); }
+  input[aria-invalid="true"] { border-color:var(--critical) !important; }
+  input[aria-invalid="true"]:focus { box-shadow:0 0 0 4px var(--critical-soft); }
+  input:disabled { background:var(--card-2); color:var(--ink-2); border-style:dashed; }
+  .kbd { font-size:.8rem; color:var(--muted); display:inline-flex; align-items:center; gap:5px; }
+  .kbd kbd { font:600 .74rem ui-monospace,"Cascadia Mono",Consolas,monospace; padding:1px 6px; border:1px solid var(--line);
+             border-bottom-width:2px; border-radius:4px; background:var(--card-2); color:var(--ink-2); }
+  .lockbadge { display:none; margin-left:auto; align-items:center; gap:5px; font-size:.8rem; font-weight:600; color:var(--muted);
+               padding:2px 10px; border-radius:999px; background:var(--card-2); border:1px solid var(--line); }
+  #s1:has(#qown:disabled) .lockbadge { display:inline-flex; }
+  #s1:has(#qown:disabled) .field .kbd { display:none; }
+
+  .ai { border:1px solid var(--line); border-left:5px solid var(--ai); background:var(--ai-soft); }
+  .ai-head { display:flex; align-items:center; gap:8px; color:var(--ai-ink); font-weight:700; }
+  .ai-head .tag { font-size:.75rem; font-weight:600; border:1px solid currentColor;
+                  border-radius:999px; padding:1px 9px; }
+  .ai-body { display:grid; grid-template-columns:auto 1fr; gap:10px 28px; align-items:end; margin-top:14px; }
+  @media (max-width:600px) { .ai-body { grid-template-columns:1fr; } }
+  .rec-k { font-size:.85rem; color:var(--ink-2); }
+  .rec { font-size:2.6rem; font-weight:800; line-height:1.05; color:var(--ai); letter-spacing:-.02em; }
+  .rec small { font-size:1rem; font-weight:600; color:var(--ink-2); margin-left:4px; letter-spacing:0; }
+  .meter-k { font-size:.85rem; color:var(--ink-2); }
+  .meter-k strong { color:var(--ink); font-size:1.05rem; font-variant-numeric:tabular-nums; }
+  .meter { position:relative; height:12px; background:var(--ai-track); border-radius:6px; overflow:hidden; margin:6px 0 4px; }
+  .meter span { position:absolute; inset:0 auto 0 0; background:var(--ai); border-radius:6px; }
+  .meter i { position:absolute; top:0; bottom:0; width:2px; background:var(--ai-soft); z-index:1; }
+  .meter-scale { position:relative; height:16px; font-size:.72rem; color:var(--muted); }
+  .meter-scale span { position:absolute; transform:translateX(-50%); }
+  .ai-foot { margin:12px 0 0; font-size:.84rem; color:var(--ink-2); }
+  .compare { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+  .compare > span { display:flex; flex-direction:column; gap:1px; padding:8px 12px; border-radius:var(--radius-sm);
+                    background:var(--card-2); border:1px solid var(--line-2); border-left:3px solid var(--k);
+                    font-size:.82rem; color:var(--ink-2); }
+  .compare b { font-size:1.3rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.25; }
+  .compare .you { --k:var(--human); }
+  .compare .aiv { --k:var(--ai); }
+  .compare .you b { color:var(--human); }
+  .compare .aiv b { color:var(--ai-ink); }
+
+  /* ---- outcome ---- */
+  .out h2 { font-size:1.05rem; }
+  .out-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px; margin-top:12px; }
+  .out-grid .v { font-variant-numeric:tabular-nums; }
+  .delta { display:flex; align-items:center; gap:4px; font-size:.8rem; font-weight:600; margin-top:2px; }
+  .delta svg { flex:none; }
+  .delta.up { color:var(--good); } .delta.down { color:var(--critical); } .delta.flat { color:var(--muted); }
+
+  /* ---- questionnaires, gate, debrief (reading screens: one narrower column) ---- */
+  #quiz, #gate, #done, #debrief, #withdrawBox, #withdrawn { width:100%; max-width:780px; margin-inline:auto; }
+  .screen-head { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  .screen-head svg { flex:none; color:var(--human); }
+  .screen-head h1 { font-size:1.3rem; }
+  .q { margin:18px 0; }
+  .q > label { font-weight:600; display:block; margin-bottom:6px; }
+  #quizItems fieldset { padding:6px 0 16px 0 !important; margin:0 0 12px !important; border:0 !important; border-bottom:1px solid var(--line-2) !important; }
+  #quizItems fieldset:last-child { border-bottom:0 !important; margin-bottom:0 !important; }
+  #quizItems legend { padding:0; }
+  #quizItems fieldset { display:grid; grid-template-columns:minmax(0,max-content); }
+  .scale { display:flex; gap:4px; flex-wrap:wrap; }
+  .scale label { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:.82rem; font-weight:500; text-align:center;
+                 width:40px; padding:6px 0 5px; cursor:pointer; border-radius:var(--radius-sm); border:1px solid var(--line);
+                 background:var(--card); color:var(--ink-2); font-variant-numeric:tabular-nums;
+                 transition:background-color .12s, border-color .12s; }
+  .scale label:hover { border-color:var(--muted); }
+  .scale label:has(input:checked) { background:var(--human-soft); border-color:var(--human); color:var(--ink); font-weight:700; }
+  .scale label:has(input:focus-visible) { outline:3px solid var(--focus); outline-offset:2px; }
+  .scale input { display:block; margin:0; width:18px; height:18px; accent-color:var(--human); cursor:pointer; }
+  .scale input:focus-visible { outline:none; }
+  .scale-ends { display:flex; justify-content:space-between; font-size:.78rem; color:var(--muted); margin-top:4px; }
+  #quiz { max-width:960px; }
+  #quizItems fieldset.missing legend { color:var(--critical); }
+  #quizItems fieldset.missing { box-shadow:inset 3px 0 0 var(--critical); padding-left:14px !important; }
+  .quiz-foot { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:16px; padding-top:14px; border-top:1px solid var(--line-2); }
+  .debrief p { max-width:66ch; }
+  .debrief h2 { margin-top:22px; padding-top:16px; border-top:1px solid var(--line-2); }
+  .fact { font-size:1.15rem; font-weight:700; font-variant-numeric:tabular-nums; }
+  .code { font:600 1.2rem ui-monospace,"Cascadia Mono",Consolas,monospace; background:var(--card-2); border:1px solid var(--line);
+          padding:6px 10px; border-radius:6px; user-select:all; }
+  .foot { text-align:center; margin-top:10px; }
+  .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+  /* ---- UI v3.2: progress milestones (identical for everyone, progress only) ---- */
+  .milestone { display:flex; gap:10px; align-items:flex-start; margin:12px 0 0; padding:10px 14px;
+               border-radius:var(--radius-sm); background:var(--card-2); border:1px solid var(--line-2);
+               color:var(--ink-2); font-size:.92rem; line-height:1.45; }
+  .milestone svg { flex:none; margin-top:1px; color:var(--human); }
+  #quizMilestone { margin:4px 0 10px; }
+
+  /* ---- UI v3.2: debrief timeline "Your 30 weeks". Categorical hues validated with the
+     dataviz validator (all pairs, light on #fff and dark on #171b20): blue = kept own,
+     AI ink = took the suggestion, amber = wrong in a lasting-damage week, green = wrong
+     in an absorbed week. Every category also has its own shape and fill. ---- */
+  :root { --v-lasting:#eda100; --v-lasting-edge:#8a5a00; --v-absorbed:#008300; --v-ok:#7b8794; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --v-lasting:#c98500; --v-lasting-edge:#c98500; --v-absorbed:#008300; --v-ok:#7d8894; } }
+  :root[data-theme="dark"] { --v-lasting:#c98500; --v-lasting-edge:#c98500; --v-absorbed:#008300; --v-ok:#7d8894; }
+  #debrief { max-width:900px; }
+  .wk-legend { display:flex; flex-wrap:wrap; gap:6px 22px; margin:12px 0 10px; font-size:.84rem; color:var(--ink-2); }
+  .wk-legend .grp { display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; }
+  .wk-legend .grp > b { font-weight:600; color:var(--ink); }
+  .wk-legend span { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+  .wk-legend svg { flex:none; overflow:visible; }
+  .wk-chart { position:relative; margin-top:4px; border:1px solid var(--line-2); border-radius:var(--radius-sm);
+              background:var(--card); padding:6px 4px 2px; }
+  .wk-chart:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  .wk-chart > svg { display:block; width:100%; overflow:visible; }
+  .wk-rowlab { font-size:12.5px; fill:var(--ink-2); font-weight:600; }
+  .wk-axis { font-size:11px; fill:var(--muted); font-variant-numeric:tabular-nums; }
+  .wk-grid { stroke:var(--line-2); stroke-width:1; }
+  .wk-block { stroke:var(--line); stroke-width:1; stroke-dasharray:3 3; }
+  .wk-band { fill:var(--line-2); opacity:0; }
+  .wk-col.on .wk-band { opacity:1; }
+  .wk-col.on.kb .wk-band { stroke:var(--focus); stroke-width:1.5; }
+  .m-ok { fill:none; stroke:var(--v-ok); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .m-lasting { fill:var(--v-lasting); stroke:var(--v-lasting-edge); stroke-width:1; stroke-linejoin:round; }
+  .m-absorbed { fill:var(--card); stroke:var(--v-absorbed); stroke-width:2; stroke-linejoin:round; }
+  .m-own { fill:var(--human); }
+  .m-accept { fill:var(--ai); }
+  .m-modify { fill:var(--ink-2); }
+  .m-none { stroke:var(--muted); stroke-width:1.5; stroke-linecap:round; }
+  .m-so { fill:var(--critical); }
+  .m-noso { fill:var(--line); }
+  .wk-tip { position:absolute; z-index:5; top:0; left:0; width:max-content; max-width:280px; padding:9px 12px;
+            border-radius:var(--radius-sm); background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow-2);
+            font-size:.84rem; line-height:1.45; color:var(--ink-2); pointer-events:none; }
+  .wk-tip strong { display:block; color:var(--ink); font-size:.92rem; margin-bottom:2px; font-variant-numeric:tabular-nums; }
+  .wk-tip div { display:flex; gap:7px; align-items:flex-start; }
+  .wk-tip svg { flex:none; overflow:visible; margin-top:3px; }
+  .wk-toggle { margin-top:8px; padding-left:0; }
+  .wk-table-wrap { margin-top:6px; max-height:420px; overflow:auto; border:1px solid var(--line-2); border-radius:var(--radius-sm); }
+  .wk-table { width:100%; border-collapse:collapse; font-size:.86rem; }
+  .wk-table th, .wk-table td { text-align:left; padding:6px 12px; border-bottom:1px solid var(--line-2); }
+  .wk-table thead th { position:sticky; top:0; background:var(--card-2); color:var(--ink); font-weight:600; }
+  .wk-table td:first-child { font-variant-numeric:tabular-nums; width:4.5em; }
+
+  /* ---- UI v3 (28 Sep 2026): two-column console layout after Tabler's dashboard
+     pattern (github.com/tabler/tabler, MIT) -- page header, main column with the
+     warehouse, a sticky side column with the one decision in progress. ---- */
+  body.v3 main { max-width:1240px; }
+  .layout { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(340px,1fr); gap:14px; align-items:start; }
+  .layout > div { display:flex; flex-direction:column; gap:14px; min-width:0; }
+  .side { position:sticky; top:12px; }
+  @media (max-width:1060px) { .layout { grid-template-columns:1fr; } .side { position:static; } }
+  .card-head { display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .card-head h2 { font-size:.95rem; color:var(--ink); font-weight:700; }
+  .card-head .hint { font-size:.8rem; color:var(--muted); }
+  #s1 input[type=number], #s2 input[type=number] { width:150px; }
+  .cell .v, .rec, .top h1 { font-variant-numeric:tabular-nums; }
+
+  /* the 3D warehouse: a picture of the panel's numbers (see warehouse3d.js) */
+  .scene-card { padding:14px 14px 12px; }
+  #scene3d { position:relative; height:340px; border-radius:8px; overflow:hidden; background:#1d2126; }
+  #scene3d canvas { display:block; width:100% !important; height:100% !important; cursor:grab; }
+  #scene3d canvas:active { cursor:grabbing; }
+  .w3d-label { position:absolute; left:0; top:0; pointer-events:none; white-space:nowrap; font-size:.8rem; color:#14191f;
+               background:rgba(255,255,255,.92); border:1px solid #c9d0d7; border-radius:6px; padding:3px 8px;
+               box-shadow:0 1px 3px rgba(0,0,0,.15); font-variant-numeric:tabular-nums; }
+  .w3d-label b { font-size:.95rem; }
+  .w3d-label.w3d-bad { border-color:#d03b3b; color:#a32626; }
+  .w3d-warn { color:#8a4b00; font-weight:700; }
+  .scene-legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:8px; font-size:.78rem; color:var(--muted); }
+  .scene-legend i { display:inline-block; width:12px; height:12px; border-radius:2px; margin-right:5px; vertical-align:-2px; }
+
+  /* "?" help: click or keyboard, never hover-only */
+  .tip { position:relative; display:inline-grid; place-items:center; width:18px; height:18px; min-height:0; padding:0; margin-left:5px;
+         border-radius:50%; font-size:.7rem; font-weight:700; background:var(--card); color:var(--ink-2); border:1px solid var(--line);
+         vertical-align:1px; box-shadow:none; }
+  .tip:hover:not(:disabled) { filter:none; border-color:var(--muted); color:var(--ink); }
+  .tip[aria-expanded="true"] { background:var(--ink-2); border-color:var(--ink-2); color:var(--card); }
+  .tip::after { content:""; position:absolute; inset:-12px; }            /* bigger hit area than the glyph */
+  .tip-pop { position:absolute; z-index:30; max-width:260px; padding:9px 12px; border-radius:var(--radius-sm); font-size:.84rem; line-height:1.45;
+             text-transform:none; letter-spacing:0; font-weight:400; color:var(--ink); background:var(--card);
+             border:1px solid var(--line); box-shadow:var(--shadow-2); }
+  .cell { position:relative; }
+
+  /* practice-only guided tour */
+  .coach { position:fixed; z-index:40; right:20px; bottom:20px; max-width:340px; padding:14px 16px; border-radius:var(--radius);
+           background:var(--card); border:1px solid var(--line); border-top:3px solid var(--human); box-shadow:var(--shadow-2); }
+  .coach p { margin:4px 0 10px; font-size:.92rem; }
+  .coach .row { margin-top:0; }
+  .coach button { padding:7px 14px; min-height:36px; }
+  .spot { outline:3px solid var(--human) !important; outline-offset:3px; border-radius:var(--radius); }
+</style>
+</head>
+<body class="v3">
+<main>
+  <p class="sr" aria-live="polite" id="live"></p>
+
+  <!-- ===================== TRIAL ===================== -->
+  <section id="trial" style="display:flex;flex-direction:column;gap:14px">
+    <div class="card">
+      <div class="top">
+        <h1><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V8l9-5 9 5v13"/><path d="M7 21v-8h10v8M7 17h10"/></svg><span>Week <span id="trialNo">&mdash;</span> of <span id="trialN">&mdash;</span></span></h1>
+        <div class="chips"><span class="chip" id="phaseTag">practice</span></div>
+      </div>
+      <div class="timeline" id="timeline" aria-hidden="true"></div>
+      <div class="tl-legend" aria-hidden="true">
+        <span style="--k:var(--muted)">week done</span>
+        <span style="--k:var(--critical)">ran out of stock</span>
+        <span style="--k:var(--human)">this week</span>
+      </div>
+    </div>
+
+    <div class="stepper-wrap" id="stepperWrap">
+    <div class="step-rail" id="stepRail" aria-hidden="true"></div>
+    <ol class="stepper" id="stepper" aria-label="Steps this week">
+      <li data-step="1"><b>1</b>Your order</li>
+      <li data-step="2" class="ai"><b>2</b>AI suggestion</li>
+      <li data-step="3"><b>3</b>Final order</li>
+      <li data-step="4"><b>4</b>What happened</li>
+    </ol>
+    </div>
+
+    <div class="layout">
+    <div>
+    {% if ui3d %}
+    <div class="card scene-card" id="scene3dCard">
+      <div class="card-head"><h2>Your warehouse</h2><span class="hint">Drag to look around &middot; scroll to zoom</span></div>
+      <div id="scene3d"></div>
+      <div class="scene-legend" aria-hidden="true">
+        <span><i style="background:#b98a55"></i>1 box = 10 units of stock</span>
+        <span><i style="background:#eef0f2;border:1px solid #9aa3ad"></i>truck = stock on order</span>
+        <span><i style="background:#c93434"></i>red crates = unmet orders</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <div class="card-head"><h2>Your warehouse this week</h2><span class="hint">Click <b>?</b> for what each number means</span></div>
+      <div id="state"></div>
+      <div id="disrupt"></div>
+    </div>
+    </div>
+
+    <div class="side">
+    <!-- stage 1 -->
+    <div class="card decide human" id="s1">
+      <div class="dhead"><span class="stepno" aria-hidden="true">1</span><label for="qown">Your order for this week</label>
+        <span class="lockbadge" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Locked</span></div>
+      <p class="muted lead">How many units do you order? Decide before any advice appears; this cannot be changed afterwards.</p>
+      <div class="field">
+        <input type="number" id="qown" min="0" step="1" autocomplete="off" inputmode="numeric" aria-describedby="s1err">
+        <button id="s1go">Submit my order</button>
+        <span class="kbd">or press <kbd>Enter</kbd></span>
+      </div>
+      <div class="err" id="s1err" role="alert"></div>
+    </div>
+
+    <!-- stage 2: the AI card -->
+    <div class="card ai hide" id="s2ai" aria-labelledby="aiTitle">
+      <div class="ai-head dhead">
+        <span class="stepno" aria-hidden="true">2</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span id="aiTitle">AI assistant suggestion</span><span class="tag">machine</span>
+      </div>
+      <div class="ai-body">
+        <div>
+          <div class="rec-k">Suggested order</div>
+          <div class="rec"><span id="qai">&mdash;</span><small>units</small></div>
+        </div>
+        <div>
+          <div class="meter-k">Estimated chance of running out in the next 2 weeks: <strong><span id="risk">&mdash;</span>%</strong>
+            &middot; risk level <strong id="level">&mdash;</strong></div>
+          <div class="meter" role="img" id="meterBox" aria-label="risk"><span id="riskbar" style="width:0%"></span><i style="left:25%"></i><i style="left:55%"></i></div>
+          <div class="meter-scale" aria-hidden="true"><span style="left:12%">low</span><span style="left:40%">moderate</span><span style="left:78%">high</span></div>
+        </div>
+      </div>
+      <p class="ai-foot">The assistant's suggestions are not always right. You decide the final order.</p>
+    </div>
+
+    <div class="card decide human hide" id="s2">
+      <div class="dhead"><span class="stepno" aria-hidden="true">3</span><label for="qfinal">Your final order</label></div>
+      <div class="compare"><span class="you">Your order: <b id="ownecho">&mdash;</b></span><span class="aiv">AI suggestion: <b id="aiecho">&mdash;</b></span></div>
+      <p class="muted lead">Keep your order, take the suggestion, or choose any other number.</p>
+      <div class="field">
+        <input type="number" id="qfinal" min="0" step="1" autocomplete="off" inputmode="numeric" aria-describedby="s2err">
+        <button id="s2go">Confirm and run the week</button>
+        <span class="kbd">or press <kbd>Enter</kbd></span>
+      </div>
+      <div class="err" id="s2err" role="alert"></div>
+    </div>
+
+    <!-- outcome -->
+    <div class="card out hide" id="out">
+      <div class="dhead"><span class="stepno" aria-hidden="true">4</span><h2>What happened this week</h2></div>
+      <div class="out-grid" id="outgrid"></div>
+      <div id="outalert"></div>
+      <p class="milestone hide" id="milestone"></p>
+      <div class="field"><button id="next">Continue to next week</button><span class="kbd">or press <kbd>Enter</kbd></span></div>
+    </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- ===================== QUESTIONNAIRE ===================== -->
+  <section id="quiz" class="hide">
+    <div class="card">
+      <div class="screen-head"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/></svg><h1 id="quizTitle">Short questionnaire</h1></div>
+      <p class="milestone" id="quizMilestone"></p>
+      <p class="muted" id="quizIntro"></p>
+      <div id="quizItems"></div>
+      <div class="quiz-foot">
+        <button id="quizgo">Submit and continue</button>
+        <span class="kbd">Move between answers with <kbd>Tab</kbd> and the arrow keys</span>
+      </div>
+      <div class="err" id="quizerr" role="alert"></div>
+    </div>
+  </section>
+
+  <!-- ===================== INTERSTITIAL ===================== -->
+  <section id="gate" class="hide">
+    <div class="card">
+      <div class="screen-head"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg><h1 id="gateTitle">Practice complete</h1></div>
+      <p id="gateBody"></p>
+      <button id="gatego">Begin the main task</button>
+    </div>
+  </section>
+
+  <!-- ===================== DONE ===================== -->
+  <section id="done" class="hide">
+    <div class="card decide">
+      <div class="screen-head"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.8"/></svg><h1>Session complete</h1></div>
+      <p>Thank you. One last question before you finish.</p>
+      <label for="perceived">Out of 100 recommendations, how many do you think the AI assistant got right?</label>
+      <div class="field">
+        <input type="number" id="perceived" min="0" max="100" step="1" aria-describedby="doneerr">
+        <button id="donego">Finish</button>
+        <span class="kbd">or press <kbd>Enter</kbd></span>
+      </div>
+      <div class="err" id="doneerr" role="alert"></div>
+    </div>
+  </section>
+
+  <!-- ===================== DEBRIEF ===================== -->
+  <section id="debrief" class="hide">
+    <div class="card debrief">
+      <div class="screen-head"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5h.01"/></svg><h1>About this study: please read</h1></div>
+      <p>Thank you for taking part. Now that you have finished, here is what the study
+      was really testing, and some details we could not tell you at the start.</p>
+
+      <h2 style="font-size:1.05rem;margin-bottom:4px">The assistant's accuracy was set in advance</h2>
+      <p>The stockout-risk estimates you saw came from a real forecasting model running on
+      your warehouse. The recommended orders, however, followed a fixed schedule that
+      decided in advance which weeks the assistant would get right, and on the weeks it was
+      wrong, its risk estimate was worked out from the same mistaken reading of your stock.
+      In your session the assistant was right on
+      <span class="fact"><span id="dbCorrect"></span> of <span id="dbN"></span> weeks</span>
+      (<span id="dbPct"></span>%). Other participants saw an assistant that was right
+      <span id="dbOther"></span>% of the time. Which version you got was decided only by
+      the order in which people arrived.</p>
+
+      <h2 style="font-size:1.05rem;margin-bottom:4px">Where the mistakes fell was also planned</h2>
+      <p>Of the assistant's <span id="dbErr"></span> wrong recommendations,
+      <span id="dbProp"></span> were placed in weeks where a bad order does lasting
+      damage, mostly in the run-up to a disruption, and <span id="dbAbs"></span> fell in
+      calm weeks, when it is easily absorbed. <span id="dbDir"></span> We are studying whether people rely on an assistant
+      differently depending on <em>when</em> it errs, not just <em>how often</em>.</p>
+
+      <h2 style="font-size:1.05rem;margin-bottom:4px" id="wkTitle">Your 30 weeks</h2>
+      <p id="wkGuide">Each column is one week of the main task, from week 1 on the left to
+      week 30 on the right. The triangles in the top row mark the weeks the assistant was
+      wrong; the rows below show what you did that week and whether you ran out of stock.</p>
+      <div class="wk-legend" id="wkLegend"></div>
+      <div class="wk-chart" id="wkChart" tabindex="0" role="group" aria-labelledby="wkTitle"
+           aria-describedby="wkKeys">
+        <svg id="wkSvg" aria-hidden="true" focusable="false"></svg>
+        <div class="wk-tip hide" id="wkTip" aria-hidden="true"></div>
+      </div>
+      <p class="sr" id="wkKeys">Use the left and right arrow keys to read the weeks one by one,
+      or open the table below.</p>
+      <p class="sr" id="wkLive" aria-live="polite"></p>
+      <button type="button" class="linkbtn wk-toggle" id="wkTableBtn" aria-expanded="false"
+              aria-controls="wkTableWrap">Show the 30 weeks as a table</button>
+      <div id="wkTableWrap" class="wk-table-wrap" hidden>
+        <table class="wk-table">
+          <caption class="sr">Your 30 weeks, one row per week</caption>
+          <thead><tr><th scope="col">Week</th><th scope="col">AI suggestion</th>
+            <th scope="col">Your final order</th><th scope="col">Ran out of stock</th></tr></thead>
+          <tbody id="wkTbody"></tbody>
+        </table>
+      </div>
+
+      <h2 style="font-size:1.05rem;margin-bottom:4px">Why this was not explained earlier</h2>
+      <p>If people know an assistant's exact accuracy, or that its errors are planned,
+      they use it differently from how they would use a real tool. So that information
+      had to be held back until now. Nothing you were told during the study was false.
+      Your own orders, not the assistant's, determined your warehouse's results, and
+      those results have no consequences for you.</p>
+
+      <h2 style="font-size:1.05rem;margin-bottom:4px">Why this matters</h2>
+      <p>Supply-chain planners increasingly work alongside AI tools that forecast demand,
+      estimate the risk of running out and recommend orders. No such tool is right every
+      time, and its mistakes do not all cost the same. Some of the costliest are made just
+      before a disruption, such as a supplier problem or a transport delay, because a
+      shortfall ordered then carries over into the weeks that follow.</p>
+      <p>Working well with such a tool means knowing when to rely on it and when to
+      question it. Researchers call this <em>appropriate reliance</em>, and it is what this
+      study measures. Your decisions help show how people respond to an assistant whose
+      mistakes fall at different moments, which can help design AI tools that support
+      people better.</p>
+
+      <h2 style="font-size:1.05rem;margin-bottom:4px">Your data</h2>
+      <p>Now that you know the purpose, you may decide you would rather your data were
+      not used. That is completely fine, and it has no consequences for you.</p>
+      <div class="row">
+        <button class="ghost" id="dbKeep">Keep my data in the study</button>
+        <button class="danger" id="dbDelete">Delete all my data</button>
+      </div>
+      <p id="dbChoice" class="muted" style="margin-top:10px" aria-live="polite"></p>
+      <p class="muted" style="margin-top:18px">Questions or concerns: see the contact details
+      on the <a href="/info" target="_blank" rel="noopener">information sheet</a>.
+      You may now close this window.</p>
+    </div>
+  </section>
+
+  <!-- ===================== WITHDRAW ===================== -->
+  <section id="withdrawBox" class="hide">
+    <div class="card">
+      <div class="screen-head"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l-4-4 4-4M6 12h10"/></svg><h1>Withdraw from the study?</h1></div>
+      <p>You can stop now without giving a reason. Choose what happens to the answers
+      you have given so far.</p>
+      <div class="row">
+        <button class="danger" id="wdDelete">Withdraw and delete my data</button>
+        <button class="ghost" id="wdKeep">Withdraw, but my data may be used</button>
+        <button class="ghost" id="wdCancel">Cancel, return to the task</button>
+      </div>
+      <div class="err" id="wderr" role="alert"></div>
+    </div>
+  </section>
+
+  <section id="withdrawn" class="hide">
+    <div class="card">
+      <div class="screen-head"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l-4-4 4-4M6 12h10"/></svg><h1>You have withdrawn</h1></div>
+      <p id="wdMsg"></p>
+      <p class="muted">You may now close this window.</p>
+    </div>
+  </section>
+
+  <div class="foot" id="foot"><button class="linkbtn" id="wdOpen">Withdraw from the study</button></div>
+</main>
+
+<!-- Motion 13.4.4 (MIT, formerly Framer Motion), vanilla build, served from this app -->
+<script src="/static/vendor/motion/motion.js"></script>
+<script>
+// ---------------------------------------------------------------- error reporting
+// Pre-registered exclusion 5 needs technical faults in the event log. Only errors
+// from this page's own origin are reported (browser extensions are ignored), at
+// most 5 per page load; the server caps it again at 20 per session.
+(function () {
+  let sent = 0;
+  function report(kind, message, source, line) {
+    if (sent >= 5) return;
+    if (source && !String(source).startsWith(location.origin)) return;
+    sent += 1;
+    fetch('/api/client-error', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({kind: kind, message: String(message).slice(0, 300),
+                            source: String(source || '').slice(0, 200), line: line || 0})}).catch(() => {});
+  }
+  window.addEventListener('error', e => report('error', e.message, e.filename, e.lineno));
+  window.addEventListener('unhandledrejection', e =>
+    report('promise', (e.reason && e.reason.message) || e.reason, location.href, 0));
+})();
+
+// ---------------------------------------------------------------- helpers
+const $ = id => document.getElementById(id);
+
+// ---------------------------------------------------------------- motion (UI v3.1)
+// Presentation only. Nothing here reads the condition, ai_correct, the placement or
+// the risk level; every duration is a constant; nothing is awaited, so input and
+// focus are never held up; everything is skipped under prefers-reduced-motion
+// (checked on every call) or if Motion did not load.
+const M = (window.Motion && typeof window.Motion.animate === 'function') ? window.Motion : null;
+const reduceMQ = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+const still = () => !M || reduceMQ.matches;
+const ENTER = { duration: 0.18, ease: 'easeOut' };          // the one step-card entrance
+const running = new Map();                                  // element -> controls
+function settle(el) {                                       // stop and drop inline styles
+  const a = running.get(el);
+  if (a) { try { a.stop(); } catch (e) {} running.delete(el); }
+  // Motion runs opacity on the compositor (WAAPI); cancel it here too so a card
+  // hidden mid-entrance is never left part-faded for its next appearance.
+  if (el.getAnimations) el.getAnimations().forEach(x => { try { x.cancel(); } catch (e) {} });
+  el.style.opacity = ''; el.style.transform = '';
+  // Motion writes a stopped animation's last value on its next frame; clear that too
+  // unless a new entrance has started meanwhile.
+  if (a) requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (!running.has(el)) { el.style.opacity = ''; el.style.transform = ''; }
+  }));
+}
+function reveal(el, opts) {
+  if (!el) return;
+  settle(el);
+  if (still()) return;
+  // Start state is written synchronously so the card never flashes in at full
+  // opacity for a frame before Motion's first tick.
+  el.style.opacity = '0'; el.style.transform = 'translateY(6px)';
+  const a = M.animate(el, { opacity: [0, 1], y: [6, 0] }, Object.assign({}, ENTER, opts || {}));
+  running.set(el, a);
+  a.then(() => { if (running.get(el) === a) running.delete(el); }, () => {});
+  // Safety net: if the page was throttled (background tab) never leave a card faded.
+  setTimeout(() => { if (running.get(el) === a) settle(el); }, 700);
+}
+// Past outcomes only ("What happened"): count up from 0 in a constant 250 ms.
+// Continue (or anything that repaints) snaps every number to its exact text.
+let counts = [];
+function finishCounts() {
+  counts.forEach(c => { try { c.a.stop(); } catch (e) {} c.el.textContent = c.final; });
+  counts = [];
+}
+const ANIM = new Set(['s1', 's2ai', 's2', 'out', 'gate', 'done', 'debrief', 'withdrawBox', 'withdrawn']);
+const show = (id, on=true) => {
+  const el = $(id);
+  el.classList.toggle('hide', !on);
+  if (!on) { if (ANIM.has(id)) settle(el); return; }
+  if (ANIM.has(id)) reveal(el);
+  if (id === 'trial') positionRail(false);
+};
+// Inline validation: the message (unchanged wording) sits under its field and the
+// field is flagged for assistive tech; both clear as soon as the participant types.
+function fieldError(inputId, errId, msg) {
+  $(errId).textContent = msg;
+  if (msg) $(inputId).setAttribute('aria-invalid', 'true'); else $(inputId).removeAttribute('aria-invalid');
+}
+const say = msg => { $('live').textContent = ''; setTimeout(() => { $('live').textContent = msg; }, 30); };
+let S = null;            // latest state payload
+let t1 = 0, t2 = 0;      // stage timers, client-side by design
+
+const DISRUPTION_TEXT = {
+  supplier:     'Supplier disruption: your supplier can only ship part of what you order this week.',
+  transport:    'Transport disruption: shipments already in transit are delayed further.',
+  demand_spike: 'Demand surge: customer demand is unusually high this week.',
+  lead_time:    'Lead time has lengthened: new orders will take longer to arrive from now on.',
+  inv_loss:     'Inventory loss: part of the stock on your shelves has been written off.'
+};
+const ICON_WARN = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v5M12 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const fmt = n => Math.round(n).toLocaleString();
+const ICON_UP = '<svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5l8 12H4z" fill="currentColor"/></svg>';
+const ICON_DOWN = '<svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19L4 7h16z" fill="currentColor"/></svg>';
+
+// "What happened" cells come in one after another (40 ms apart, same every week) and
+// their numbers -- this week's outcomes, already decided -- count up from 0 in 250 ms.
+function staggerOutcome(nums) {
+  finishCounts();
+  if (still()) return;
+  const cells = [...document.querySelectorAll('#outgrid .cell')];
+  cells.forEach(c => { c.style.opacity = '0'; });
+  M.animate(cells, { opacity: [0, 1], y: [6, 0] }, { duration: 0.18, delay: M.stagger(0.04), ease: 'easeOut' });
+  setTimeout(() => cells.forEach(c => { if (c.isConnected && c.style.opacity !== '1') { c.style.opacity = ''; c.style.transform = ''; } }), 900);
+  cells.forEach((c, i) => {
+    const v = c.querySelector('.v'), n = Number(nums[i]);
+    if (!v || !isFinite(n)) return;
+    const final = v.textContent;
+    const f = i === 5 ? fmt : x => String(Math.round(x));
+    v.textContent = f(0);
+    const a = M.animate(0, n, { duration: 0.25, delay: i * 0.04, ease: 'easeOut',
+      onUpdate: x => { v.textContent = f(x); }, onComplete: () => { v.textContent = final; } });
+    counts.push({ a, el: v, final });
+  });
+}
+
+// Sparkline of past weeks (values the participant has already seen). One
+// series, own 0-based scale, de-emphasised line, current value as the accent dot.
+function spark(values, label) {
+  if (!values || values.length < 2) return '';
+  const v = values.slice(-12), w = 120, h = 26, pad = 3;
+  const max = Math.max(1, ...v), x = i => pad + i * (w - 2 * pad) / (v.length - 1);
+  const y = val => h - pad - (val / max) * (h - 2 * pad);
+  const pts = v.map((val, i) => x(i).toFixed(1) + ',' + y(val).toFixed(1)).join(' ');
+  const last = v.length - 1;
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img"
+    aria-label="${label}, last ${v.length} weeks: ${v.join(', ')}"><title>${label}, last ${v.length} weeks: ${v.join(', ')}</title>
+    <polyline class="ln" points="${pts}" vector-effect="non-scaling-stroke"/>
+    <circle class="end" cx="${x(last)}" cy="${y(v[last])}" r="3.2" vector-effect="non-scaling-stroke"/></svg>`;
+}
+
+// Plain definitions only. They must not add task information the participant is
+// not otherwise given (no cost rates, no delay odds, no strategy hints).
+const HELP = {
+  'Last week demand': 'How many units customers asked for last week.',
+  'Stock on hand':    'Units on your shelves right now, ready to sell.',
+  'On order':         'Units you have ordered that have not arrived yet.',
+  'Lead time':        'How many weeks a new order is expected to take to arrive.',
+  'Unmet orders':     'Customer orders you could not fill. They are waiting, and are served first when stock is available.',
+  'Supplier ships':   'The share of your order your supplier can send this week.',
+  'Transport':        'Whether shipments on the road are running normally or delayed.',
+  'Cost so far':      'The running total of costs in this part of the task. Lower is better.'
+};
+
+function cell(k, v, unit, extra, key, help) {
+  const tip = help && HELP[k] ? `<button type="button" class="tip" aria-label="What is ${k.toLowerCase()}?" data-tip="${HELP[k]}">?</button>` : '';
+  return `<div class="cell${key ? ' key' : ''}"><div class="k">${k}${tip}</div><div class="v">${v}</div>${extra || ''}</div>`;
+}
+
+// One help bubble at a time; click or Enter/Space opens it, Esc or a click elsewhere closes it.
+let tipOpen = null;
+function closeTip() { if (tipOpen) { tipOpen.pop.remove(); tipOpen.btn.setAttribute('aria-expanded', 'false'); tipOpen = null; } }
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.tip');
+  if (!btn) { closeTip(); return; }
+  const same = tipOpen && tipOpen.btn === btn;
+  closeTip();
+  if (same) return;
+  const pop = document.createElement('div');
+  pop.className = 'tip-pop'; pop.setAttribute('role', 'tooltip'); pop.id = 'tipPop';
+  pop.textContent = btn.dataset.tip;
+  btn.closest('.cell').appendChild(pop);
+  pop.style.left = '8px'; pop.style.top = (btn.offsetTop + 24) + 'px';
+  btn.setAttribute('aria-expanded', 'true'); btn.setAttribute('aria-describedby', 'tipPop');
+  tipOpen = { btn, pop };
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTip(); });
+
+// ---- 3D view hooks: no-ops when the view is off or WebGL is missing
+const w3d = () => (window.W3D || null);
+let pendingW3D = null;
+window.addEventListener('w3d-ready', () => { if (pendingW3D) w3d().setState(pendingW3D); });
+
+// ---- guided tour: first practice week only; never blocks typing, never shown in the main task
+const TOUR = [
+  ['scene3dCard', 'This is your warehouse. Brown boxes are your stock, the truck carries what you have ordered, and red crates are customer orders you could not fill.'],
+  ['state', 'The same information as exact numbers. Click any ? to see what a number means.'],
+  ['s1', 'Step 1: type how many units you want to order this week, before you see any advice. It cannot be changed afterwards.'],
+  ['s2ai', 'Step 2: the AI assistant suggests an order and estimates the chance of running out of stock. It is not always right.'],
+  ['s2', 'Step 3: type your final order. You can keep yours, use the suggestion, or choose any other number.'],
+  ['out', 'Step 4: see what happened this week, then continue. Practice weeks do not count.']
+];
+let tourStep = -1, tourOn = false;
+function tourShow(i) {
+  document.querySelectorAll('.spot').forEach(e => e.classList.remove('spot'));
+  let c = $('coach');
+  if (i < 0 || i >= TOUR.length) { if (c) c.remove(); tourOn = false; return; }
+  const [target, text] = TOUR[i];
+  if (!$(target) || $(target).classList.contains('hide')) { return tourShow(i + 1); }
+  tourStep = i;
+  $(target).classList.add('spot');
+  if (!c) {
+    c = document.createElement('div'); c.id = 'coach'; c.className = 'coach'; c.setAttribute('role', 'status');
+    document.body.appendChild(c);
+  }
+  reveal(c);
+  const waits = target === 's1' || target === 's2';   // these advance when the participant submits
+  c.innerHTML = `<b>Quick tour &middot; ${i + 1} of ${TOUR.length}</b><p>${text}</p><div class="row">` +
+    (waits ? '' : '<button type="button" id="coachNext">Got it</button>') +
+    '<button type="button" class="ghost" id="coachSkip">Skip tour</button></div>';
+  if (!waits) $('coachNext').onclick = () => tourShow(i + 1);
+  $('coachSkip').onclick = () => tourShow(-1);
+}
+function tourAt(id) { if (tourOn) { const i = TOUR.findIndex(t => t[0] === id); if (i > tourStep) tourShow(i); } }
+
+function setStep(n) {
+  document.querySelectorAll('#stepper li').forEach(li => {
+    const s = +li.dataset.step;
+    li.classList.toggle('done', s < n);
+    if (s === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+  });
+  positionRail(true);
+}
+
+// The active-step highlight is one element that slides between steps (220 ms).
+// Orientation only; if the steps wrap onto two rows the plain per-step style is used.
+let railX = null;
+function positionRail(animateIt) {
+  const wrap = $('stepperWrap'), rail = $('stepRail'), ol = $('stepper');
+  const li = ol.querySelector('li[aria-current="step"]');
+  if (!li || !wrap.offsetWidth) return;
+  const lis = [...ol.children];
+  const wrapped = lis.some(l => l.offsetTop !== lis[0].offsetTop);
+  wrap.classList.toggle('no-rail', wrapped);
+  if (wrapped) return;
+  rail.classList.toggle('ai', li.classList.contains('ai'));
+  rail.style.width = li.offsetWidth + 'px';
+  const x = ol.offsetLeft + li.offsetLeft;
+  const instant = !animateIt || railX === null || still();
+  railX = x;
+  if (M) M.animate(rail, { x: x }, { duration: instant ? 0 : 0.22, ease: 'easeOut' });
+  else rail.style.transform = `translateX(${x}px)`;
+}
+let railTimer = null;
+window.addEventListener('resize', () => { clearTimeout(railTimer); railTimer = setTimeout(() => positionRail(false), 100); });
+
+function paintTimeline(s) {
+  const n = s.n_trials, done = s.past_stockouts || [];
+  const tl = $('timeline');
+  tl.style.gridTemplateColumns = `repeat(${n}, minmax(0,1fr))`;
+  tl.innerHTML = Array.from({length: n}, (_, i) => {
+    if (i < done.length) return `<i class="past${done[i] ? ' so' : ''}"></i>`;
+    if (i === done.length) return '<i class="now"></i>';
+    return '<i></i>';
+  }).join('');
+  const now = tl.querySelector('.now');
+  if (now && !still()) M.animate(now, { opacity: [0.3, 1], scaleY: [0.5, 1] }, { duration: 0.2, ease: 'easeOut' });
+}
+
+function paintState(s) {
+  finishCounts();
+  S = s;
+  $('trialNo').textContent = s.trial;
+  $('trialN').textContent  = s.n_trials;
+  $('phaseTag').textContent = s.phase === 'practice' ? 'practice' : `block ${s.block + 1} of 3`;
+  document.title = `Warehouse — Week ${s.trial}`;
+  paintTimeline(s);
+  const h = s.history || {};
+
+  // Same eight fields, same order as always; trend lines on the three that move.
+  $('state').innerHTML = [
+    cell('Last week demand', s.demand, '', spark(h.demand, 'Demand'), true, true),
+    cell('Stock on hand',    s.inventory, '', spark(h.inventory, 'Stock on hand'), true, true),
+    cell('On order',         s.on_order, '', '', false, true),
+    cell('Lead time',        s.lead_time + '<span class="u">wk</span>', '', '', false, true),
+    cell('Unmet orders',     s.backorders, '', spark(h.backorders, 'Unmet orders'), true, true),
+    cell('Supplier ships',   Math.round(s.supplier_reliability * 100) + '<span class="u">%</span>', '', '', false, true),
+    cell('Transport',        s.transport_ok ? 'normal' : 'delayed', '', '', false, true),
+    cell('Cost so far',      fmt(s.total_cost), '', '', false, true)
+  ].join('');
+
+  $('disrupt').innerHTML = (s.disruption && s.disruption !== 'none')
+    ? `<div class="alert" role="status">${ICON_WARN}<span>${DISRUPTION_TEXT[s.disruption] || s.disruption}</span></div>` : '';
+  closeTip();
+  if (w3d()) w3d().setState(s); else pendingW3D = s;
+  if (s.phase === 'practice' && s.trial === 1 && tourStep < 0 && !tourOn) { tourOn = true; setTimeout(() => tourShow(0), 300); }
+
+  // reset the trial UI
+  $('qown').value = ''; $('qown').disabled = false; $('s1go').disabled = false;
+  $('qfinal').value = ''; fieldError('qown', 's1err', ''); fieldError('qfinal', 's2err', '');
+  show('s1', true); show('s2ai', false); show('s2', false); show('out', false);
+  setStep(1);
+  say(`Week ${s.trial} of ${s.n_trials}. Enter your own order.`);
+  $('qown').focus();
+  t1 = performance.now();
+}
+
+async function post(url, body) {
+  const res = await fetch(url, {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body || {})
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'request failed');
+  return data;
+}
+
+// ---------------------------------------------------------------- stage 1
+$('s1go').addEventListener('click', async () => {
+  const v = parseInt($('qown').value, 10);
+  if (isNaN(v) || v < 0 || v > S.max_order) {
+    fieldError('qown', 's1err', `Enter a whole number between 0 and ${S.max_order}.`); $('qown').focus(); return;
+  }
+  const rt = Math.round(performance.now() - t1);
+  fieldError('qown', 's1err', '');
+  $('s1go').disabled = true;
+  try {
+    const adv = await post('/api/stage1', { q_own: v, rt_ms: rt });
+    // Stage 1 locks permanently: revising it after seeing advice would
+    // destroy the unaided baseline this whole design rests on.
+    $('qown').disabled = true;
+    $('ownecho').textContent = v; $('aiecho').textContent = adv.q_ai;
+    $('qai').textContent = adv.q_ai;
+    $('risk').textContent = adv.risk_pct;
+    $('level').textContent = adv.level;
+    $('riskbar').style.width = adv.risk_pct + '%';
+    $('meterBox').setAttribute('aria-label', `Estimated stockout risk ${adv.risk_pct} percent, ${adv.level}`);
+    $('qfinal').value = '';
+    show('s2ai', true); show('s2', true); setStep(2);
+    say(`AI suggestion: ${adv.q_ai} units, stockout risk ${adv.risk_pct} percent. Enter your final order.`);
+    requestAnimationFrame(() => { setStep(3); $('qfinal').focus(); });
+    t2 = performance.now();
+    tourAt('s2ai');
+  } catch (e) { $('s1err').textContent = e.message; $('s1go').disabled = false; }
+});
+
+// ---------------------------------------------------------------- stage 2
+$('s2go').addEventListener('click', async () => {
+  const v = parseInt($('qfinal').value, 10);
+  if (isNaN(v) || v < 0 || v > S.max_order) {
+    fieldError('qfinal', 's2err', `Enter a whole number between 0 and ${S.max_order}.`); $('qfinal').focus(); return;
+  }
+  const rt = Math.round(performance.now() - t2);
+  const before = S;
+  fieldError('qfinal', 's2err', '');
+  $('s2go').disabled = true;
+  try {
+    const { outcome, state } = await post('/api/stage2', { q_final: v, rt_ms: rt });
+    const d = outcome.inventory_close - before.inventory;
+    const delta = d > 0 ? `<div class="delta up">${ICON_UP}${fmt(d)} vs start of week</div>`
+                : d < 0 ? `<div class="delta down">${ICON_DOWN}${fmt(-d)} vs start of week</div>`
+                : '<div class="delta flat">no change</div>';
+    $('outgrid').innerHTML = [
+      cell('Demand this week',    outcome.demand),
+      cell('Arrived',             outcome.arrivals),
+      cell('Shipped by supplier', outcome.shipped),
+      cell('Stock left',          outcome.inventory_close, '', delta, true),
+      cell('Unmet orders',        outcome.backorders_close),
+      cell('Week cost',           fmt(outcome.cost))
+    ].join('');
+    $('outalert').innerHTML = outcome.stockout
+      ? `<div class="alert crit" role="status">${ICON_WARN}<span>You ran out of stock. ${outcome.backorders_close} units of demand went unmet.</span></div>` : '';
+    const note = milestoneFor(before);
+    $('milestone').innerHTML = note ? ICON_FLAG + '<span></span>' : '';
+    if (note) $('milestone').lastChild.textContent = note;
+    $('milestone').classList.toggle('hide', !note);
+    show('s1', false); show('s2', false); show('s2ai', false); show('out', true); setStep(4);
+    staggerOutcome([outcome.demand, outcome.arrivals, outcome.shipped, outcome.inventory_close,
+                    outcome.backorders_close, outcome.cost]);
+    say((outcome.stockout ? `You ran out of stock. ${outcome.backorders_close} units unmet.`
+                          : `Week done. ${outcome.inventory_close} units in stock.`) + (note ? ' ' + note : ''));
+    S = state;
+    $('next').focus();
+    // The picture follows the numbers just shown: arrivals in, sales out. It never
+    // blocks input; "Continue" snaps it to the next week at once.
+    if (w3d()) w3d().playWeek(before, outcome, state);
+    tourAt('out');
+  } catch (e) { $('s2err').textContent = e.message; }
+  $('s2go').disabled = false;
+});
+
+// Enter submits the step in focus -- the same key for keeping or taking advice.
+$('qown').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('s1go').click(); } });
+$('qfinal').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('s2go').click(); } });
+$('perceived').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('donego').click(); } });
+// Typing again clears a validation message and the field's error flag.
+$('qown').addEventListener('input', () => { if ($('qown').getAttribute('aria-invalid')) fieldError('qown', 's1err', ''); });
+$('qfinal').addEventListener('input', () => { if ($('qfinal').getAttribute('aria-invalid')) fieldError('qfinal', 's2err', ''); });
+
+// Press feedback on every button present at load: a 0.97 scale while held.
+// Tactile only; it never delays the click, and it is off under reduced motion.
+if (M && typeof M.press === 'function') {
+  M.press('button', el => {
+    if (el.disabled || still()) return;
+    M.animate(el, { scale: 0.97 }, { duration: 0.1, ease: 'easeOut' });
+    return () => M.animate(el, { scale: 1 }, { duration: 0.15, ease: 'easeOut' });
+  });
+}
+
+// ---------------------------------------------------------------- routing
+$('next').addEventListener('click', () => advance());
+
+function advance() {
+  if (S.phase === 'practice' && S.trial > S.n_trials) return showGate();
+  if (S.finished) return showFinish();
+  if (S.needs_block_measure) return showQuiz(S.block - 1);
+  paintState(S);
+}
+
+function showGate() {
+  show('trial', false); show('gate', true);
+  $('gateBody').textContent =
+    'Thank you, the practice weeks are done. The main task runs for 30 weeks and your ' +
+    'warehouse starts fresh. Your decisions from here are the ones that count. ' +
+    'After every ten weeks there is a short pause for two questionnaires.';
+  $('gatego').focus();
+}
+
+$('gatego').addEventListener('click', async () => {
+  const { state } = await post('/api/begin-main');
+  show('gate', false); show('trial', true);
+  paintState(state);
+});
+
+// ---- questionnaires: TiA every block, NASA-TLX every block (plan section 07)
+const TIA = [
+  ['tia_1', 'The assistant is deceptive.'],
+  ['tia_2', 'I am suspicious of the assistant’s recommendations.'],
+  ['tia_3', 'I am wary of the assistant.'],
+  ['tia_4', 'The assistant is dependable.'],
+  ['tia_5', 'The assistant is reliable.'],
+  ['tia_6', 'I can trust the assistant.']
+];
+const TLX = [
+  ['mental',      'How mentally demanding was the task?'],
+  ['temporal',    'How hurried or rushed did you feel?'],
+  ['performance', 'How successful were you in doing what you were asked?'],
+  ['effort',      'How hard did you have to work?'],
+  ['frustration', 'How irritated or stressed did you feel?']
+];
+let quizQueue = [], quizBlock = 0;
+
+function showQuiz(block) {
+  quizBlock = block;
+  quizQueue = ['tia', 'tlx'];
+  show('trial', false); show('quiz', true);
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const kind = quizQueue[0];
+  const items = kind === 'tia' ? TIA : TLX;
+  const max = kind === 'tia' ? 7 : 20;
+  const ends = kind === 'tia' ? ['strongly disagree', 'strongly agree'] : ['very low', 'very high'];
+  $('quizTitle').textContent = kind === 'tia' ? 'About the AI assistant' : 'About the last ten weeks';
+  $('quizMilestone').innerHTML = ICON_FLAG + '<span></span>';
+  $('quizMilestone').lastChild.textContent = (QUIZ_MILESTONE[quizBlock] || '') +
+    (kind === 'tia' ? ' (Questionnaire 1 of 2.)' : ' (Questionnaire 2 of 2.)');
+  $('quizIntro').textContent = kind === 'tia'
+    ? 'Rate each statement from 1 (strongly disagree) to 7 (strongly agree).'
+    : 'Rate each from 1 (very low) to 20 (very high).';
+  $('quizItems').innerHTML = items.map(([k, text]) => `
+    <fieldset class="q" style="border:0;padding:0;margin:18px 0"><legend style="font-weight:600;margin-bottom:6px">${text}</legend><div class="scale">
+      ${Array.from({length: max}, (_, i) =>
+        `<label><input type="radio" name="${k}" value="${i + 1}">${i + 1}</label>`).join('')}
+    </div><div class="scale-ends"><span>${ends[0]}</span><span>${ends[1]}</span></div></fieldset>`).join('');
+  $('quizerr').textContent = '';
+  window.scrollTo(0, 0);
+  reveal($('quiz'), { duration: 0.2 });
+}
+// An unanswered item is marked where it is (the message below keeps its wording).
+$('quizItems').addEventListener('change', e => {
+  const fs = e.target.closest('fieldset');
+  if (fs) fs.classList.remove('missing');
+  if (!document.querySelector('#quizItems fieldset.missing')) $('quizerr').textContent = '';
+});
+
+$('quizgo').addEventListener('click', async () => {
+  const kind = quizQueue[0];
+  const items = kind === 'tia' ? TIA : TLX;
+  const responses = {};
+  let firstMissing = null;
+  for (const [k] of items) {
+    const sel = document.querySelector(`input[name="${k}"]:checked`);
+    const fs = document.querySelector(`input[name="${k}"]`).closest('fieldset');
+    fs.classList.toggle('missing', !sel);
+    if (!sel) { firstMissing = firstMissing || fs; continue; }
+    responses[k] = parseFloat(sel.value);
+  }
+  if (firstMissing) {
+    $('quizerr').textContent = 'Please answer every item.';
+    firstMissing.scrollIntoView({ block: 'center', behavior: still() ? 'auto' : 'smooth' });
+    firstMissing.querySelector('input').focus({ preventScroll: true });
+    return;
+  }
+  await post('/api/block-measure', { instrument: kind, block: quizBlock, responses });
+  quizQueue.shift();
+  if (quizQueue.length) { renderQuiz(); return; }
+  show('quiz', false);
+  // After the final block's questionnaires the task is over: go to the closing
+  // question, never back to the trial screen (a 36th order would be rejected).
+  if (S.finished) { show('done', true); $('perceived').focus(); return; }
+  show('trial', true);
+  paintState(S);
+});
+
+function showFinish() {
+  // The last block's questionnaires are still owed before the debrief.
+  if (!S._quizzed) { S._quizzed = true; return showQuizThenFinish(); }
+  show('trial', false); show('done', true);
+}
+
+function showQuizThenFinish() {
+  quizBlock = 2; quizQueue = ['tia', 'tlx'];
+  show('trial', false); show('quiz', true);
+  renderQuiz();
+}
+
+$('donego').addEventListener('click', async () => {
+  const v = parseInt($('perceived').value, 10);
+  $('donego').disabled = true; $('doneerr').textContent = '';
+  try {
+    await post('/api/finish', { perceived_reliability: isNaN(v) ? null : v });
+    const res = await fetch('/api/debrief');
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'could not load the debrief');
+    $('dbCorrect').textContent = d.n_correct; $('dbN').textContent = d.n_trials;
+    $('dbPct').textContent = d.condition_pct; $('dbOther').textContent = d.other_pct;
+    $('dbErr').textContent = d.n_errors; $('dbProp').textContent = d.n_errors_propagating;
+    $('dbAbs').textContent = d.n_errors_absorbed;
+    $('dbDir').textContent = d.n_errors_over === 0
+      ? 'Every wrong recommendation suggested ordering too little.'
+      : d.n_errors_under + ' of them suggested ordering too little and ' + d.n_errors_over +
+        ' too much (when too little was not possible).';
+    show('done', false); show('debrief', true); window.scrollTo(0, 0);
+    renderWeeks(d.weeks || []);
+  } catch (e) { $('doneerr').textContent = e.message; $('donego').disabled = false; }
+});
+
+// ---------------------------------------------------------------- milestones (UI v3.2)
+// Encouragement tied ONLY to progress: the same words for every participant at the
+// same week, whatever they ordered, whatever it cost, whatever the AI did and
+// whichever condition they are in. Nothing here reads the outcome, the advice, the
+// condition or the schedule; the practice weeks get none. It is shown inside the
+// "What happened" card that is already on screen, so it adds no step, no delay and
+// no animation of its own, and never touches t1 or t2.
+const ICON_FLAG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>';
+const MILESTONES = {
+  5:  '5 of 30 weeks done. Thank you for taking each decision carefully.',
+  15: 'Halfway there: 15 of 30 weeks done. Thank you for your careful decisions.',
+  25: '25 of 30 weeks done. Five weeks to go.'
+};
+function milestoneFor(weekState) {           // the state the week was played from
+  if (!weekState || weekState.phase !== 'main') return '';
+  return MILESTONES[weekState.trial] || '';
+}
+const QUIZ_MILESTONE = [
+  'A third of the way through: 10 of 30 weeks done. Two short questionnaires, then the task continues.',
+  'Two thirds done: 20 of 30 weeks. Two short questionnaires, then the last ten weeks.',
+  'All 30 weeks are done. These are the last questions: two short questionnaires, then one final question.'
+];
+
+// ---------------------------------------------------------------- debrief timeline (UI v3.2)
+// "Your 30 weeks": after the session only (the data comes from /api/debrief, which the
+// server refuses until the task is finished). Each category has its own shape AND colour;
+// hover, focus + arrow keys, and a table give the same text.
+const WK_AI = {
+  ok:       'AI suggestion: right',
+  lasting:  'AI suggestion: wrong, in a week where a bad order does lasting damage',
+  absorbed: 'AI suggestion: wrong, in a calm week where it is easily absorbed',
+  wrong:    'AI suggestion: wrong'
+};
+const WK_RESP = {
+  override: 'You kept your own order',
+  accept:   'You took the suggestion',
+  modify:   'You adjusted it (chose another number)',
+  none:     'No order recorded'
+};
+const wkAiKind = w => w.ai_correct ? 'ok' : (w.placement === 'propagating' ? 'lasting'
+                                           : w.placement === 'absorbed' ? 'absorbed' : 'wrong');
+// Marks, drawn around (0,0); r is roughly the half-width.
+function wkMark(kind, r) {
+  const tri = cls => `<path class="${cls}" d="M0 ${-r} L${r * 1.1} ${r * .8} L${-r * 1.1} ${r * .8} Z"/>`;
+  switch (kind) {
+    case 'ok':       return `<path class="m-ok" d="M${-r * .7} 0 L${-r * .15} ${r * .6} L${r * .8} ${-r * .6}"/>`;
+    case 'lasting':  return tri('m-lasting');
+    case 'absorbed': case 'wrong': return tri('m-absorbed');
+    case 'override': return `<rect class="m-own" x="${-r * .85}" y="${-r * .85}" width="${r * 1.7}" height="${r * 1.7}" rx="2"/>`;
+    case 'accept':   return `<circle class="m-accept" r="${r}"/>`;
+    case 'modify':   return `<path class="m-modify" d="M0 ${-r * 1.15} L${r * 1.05} 0 L0 ${r * 1.15} L${-r * 1.05} 0 Z"/>`;
+    case 'none':     return `<path class="m-none" d="M${-r * .6} 0 H${r * .6}"/>`;
+    case 'so':       return `<rect class="m-so" x="${-r * 1.1}" y="${-r * .7}" width="${r * 2.2}" height="${r * 1.4}" rx="3"/>`;
+    case 'noso':     return `<rect class="m-noso" x="${-r * 1.1}" y="-1.5" width="${r * 2.2}" height="3" rx="1.5"/>`;
+  }
+  return '';
+}
+const wkIcon = (kind, size = 16) =>
+  `<svg width="${size}" height="${size}" viewBox="${-size / 2} ${-size / 2} ${size} ${size}" aria-hidden="true">${wkMark(kind, size * .36)}</svg>`;
+
+let WEEKS = [], wkActive = -1;
+function wkLines(w) {
+  return [`Week ${w.week}`, WK_AI[wkAiKind(w)], WK_RESP[w.response || 'none'],
+          w.stockout ? 'You ran out of stock' : 'You did not run out of stock'];
+}
+function renderWeeks(weeks) {
+  WEEKS = Array.isArray(weeks) ? weeks : [];
+  if (!WEEKS.length) { ['wkChart', 'wkLegend', 'wkTableBtn'].forEach(id => $(id).classList.add('hide')); return; }
+  // legend: static strings; the marks mirror the chart
+  $('wkLegend').innerHTML =
+    `<div class="grp"><b>AI suggestion</b><span>${wkIcon('ok')}right</span>` +
+    `<span>${wkIcon('lasting')}wrong, lasting-damage week</span><span>${wkIcon('absorbed')}wrong, absorbed week</span></div>` +
+    `<div class="grp"><b>Your final order</b><span>${wkIcon('override')}kept your own</span>` +
+    `<span>${wkIcon('accept')}took the suggestion</span><span>${wkIcon('modify')}adjusted</span></div>` +
+    `<div class="grp"><b>Stock</b><span>${wkIcon('so')}ran out</span></div>`;
+  // table alternative, built with textContent
+  const tb = $('wkTbody'); tb.textContent = '';
+  WEEKS.forEach(w => {
+    const tr = document.createElement('tr');
+    const aiText = { ok: 'Right', lasting: 'Wrong (lasting-damage week)', absorbed: 'Wrong (absorbed week)', wrong: 'Wrong' }[wkAiKind(w)];
+    const respText = { override: 'Kept your own', accept: 'Took the suggestion', modify: 'Adjusted', none: 'Not recorded' }[w.response || 'none'];
+    [String(w.week), aiText, respText, w.stockout ? 'Yes' : 'No'].forEach(v => {
+      const td = document.createElement('td'); td.textContent = v; tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  drawWeeks();
+}
+function drawWeeks() {
+  const svg = $('wkSvg'), wrap = $('wkChart');
+  const W = Math.max(480, wrap.clientWidth - 8);
+  const n = WEEKS.length, labW = 128, padR = 4, rowH = 34, top = 2, axisH = 22;
+  const colW = (W - labW - padR) / n, H = top + rowH * 3 + axisH;
+  const cx = i => labW + colW * (i + .5), cy = k => top + rowH * (k + .5);
+  const r = Math.max(5, Math.min(7, colW * .3));
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('height', H);
+  let g = '';
+  ['AI suggestion', 'Your final order', 'Ran out of stock'].forEach((t, k) => {
+    g += `<text class="wk-rowlab" x="8" y="${cy(k) + 4}">${t}</text>`;
+    if (k) g += `<line class="wk-grid" x1="${labW}" x2="${W - padR}" y1="${top + rowH * k}" y2="${top + rowH * k}"/>`;
+  });
+  // the questionnaire breaks after weeks 10 and 20
+  [10, 20].forEach(b => { if (b < n) { const x = labW + colW * b;
+    g += `<line class="wk-block" x1="${x}" x2="${x}" y1="${top}" y2="${top + rowH * 3}"/>`; } });
+  WEEKS.forEach((w, i) => {
+    const x = cx(i);
+    g += `<g class="wk-col" data-i="${i}"><rect class="wk-band" x="${labW + colW * i + 1}" y="${top}" width="${colW - 2}" height="${rowH * 3}" rx="4"/>` +
+      `<g transform="translate(${x},${cy(0)})">${wkMark(wkAiKind(w), r)}</g>` +
+      `<g transform="translate(${x},${cy(1)})">${wkMark(w.response || 'none', r)}</g>` +
+      `<g transform="translate(${x},${cy(2)})">${wkMark(w.stockout ? 'so' : 'noso', Math.min(r, colW * .38))}</g>` +
+      `<rect x="${labW + colW * i}" y="0" width="${colW}" height="${H}" fill="transparent"/></g>`;
+    if (w.week === 1 || w.week % 5 === 0)
+      g += `<text class="wk-axis" x="${x}" y="${H - 6}" text-anchor="middle">${w.week}</text>`;
+  });
+  svg.innerHTML = g;
+  if (wkActive >= 0) wkShow(wkActive, false);
+}
+function wkShow(i, fromKeys) {
+  const wrap = $('wkChart'), tip = $('wkTip');
+  document.querySelectorAll('#wkSvg .wk-col.on').forEach(c => c.classList.remove('on', 'kb'));
+  if (i < 0 || i >= WEEKS.length) { wkActive = -1; tip.classList.add('hide'); return; }
+  wkActive = i;
+  const col = document.querySelector(`#wkSvg .wk-col[data-i="${i}"]`);
+  if (!col) return;
+  col.classList.add('on'); if (fromKeys) col.classList.add('kb');
+  const w = WEEKS[i], lines = wkLines(w);
+  tip.textContent = '';
+  const h = document.createElement('strong'); h.textContent = lines[0]; tip.appendChild(h);
+  [[wkAiKind(w), lines[1]], [w.response || 'none', lines[2]], [w.stockout ? 'so' : 'noso', lines[3]]].forEach(([k, t]) => {
+    const d = document.createElement('div'); d.innerHTML = wkIcon(k, 14);
+    const sp = document.createElement('span'); sp.textContent = t; d.appendChild(sp); tip.appendChild(d);
+  });
+  tip.classList.remove('hide');
+  // above the chart, centred on the week, kept inside the chart's box
+  const band = col.querySelector('.wk-band').getBoundingClientRect(), box = wrap.getBoundingClientRect();
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let left = band.left - box.left + band.width / 2 - tw / 2;
+  left = Math.max(0, Math.min(left, box.width - tw));
+  tip.style.transform = `translate(${Math.round(left)}px, ${Math.round(-th - 8)}px)`;
+  if (fromKeys) $('wkLive').textContent = lines.join('. ') + '.';
+}
+$('wkChart').addEventListener('pointermove', e => {
+  const col = e.target.closest && e.target.closest('.wk-col');
+  if (col) { const i = +col.dataset.i; if (i !== wkActive) wkShow(i, false); }
+});
+$('wkChart').addEventListener('pointerleave', () => { if (document.activeElement !== $('wkChart')) wkShow(-1); });
+$('wkChart').addEventListener('focus', () => wkShow(wkActive >= 0 ? wkActive : 0, true));
+$('wkChart').addEventListener('blur', () => wkShow(-1));
+$('wkChart').addEventListener('keydown', e => {
+  const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+  let i = wkActive < 0 ? 0 : wkActive;
+  if (e.key in step) i = Math.max(0, Math.min(WEEKS.length - 1, i + step[e.key]));
+  else if (e.key === 'Home') i = 0;
+  else if (e.key === 'End') i = WEEKS.length - 1;
+  else if (e.key === 'Escape') { wkShow(-1); return; }
+  else return;
+  e.preventDefault(); wkShow(i, true);
+});
+$('wkTableBtn').addEventListener('click', () => {
+  const open = $('wkTableWrap').hidden;
+  $('wkTableWrap').hidden = !open;
+  $('wkTableBtn').setAttribute('aria-expanded', String(open));
+  $('wkTableBtn').textContent = open ? 'Hide the table' : 'Show the 30 weeks as a table';
+});
+let wkResize = null;
+window.addEventListener('resize', () => {
+  clearTimeout(wkResize);
+  wkResize = setTimeout(() => { if (WEEKS.length && !$('debrief').classList.contains('hide')) drawWeeks(); }, 120);
+});
+
+// ---------------------------------------------------------------- withdrawal
+// Hidden sections are remembered so Cancel returns the participant exactly
+// where they were, with any half-entered order untouched.
+let beforeWithdraw = [];
+const SECTIONS = ['trial', 'quiz', 'gate', 'done', 'debrief'];
+$('wdOpen').addEventListener('click', () => {
+  beforeWithdraw = SECTIONS.filter(id => !$(id).classList.contains('hide'));
+  beforeWithdraw.forEach(id => show(id, false));
+  show('foot', false); show('withdrawBox', true); window.scrollTo(0, 0);
+});
+$('wdCancel').addEventListener('click', () => {
+  show('withdrawBox', false); show('foot', true);
+  beforeWithdraw.forEach(id => show(id, true));
+});
+async function withdraw(deleteData) {
+  $('wderr').textContent = '';
+  try {
+    await post('/api/withdraw', { delete_data: deleteData });
+    $('wdMsg').textContent = deleteData
+      ? 'Everything you entered has been deleted. Thank you for your time.'
+      : 'Your session has ended. The answers you gave so far may be used in the study. Thank you for your time.';
+    show('withdrawBox', false); show('withdrawn', true);
+  } catch (e) { $('wderr').textContent = e.message; }
+}
+$('wdDelete').addEventListener('click', () => withdraw(true));
+$('wdKeep').addEventListener('click', () => withdraw(false));
+
+// Choice offered on the debrief itself. Keeping is the default and needs no call.
+$('dbKeep').addEventListener('click', () => {
+  $('dbChoice').textContent = 'Thank you. Your data will be kept.';
+  $('dbKeep').disabled = true; $('dbDelete').disabled = true;
+});
+$('dbDelete').addEventListener('click', async () => {
+  try {
+    await post('/api/withdraw', { delete_data: true });
+    $('dbChoice').textContent = 'All your data has been deleted. Thank you for your time.';
+    $('dbKeep').disabled = true; $('dbDelete').disabled = true;
+  } catch (e) { $('dbChoice').textContent = e.message; }
+});
+
+// ---------------------------------------------------------------- boot
+(async () => {
+  const res = await fetch('/api/state');
+  if (!res.ok) { window.location = '/'; return; }
+  paintState(await res.json());
+})();
+</script>
+{% if ui3d %}
+<!-- three.js r169 (MIT), served from this app, never from a third-party CDN -->
+<script type="importmap">{ "imports": { "three": "/static/vendor/three/three.module.min.js" } }</script>
+<script type="module" src="/static/js/warehouse3d.js"></script>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,44 @@
+==============================================================================
+EXTRA BASELINES -- unified split (series_folds, fold 0) across every model
+==============================================================================
+
+[tabular]  116 hand-built features, same ones LR/HistGB/LightGBM get
+  rows: 15456 train / 3840 val / 5664 test
+
+  SVM (linear)                      acc 0.865  AUROC 0.887  PR-AUC 0.674  F1 0.575  ECE 0.022
+  MLP (tabular)                     acc 0.855  AUROC 0.862  PR-AUC 0.632  F1 0.512  ECE 0.010
+
+[windowed]  same 22-channel sequence input PatchTST v2 gets
+  windows: 15456 train / 3840 val / 5664 test  (22 channels, lookback 48)
+
+  CNN (1D)             12e      4s  acc 0.858  AUROC 0.885  PR-AUC 0.671  F1 0.582  ECE 0.025
+  LSTM                 20e      5s  acc 0.861  AUROC 0.875  PR-AUC 0.653  F1 0.554  ECE 0.014
+  GRU                  20e      5s  acc 0.858  AUROC 0.871  PR-AUC 0.648  F1 0.537  ECE 0.015
+C:\Users\ZhuanZ\AppData\Local\Programs\Python\Python313\Lib\site-packages\torch\nn\modules\transformer.py:392: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+  Transformer (vanilla) 31e     19s  acc 0.855  AUROC 0.875  PR-AUC 0.651  F1 0.588  ECE 0.014
+C:\Users\ZhuanZ\AppData\Local\Programs\Python\Python313\Lib\site-packages\torch\nn\modules\transformer.py:392: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+  JointPatchTransformer 17e     15s  acc 0.862  AUROC 0.884  PR-AUC 0.665  F1 0.576  ECE 0.026
+
+==============================================================================
+FULL COMPARISON  (fingerprint f953645593cab9a1, unified split, fold 0)
+==============================================================================
+  model                         acc    AUROC   PR-AUC       F1      ECE
+  --------------------------------------------------------------------
+  logistic regression         0.866    0.887    0.670    0.616    0.019
+  LightGBM                    0.859    0.888    0.671    0.605    0.016
+  SVM (linear)                0.865    0.887    0.674    0.575    0.022
+  MLP (tabular)               0.855    0.862    0.632    0.512    0.010
+  CNN (1D)                    0.858    0.885    0.671    0.582    0.025
+  LSTM                        0.861    0.875    0.653    0.554    0.014
+  GRU                         0.858    0.871    0.648    0.537    0.015
+  Transformer (vanilla)       0.855    0.875    0.651    0.588    0.014
+  JointPatchTransformer       0.862    0.884    0.665    0.576    0.026
+  PatchTST v2                 0.850    0.859    0.623    0.505    0.015  (5-seed mean)
+
+  NOTE: logistic regression and LightGBM are re-loaded from
+  baselines_strong.json, which now ALSO uses series_folds(fold=0) --
+  re-run src/baselines_strong.py first if that file predates this fix.
+
+  written -> E:\trae project\New folder (2)\src\..\results\extra_baselines.json

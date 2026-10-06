@@ -1,0 +1,24 @@
+# SIMULATED -- not study data. Synthetic participants driven through the real app code to test the analysis pipeline.
+
+Outputs of `src/analysis/run_all.py` on `E:\trae project\New folder (2)\data\simulated\sim_null.sqlite3`.
+These numbers describe synthetic participants with planted (or absent) effects. They are a test of the analysis code, not findings.
+
+Planted behavioural parameters (from the `simulated_participant` event):
+
+```
+w_high = 0.55
+w_low = 0.55
+ai_err_shift = 0.0
+drop_prop = 0.0
+drop_abs = 0.0
+trust_slope = 0.0
+perceived_high = 68
+perceived_low = 68
+```
+
+Not planted, but produced by the app itself: with identical weighting the
+60 % condition receives worse advice, so it makes larger decision errors
+(H4a can be 'supported' even in the null dataset), and the binary AR model
+pools CA and IA trials whose mix differs by condition (see the AR
+`sensitivity_with_case_type` entry in results.json).
+CSV files start with a `#` banner line: read them with `comment='#'`.

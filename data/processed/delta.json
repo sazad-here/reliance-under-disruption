@@ -1,0 +1,6 @@
+{
+  "delta_5pct": 45,
+  "delta_10pct": 65,
+  "z": 1.26,
+  "method": "empirical grid search, 300 episodes, FITTED parameters"
+}

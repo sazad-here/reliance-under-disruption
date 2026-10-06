@@ -1,0 +1,140 @@
+{
+  "propagating": [
+    5,
+    7,
+    8,
+    9,
+    14,
+    15,
+    16,
+    19
+  ],
+  "absorbed": [
+    2,
+    3,
+    10,
+    11,
+    12,
+    20,
+    22,
+    25
+  ],
+  "size": 100,
+  "selection": {
+    "seeds": "0-99",
+    "per_week": {
+      "2": {
+        "dcost": -0.78,
+        "dstock": -0.03
+      },
+      "3": {
+        "dcost": -20.3,
+        "dstock": 0.08
+      },
+      "4": {
+        "dcost": 8.8,
+        "dstock": 0.1
+      },
+      "5": {
+        "dcost": 9.04,
+        "dstock": 0.19
+      },
+      "6": {
+        "dcost": 51.04,
+        "dstock": 0.04
+      },
+      "7": {
+        "dcost": 68.62,
+        "dstock": 0.23
+      },
+      "8": {
+        "dcost": 132.04,
+        "dstock": 0.32
+      },
+      "9": {
+        "dcost": 94.68,
+        "dstock": 0.58
+      },
+      "10": {
+        "dcost": -93.52,
+        "dstock": -0.03
+      },
+      "11": {
+        "dcost": -51.36,
+        "dstock": 0.19
+      },
+      "12": {
+        "dcost": -209.68,
+        "dstock": 0.2
+      },
+      "13": {
+        "dcost": 89.8,
+        "dstock": 0.05
+      },
+      "14": {
+        "dcost": 2.38,
+        "dstock": 0.2
+      },
+      "15": {
+        "dcost": 40.54,
+        "dstock": 0.22
+      },
+      "16": {
+        "dcost": 736.46,
+        "dstock": 0.38
+      },
+      "17": {
+        "dcost": 618.25,
+        "dstock": 0.0
+      },
+      "18": {
+        "dcost": -32.45,
+        "dstock": 0.27
+      },
+      "19": {
+        "dcost": 33.4,
+        "dstock": 0.19
+      },
+      "20": {
+        "dcost": -22.36,
+        "dstock": 0.1
+      },
+      "21": {
+        "dcost": 7.66,
+        "dstock": 0.14
+      },
+      "22": {
+        "dcost": -19.8,
+        "dstock": 0.18
+      },
+      "23": {
+        "dcost": -17.88,
+        "dstock": 0.21
+      },
+      "24": {
+        "dcost": -19.64,
+        "dstock": 0.2
+      },
+      "25": {
+        "dcost": -78.84,
+        "dstock": 0.07
+      }
+    }
+  },
+  "validation_reference_follower": {
+    "prop_cost": 134.429375,
+    "abs_cost": -61.99625,
+    "prop_stock": 0.29125,
+    "abs_stock": 0.084375,
+    "stock_ratio": 3.4518518518518517,
+    "passes": true
+  },
+  "validation_noisy_follower": {
+    "prop_cost": 110.623125,
+    "abs_cost": -53.658125,
+    "prop_stock": 0.23875000000000002,
+    "abs_stock": 0.13437500000000002,
+    "stock_ratio": 1.7767441860465114,
+    "passes": true
+  }
+}

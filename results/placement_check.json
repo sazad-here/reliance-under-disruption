@@ -1,0 +1,33 @@
+{
+  "size": 100,
+  "n_seeds": 200,
+  "table": {
+    "absorbed/over": {
+      "n": 3000,
+      "extra_cost": 101.32,
+      "extra_stockout_weeks": -0.006,
+      "span": 1.43
+    },
+    "absorbed/under": {
+      "n": 3000,
+      "extra_cost": -8.654,
+      "extra_stockout_weeks": 0.141,
+      "span": 1.43
+    },
+    "propagating/over": {
+      "n": 2200,
+      "extra_cost": 2.935,
+      "extra_stockout_weeks": -0.192,
+      "span": 2.138
+    },
+    "propagating/under": {
+      "n": 2200,
+      "extra_cost": 131.386,
+      "extra_stockout_weeks": 0.186,
+      "span": 2.056
+    }
+  },
+  "placement_effect_under": 140.04036363636362,
+  "direction_effect_absorbed": -109.97399999999999,
+  "current_design_contrast": 30.066363636363633
+}

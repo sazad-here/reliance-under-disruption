@@ -1,0 +1,26 @@
+self-check  ES_bu 0.670981 (published 0.670981)   sNaive 0.847017 (published 0.847017)
+long frame 25721475 rows x 32 features, built in 55s
+  CA_1  best rounds  229  44s
+  CA_2  best rounds  904  126s
+  CA_3  best rounds  484  62s
+  CA_4  best rounds  221  34s
+  TX_1  best rounds  249  38s
+  TX_2  best rounds  611  74s
+  TX_3  best rounds  236  36s
+  WI_1  best rounds  245  39s
+  WI_2  best rounds  148  26s
+  WI_3  best rounds  260  42s
+
+LightGBM WRMSSE 0.569076
+  YJ_STU (1st)               0.5204
+  Matthias (2nd)             0.5282
+  mf (3rd)                   0.5357
+  10th place                 0.5475
+  20th place                 0.5569
+  OURS: LightGBM             0.5691
+  50th place                 0.5760
+  ES_bu (best benchmark)     0.6710
+  sNaive                     0.8470
+  -> would rank 39 of the top 50 (38 top-50 teams scored lower)
+  improvement over best benchmark ES_bu: 15.2 % (winner: 22.4 %)
+written -> E:\trae project\New folder (2)\lightgbm-pivot\m5_results.json

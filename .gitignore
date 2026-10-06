@@ -1,0 +1,77 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Study databases: participant data never goes into git ---
+*.sqlite3
+*.sqlite3-*
+*.sqlite3.*
+data/test_databases/
+
+# --- Large / third-party / regenerable data ---
+data/raw/
+data/.browser/
+data/.downloads/
+vendor/
+demo/output/
+*.webm
+
+# Kept on purpose (the app needs them at runtime):
+#   models/live_risk_lgbm.txt, models/live_risk_meta.json
+#   data/processed/fitted_params.json, data/processed/m5_weekly.npy
+
+# --- Deploy / tooling ---
+.firebase/
+firebase-debug.log
+*-debug.log
+deploy/.secrets/
+cloud-sql-proxy*
+exports/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Azure deploy: contains the database password written by deploy-azure.sh
+deploy/.azure-db-url
+data/export-*.sql
+
+# --- Added 5 Oct 2026, before the first commit ---
+# Without these, `git add .` commits ~750 MB of regenerable or re-installable
+# files. Nothing here is needed to run, deploy or analyse the study.
+node_modules/
+web/.next/
+# Narrated-demo build products: narration.wav 55 MB, raw.webm 31 MB,
+# Reliance_Under_Disruption_demo.mp4 23 MB. Rebuild with
+# demo/narrated/make_narrated_demo.py; keep the mp4 outside git.
+demo/narrated/output/
+# Regenerable feature corpus (~14 MB). fitted_params.json and m5_weekly.npy
+# are NOT ignored -- the app loads both at runtime.
+data/processed/corpus*.csv
+
+# web/ is a separate shadcn side project and still has its own .git, so the
+# parent repo would record it as a broken submodule. It is NOT part of the
+# study app (the deployed image contains only src/, models/ and two files from
+# data/processed). Delete web/.git and remove this line if you want it tracked.
+/web/
+
+# --- Copyrighted source PDFs: read locally, never redistributed ---
+# ~70 MB of publisher PDFs. They are inputs to the literature review, not to
+# the app, and each is retrievable by DOI. The reviews that matter are kept as
+# text in docs/paper-reviews/. See RESULTS.md and LINKS.md for the citations.
+lightgbm-pivot/papers/
+*.pdf
+
+# Working screenshot, not a project artefact.
+screen.png

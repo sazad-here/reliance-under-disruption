@@ -1,0 +1,23 @@
+# Allow-list: exclude everything, then re-include only what the image needs.
+# (Keeps raw datasets, SQLite files, vendor/, archive/, PDFs etc. out of the
+# build context and out of the image.)
+*
+
+# The Dockerfile itself: remote builders (az containerapp up --source .,
+# az acr build) filter their upload through THIS file, and without the
+# Dockerfile they fall back to buildpack detection and build the wrong
+# image. Local `docker build` reads it separately and never needed this.
+!Dockerfile
+
+!requirements.txt
+!src/
+!models/live_risk_lgbm.txt
+!models/live_risk_meta.json
+!data/processed/fitted_params.json
+!data/processed/m5_weekly.npy
+
+# Never ship these even though they live under src/
+**/__pycache__
+**/*.pyc
+src/tests/
+**/*.sqlite3*
