@@ -45,9 +45,13 @@ conditions across blocks; the Reliability × Block interaction is non-zero.
 > reliability changes. Block-level trust measurement is registered specifically
 > so that a null result is informative rather than uninterpretable.
 
-**H3 (error placement).** Errors at propagating positions reduce subsequent
-reliance more than errors at absorbed positions, at equal error rate and equal
-direction (all under-orders).
+**H3 (error placement).** Subsequent reliance differs after errors at
+propagating positions compared with errors at absorbed positions, at equal error
+rate and equal direction (all under-orders). The test is **two-sided**: a costly
+cascade could reduce reliance on the assistant, as the algorithm-aversion
+literature predicts, or increase it, if the participant reads the cascade as
+evidence that their own judgement was inadequate. Either direction is reported
+as support, with its sign.
 
 *Positions (design v2, fixed in `src/interface/advice.py`).* PROPAGATING weeks
 5, 7, 8, 9, 14, 15, 16, 19; ABSORBED weeks 2, 3, 10, 11, 12, 20, 22, 25;
@@ -91,6 +95,13 @@ delivers exactly 6 errors and the 60 % condition exactly 12. Sampling each trial
 independently would let realised reliability range roughly 65–93 %, which is
 wider than the gap between the two conditions.
 
+**Materials.** The task page shows a 3D warehouse view (interface v3), with "?"
+definitions for each number and a guided tour in practice week 1. The view
+pictures only numbers already on screen (stock, on-order total, unmet orders,
+supplier and transport status); it shows no delivery timing, Q\*, or AI
+information, and it is identical in both conditions. Each session records its
+view in `session_start.ui`; a session run with the plain panel is reported.
+
 ## 6. Two-stage elicitation
 
 Each trial elicits the participant's order **twice**:
@@ -123,7 +134,8 @@ There is no completion code and no payment reconciliation.
 
 **Power** (`src/power_analysis.py`; participant-level approximations of the
 mixed models, so conservative). H1: 80 % power at d ≈ 0.7 (d = 0.5 gives 54 %).
-H3: 80 % power for a 0.08 drop in after-error Weight of Advice at trial-level
+H3: 80 % power for a 0.08 difference in after-error Weight of Advice (α = .05,
+two-sided, matching the registered test) at trial-level
 noise SD 0.30, and ≈ 0.10–0.11 at SD 0.40. Smaller effects than these are
 unlikely to be detected and would be reported as inconclusive, not as null.
 
@@ -356,7 +368,7 @@ a backstop, not a target.
 
 1. **Author list and affiliations** are not filled in.
 2. ~~**The power analysis has not been run.**~~ **Done 24 Sep** — §7.
-3. **H3's directional prediction** is stated as reduced reliance after
+3. ~~**H3's directional prediction**~~ **Decided 17 Oct: two-sided (§4); implemented in `confirmatory.py`.** Original note: is stated as reduced reliance after
    propagating errors. Confirm this is the intended direction — an equally
    defensible prediction is *increased* reliance, if a costly cascade is read as
    evidence the participant's own judgement was inadequate.
@@ -410,7 +422,7 @@ a backstop, not a target.
 13. ~~**Direction of the binary appropriate-reliance (AR) model.**~~ **Decided 17 Oct: case-type term (CA vs IA) is confirmatory, test two-sided; the unadjusted model is a robustness check (§10). Implemented in `confirmatory.py`.** Original note: The share of trials where the initial order is right and the AI is wrong (the IA case) differs by condition (about 25 % at 80 %, about 55 % at 60 %), so the reliability term partly reflects this case mix. In null simulated data the estimate falls from +0.36 to +0.04 once case type is controlled. Recommended: register the model with a case-type term (initial wrong and AI right, CA, vs IA) and state that it is two-sided.
 14. ~~**Holm family.**~~ **Decided 17 Oct: H2 is outside the family; Holm across H1, H3, H4a, H4b, AR; H2 reported uncorrected (§10). Implemented in `confirmatory.py`.** Original note: Confirm whether H2 (trust) belongs to the corrected family. The scripts currently correct across H1, H2, H3, H4a, H4b and AR, which is the more conservative choice.
 15. ~~**Fast-response exclusion.**~~ **Decided 17 Oct: all 35 stage-1 responses, practice and main (§8) — what `exclusions.py` already does.** Original note: "More than 20 % of stage-1 responses faster than 500 ms" is currently applied to all 35 responses (practice + main). The alternative reading is main trials only. Decide and state it.
-16. **Interface v3 (added 28 Sept).** The task page gains a 3D warehouse view, "?" definitions for each number, and a guided tour in practice week 1. The 3D view pictures only the numbers already on screen: stock, the on-order total, unmet orders, and supplier and transport status. It shows no delivery timing, Q* or AI information, and it is identical in both conditions. Decide whether to run the study with it (default) or with the plain panel (`WAREHOUSE_3D=0`), and state the choice in *Materials*. Each session logs its view in `session_start.ui`. If it is adopted, the pilot (13 Oct) must use it. **Update 28 Sept (v3.1):**
+16. ~~**Interface v3 (added 28 Sept).**~~ **Decided 17 Oct: run with the 3D view (default); stated in §5 *Materials*.** Original note: The task page gains a 3D warehouse view, "?" definitions for each number, and a guided tour in practice week 1. The 3D view pictures only the numbers already on screen: stock, the on-order total, unmet orders, and supplier and transport status. It shows no delivery timing, Q* or AI information, and it is identical in both conditions. Decide whether to run the study with it (default) or with the plain panel (`WAREHOUSE_3D=0`), and state the choice in *Materials*. Each session logs its view in `session_start.ui`. If it is adopted, the pilot (13 Oct) must use it. **Update 28 Sept (v3.1):**
 - The pages gain Motion transitions. Every step card, human or AI, gets the same entrance of at most 200 ms; the AI numbers are never animated.
 - The 3D view gains ambient motion. It is data-independent and identical in both conditions.
 - A truck now drives in or out depending on whether stock is on order.

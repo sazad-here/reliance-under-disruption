@@ -185,7 +185,7 @@
         "outcome": "Post-error WoA",
         "model": "woa ~ place_c * rel_c + (1|pid), post-error trials",
         "test": "Placement (propagating - absorbed)",
-        "predicted_sign": -1,
+        "predicted_sign": 0,
         "term": "place_c",
         "estimate": 0.03834655471787461,
         "se": 0.021171376418221335,
@@ -388,8 +388,8 @@
             "p": 0.7954374206868926
           },
           "bayes_mixed_glm_vb": {
-            "posterior_mean": 0.04430816999093893,
-            "posterior_sd": 0.13764341449657835
+            "posterior_mean": 0.04430818245389327,
+            "posterior_sd": 0.13764347243503294
           }
         },
         "p_holm": 1.0,

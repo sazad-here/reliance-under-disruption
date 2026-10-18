@@ -9,4 +9,4 @@
 | H4b | Reliability x Placement (gap widens after propagating) | -4.173 [-15.463, 7.117]; d = -0.12 | .469 | No |
 | AR | Reliability (log-odds, 80 % - 60 %) | 0.304 [0.005, 0.602]; OR 1.35 [1.00, 1.83] | .093 | No |
 
-Holm correction across H1, H3, H4a, H4b, AR. † H2 is outside the Holm family (secondary outcome): uncorrected p, supported = p < .05. Supported = p(Holm) < .05 and estimate in the predicted direction (H2, AR non-directional). AR adjusts for case type (CA vs IA). Estimates are model coefficients: reliability coded 80 % - 60 %, placement propagating - absorbed; d = b / sqrt(var_participant + var_residual).
+Holm correction across H1, H3, H4a, H4b, AR. † H2 is outside the Holm family (secondary outcome): uncorrected p, supported = p < .05. Supported = p(Holm) < .05 and estimate in the predicted direction (H2, H3, AR non-directional). AR adjusts for case type (CA vs IA). Estimates are model coefficients: reliability coded 80 % - 60 %, placement propagating - absorbed; d = b / sqrt(var_participant + var_residual).

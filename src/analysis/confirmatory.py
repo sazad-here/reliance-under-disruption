@@ -16,7 +16,9 @@ not converge or the slope variance is on the boundary):
                                   test: joint Wald (2 df) on the two
                                   interaction terms; estimate reported is the
                                   block-3 minus block-1 divergence (rel_c:block2)
-  H3   WoA ~ place_c * rel_c   on post-error trials         test place_c < 0
+  H3   WoA ~ place_c * rel_c   on post-error trials         test place_c (two-sided;
+       open question 3, decided 17 Oct 2026: a cascade could lower reliance, or
+       raise it if read as evidence the participant's own judgement failed)
        (post-error = the trial after an AI error; placement = that error's
        placement; see measures.py)
        CAUTION (found on simulated data): propagating weeks cluster (7-8-9,
@@ -50,7 +52,7 @@ question 14, decided 17 Oct 2026): it is fitted and reported with its
 uncorrected p, and supported = p < .05.
 
 Supported = Holm-adjusted p < .05 AND the estimate in the predicted direction
-(H2 and AR are non-directional).
+(H2, H3 and AR are non-directional).
 
 Effect sizes: raw coefficients with 95 % Wald CIs; for the linear models also
 a standardised d = b / sqrt(var_u + var_e) (CI = CI of b over the same
@@ -211,7 +213,7 @@ def fit_h3(t):
     trunc, *_ = _fit_mixed("woa_trunc ~ place_c * rel_c", d)
     confound = _current_error_share(d)
     return {"id": "H3", "outcome": "Post-error WoA", "model": "woa ~ place_c * rel_c + (1|pid), post-error trials",
-            "test": "Placement (propagating - absorbed)", "predicted_sign": -1, **c,
+            "test": "Placement (propagating - absorbed)", "predicted_sign": 0, **c,
             "meta": _model_meta(res, label, warns, d),
             "interaction": _coef(res, "place_c:rel_c"),
             "sensitivity_with_ai_correct": _coef(sens, "place_c"),
@@ -420,7 +422,7 @@ def table2(results: dict, banner: str | None = None) -> str:
     unc = (" † %s is outside the Holm family (secondary outcome): uncorrected p, "
            "supported = p < .05." % ", ".join(uncorrected)) if uncorrected else ""
     notes = ["", f"Holm correction across {family}.{unc} Supported = p(Holm) < .05 and estimate "
-             "in the predicted direction (H2, AR non-directional). AR adjusts for case type "
+             "in the predicted direction (H2, H3, AR non-directional). AR adjusts for case type "
              "(CA vs IA). Estimates are model "
              "coefficients: reliability coded 80 % - 60 %, placement propagating - absorbed; "
              "d = b / sqrt(var_participant + var_residual)."]
