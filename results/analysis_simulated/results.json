@@ -64,11 +64,13 @@
   "confirmatory": {
     "family": [
       "H1",
-      "H2",
       "H3",
       "H4a",
       "H4b",
       "AR"
+    ],
+    "uncorrected": [
+      "H2"
     ],
     "alpha": 0.05,
     "tests": {
@@ -175,7 +177,7 @@
           "z": 1.1497823892546448,
           "p": 0.2502335103791876
         },
-        "p_holm": 1.4323360167366249e-32,
+        "p_holm": null,
         "supported": true
       },
       "H3": {
@@ -339,59 +341,60 @@
       "AR": {
         "id": "AR",
         "outcome": "Appropriate reliance (binary, Schemmer CA/IA trials)",
-        "model": "logit P(AR=1) ~ rel_c * C(block, sum) + (1|pid)  [ML, Gauss-Hermite 30]",
+        "model": "logit P(AR=1) ~ rel_c * C(block, sum) + case_IA + (1|pid)  [ML, Gauss-Hermite 30]",
         "test": "Reliability (log-odds, 80 % - 60 %)",
         "predicted_sign": 0,
         "term": "rel_c",
-        "estimate": 0.19468425809297085,
-        "se": 0.1450579495290381,
-        "ci_low": -0.0896241008977608,
-        "ci_high": 0.4789926170837025,
-        "z": 1.3421136774996147,
-        "p": 0.1795591397526094,
-        "odds_ratio": 1.2149273224538175,
-        "or_ci_low": 0.9142747957606713,
-        "or_ci_high": 1.6144472161859595,
-        "interaction_wald_chi2": 4.189057885342478,
-        "interaction_p": 0.1231282304506739,
+        "estimate": 0.30354638335444084,
+        "se": 0.15250068166863273,
+        "ci_low": 0.004650537308460767,
+        "ci_high": 0.6024422294004209,
+        "z": 1.9904591903006301,
+        "p": 0.04654037521095234,
+        "odds_ratio": 1.3546544229010802,
+        "or_ci_low": 1.0046613678398442,
+        "or_ci_high": 1.8265742709218962,
+        "interaction_wald_chi2": 3.4643953275928814,
+        "interaction_p": 0.17689522624454287,
         "meta": {
           "method": "ML GLMM, non-adaptive Gauss-Hermite quadrature (30 nodes)",
           "n_obs": 1010,
           "n_participants": 74,
-          "sigma_participant": 0.0011167037750846095,
+          "sigma_participant": 0.00021142317786484132,
           "converged": false,
           "terms": {
-            "Intercept": 0.9993136962573604,
-            "rel_c": 0.19468425809297085,
-            "block1": -0.17852273231073507,
-            "block2": 0.10855795101019965,
-            "rel_c:block1": -0.0076298707408199926,
-            "rel_c:block2": 0.6578293516402877
+            "Intercept": 1.0462129459462484,
+            "rel_c": 0.30354638335444084,
+            "block1": -0.21102286917157,
+            "block2": 0.180489205299491,
+            "rel_c:block1": -0.017594858536032834,
+            "rel_c:block2": 0.5954428756056586,
+            "case_IA_c": 0.37163668783626863
           }
         },
         "robustness": {
-          "sensitivity_with_case_type": {
-            "estimate": 0.30354638335444084,
-            "se": 0.15250068166863273,
-            "ci_low": 0.004650537308460767,
-            "ci_high": 0.6024422294004209,
-            "p": 0.04654037521095234,
+          "without_case_type": {
+            "estimate": 0.19468425809297085,
+            "se": 0.1450579495290381,
+            "ci_low": -0.0896241008977608,
+            "ci_high": 0.4789926170837025,
+            "p": 0.1795591397526094,
             "share_IA_by_condition": {
               "high": 0.24666666666666667,
               "low": 0.5571428571428572
             }
           },
           "gee_exchangeable": {
-            "estimate": 0.19568456019302108,
-            "se": 0.13973402150712363,
-            "p": 0.16139135008489724
+            "estimate": 0.3034703104266365,
+            "se": 0.17161277328251612,
+            "p": 0.07700351701427541
           },
           "bayes_mixed_glm_vb": {
-            "posterior_mean": 0.19291358005394516,
-            "posterior_sd": 0.14189709213881796
+            "posterior_mean": 0.2998162640321707,
+            "posterior_sd": 0.14231721108453818
           }
         },
-        "p_holm": 0.3591182795052188,
+        "p_holm": 0.09308075042190468,
         "supported": false
       }
     },

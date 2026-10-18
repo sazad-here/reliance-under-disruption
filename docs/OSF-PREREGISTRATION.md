@@ -144,7 +144,8 @@ A participant is excluded if any of the following holds:
 
 1. the session is not completed through the final trial;
 2. **more than 20 % of stage-1 responses are faster than 500 ms**, indicating
-   click-through rather than a considered order;
+   click-through rather than a considered order. The count covers all 35
+   stage-1 responses, practice and main;
 3. Q_own is **identical on every main trial** (a constant-value strategy that
    makes Weight of Advice undefined throughout);
 4. the participant withdraws (during the task, at the debrief, or later on
@@ -204,14 +205,14 @@ mixed-effects with participant random intercepts (random slopes on trial where
 they converge).
 
 ```
-# binary reliance outcome
+# binary reliance outcome (CA and IA trials)
 logit P(AR_ij = 1) = b0 + b1*Reliability_i + b2*Block_j
-                        + b3*(Reliability x Block) + u_i
+                        + b3*(Reliability x Block) + b4*CaseType_ij + u_i
 
 # continuous advice taking
 WoA_ij = b0 + b1*Reliability_i + b2*AI_correct_ij + b3*Block_j + u_i
 
-# error placement (within subjects)
+# error placement (within subjects; trials following an AI error)
 WoA_ij = b0 + b1*Placement_ij + b2*Reliability_i
               + b3*(Placement x Reliability) + u_i
 ```
@@ -219,11 +220,31 @@ WoA_ij = b0 + b1*Placement_ij + b2*Reliability_i
 Trial enters as **block** rather than a linear term, so reliance trajectories can
 be read across three intervals.
 
+**Appropriate-reliance model.** CaseType distinguishes trials where the initial
+order is wrong and the AI right (CA) from trials where the initial order is right
+and the AI wrong (IA). It is included because the IA share differs by condition
+by design (about 25 % at 80 %, about 55 % at 60 %), so without it b1 would partly
+reflect case mix: on simulated participants with no planted effect, b1 falls from
++0.36 to +0.04 once case type is controlled. The test of b1 is **two-sided**. The
+model without CaseType is reported as a robustness check.
+
+**Error-placement model (H3).** The confirmatory model is the one above, without
+an AI-correctness term. Because propagating weeks cluster (7–9, 14–16), the trial
+after a propagating error is itself an AI error more often than the trial after
+an absorbed error (about 57 % vs 27 % at 60 %; 19 % vs 7 % at 80 %). A
+sensitivity model adding AI_correct_ij is reported alongside, and the two are
+interpreted together: an effect that disappears once AI_correct is added will be
+described as reflecting the correctness of the next recommendation rather than
+the propagation of the last error.
+
 Operational outcomes are continuous and autocorrelated within participant: use an
 AR(1) residual structure, or aggregate to block level.
 
-**Multiplicity.** Holm correction across the primary outcomes. Effect sizes
-reported with confidence intervals, not p-values alone.
+**Multiplicity.** Holm correction across the confirmatory tests on primary
+outcomes: H1, H3, H4a, H4b and the appropriate-reliance model (five tests). H2
+concerns trust, a secondary outcome; it is tested at α = .05 without correction
+and labelled as uncorrected wherever it is reported. Effect sizes reported with
+confidence intervals, not p-values alone.
 
 **Software.** R `lme4` / `glmmTMB`, or Python `statsmodels`.
 
@@ -385,10 +406,10 @@ a backstop, not a target.
     and stockouts, and labels the AI's band as "risk level" (previously
     mislabelled "confidence"). Identical across conditions; nothing about
     future weeks is shown; keeping and taking advice take the same effort.
-12. **H3 needs an `ai_correct` covariate (found 25 Sept by running the analysis on simulated participants).** Propagating weeks cluster (7-8-9, 14-15-16), so the trial after a propagating error is itself an AI error far more often than the trial after an absorbed one (57 % vs 27 % at 60 %; 19 % vs 7 % at 80 %). Without adjustment, part of the H3 contrast is "the next advice was wrong", not "the last error propagated". Recommended: register `WoA_post ~ Placement × Reliability + AI_correct + (1 | participant)` as the confirmatory H3 model. `src/analysis/confirmatory.py` already reports this as a sensitivity model.
-13. **Direction of the binary appropriate-reliance (AR) model.** The share of trials where the initial order is right and the AI is wrong (the IA case) differs by condition (about 25 % at 80 %, about 55 % at 60 %), so the reliability term partly reflects this case mix. In null simulated data the estimate falls from +0.36 to +0.04 once case type is controlled. Recommended: register the model with a case-type term (initial wrong and AI right, CA, vs IA) and state that it is two-sided.
-14. **Holm family.** Confirm whether H2 (trust) belongs to the corrected family. The scripts currently correct across H1, H2, H3, H4a, H4b and AR, which is the more conservative choice.
-15. **Fast-response exclusion.** "More than 20 % of stage-1 responses faster than 500 ms" is currently applied to all 35 responses (practice + main). The alternative reading is main trials only. Decide and state it.
+12. ~~**H3 needs an `ai_correct` covariate (found 25 Sept by running the analysis on simulated participants).**~~ **Decided 17 Oct: keep the registered H3 model without `ai_correct`; the `ai_correct` model is a reported sensitivity analysis, interpreted alongside it (§10).** Original note: Propagating weeks cluster (7-8-9, 14-15-16), so the trial after a propagating error is itself an AI error far more often than the trial after an absorbed one (57 % vs 27 % at 60 %; 19 % vs 7 % at 80 %). Without adjustment, part of the H3 contrast is "the next advice was wrong", not "the last error propagated". Recommended: register `WoA_post ~ Placement × Reliability + AI_correct + (1 | participant)` as the confirmatory H3 model. `src/analysis/confirmatory.py` already reports this as a sensitivity model.
+13. ~~**Direction of the binary appropriate-reliance (AR) model.**~~ **Decided 17 Oct: case-type term (CA vs IA) is confirmatory, test two-sided; the unadjusted model is a robustness check (§10). Implemented in `confirmatory.py`.** Original note: The share of trials where the initial order is right and the AI is wrong (the IA case) differs by condition (about 25 % at 80 %, about 55 % at 60 %), so the reliability term partly reflects this case mix. In null simulated data the estimate falls from +0.36 to +0.04 once case type is controlled. Recommended: register the model with a case-type term (initial wrong and AI right, CA, vs IA) and state that it is two-sided.
+14. ~~**Holm family.**~~ **Decided 17 Oct: H2 is outside the family; Holm across H1, H3, H4a, H4b, AR; H2 reported uncorrected (§10). Implemented in `confirmatory.py`.** Original note: Confirm whether H2 (trust) belongs to the corrected family. The scripts currently correct across H1, H2, H3, H4a, H4b and AR, which is the more conservative choice.
+15. ~~**Fast-response exclusion.**~~ **Decided 17 Oct: all 35 stage-1 responses, practice and main (§8) — what `exclusions.py` already does.** Original note: "More than 20 % of stage-1 responses faster than 500 ms" is currently applied to all 35 responses (practice + main). The alternative reading is main trials only. Decide and state it.
 16. **Interface v3 (added 28 Sept).** The task page gains a 3D warehouse view, "?" definitions for each number, and a guided tour in practice week 1. The 3D view pictures only the numbers already on screen: stock, the on-order total, unmet orders, and supplier and transport status. It shows no delivery timing, Q* or AI information, and it is identical in both conditions. Decide whether to run the study with it (default) or with the plain panel (`WAREHOUSE_3D=0`), and state the choice in *Materials*. Each session logs its view in `session_start.ui`. If it is adopted, the pilot (13 Oct) must use it. **Update 28 Sept (v3.1):**
 - The pages gain Motion transitions. Every step card, human or AI, gets the same entrance of at most 200 ms; the AI numbers are never animated.
 - The 3D view gains ambient motion. It is data-independent and identical in both conditions.

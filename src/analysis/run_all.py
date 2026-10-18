@@ -57,8 +57,9 @@ def run(target, out_dir) -> dict:
             "Not planted, but produced by the app itself: with identical weighting the\n"
             "60 %% condition receives worse advice, so it makes larger decision errors\n"
             "(H4a can be 'supported' even in the null dataset), and the binary AR model\n"
-            "pools CA and IA trials whose mix differs by condition (see the AR\n"
-            "`sensitivity_with_case_type` entry in results.json).\n"
+            "pools CA and IA trials whose mix differs by condition, which is why it\n"
+            "adjusts for case type (the unadjusted fit is the AR `without_case_type`\n"
+            "entry in results.json).\n"
             "CSV files start with a `#` banner line: read them with `comment='#'`.\n"
             % (banner, data.source, _truth(data)), encoding="utf-8")
         for f in ("exclusions.csv", "participant_measures.csv", "block_measures.csv", "recovery.csv"):
@@ -85,6 +86,10 @@ def _summary(label, res):
         r = res["confirmatory"]["tests"][k]
         print("  %-4s %+.3f [%+.3f, %+.3f]  p_holm=%.4f  supported=%s"
               % (k, r["estimate"], r["ci_low"], r["ci_high"], r["p_holm"], r["supported"]))
+    for k in res["confirmatory"].get("uncorrected", []):
+        r = res["confirmatory"]["tests"][k]
+        print("  %-4s %+.3f [%+.3f, %+.3f]  p=%.4f (uncorrected)  supported=%s"
+              % (k, r["estimate"], r["ci_low"], r["ci_high"], r["p"], r["supported"]))
 
 
 def main():

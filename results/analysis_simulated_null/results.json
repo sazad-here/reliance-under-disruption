@@ -64,11 +64,13 @@
   "confirmatory": {
     "family": [
       "H1",
-      "H2",
       "H3",
       "H4a",
       "H4b",
       "AR"
+    ],
+    "uncorrected": [
+      "H2"
     ],
     "alpha": 0.05,
     "tests": {
@@ -135,7 +137,7 @@
             "p": 0.9589462190669059
           }
         },
-        "p_holm": 0.8894118521018979,
+        "p_holm": 1.0,
         "supported": false
       },
       "H2": {
@@ -175,7 +177,7 @@
           "z": 1.1191562678785691,
           "p": 0.2630734785448904
         },
-        "p_holm": 0.8894118521018979,
+        "p_holm": null,
         "supported": false
       },
       "H3": {
@@ -276,7 +278,7 @@
           "var_participant": 6.227970231144797,
           "var_residual": 1089.600352050963
         },
-        "p_holm": 0.0015327913978780989,
+        "p_holm": 0.0012773261648984157,
         "supported": true
       },
       "H4b": {
@@ -331,65 +333,66 @@
             "share_ai_error": 0.5726495726495726
           }
         },
-        "p_holm": 0.8894118521018979,
+        "p_holm": 1.0,
         "supported": false
       },
       "AR": {
         "id": "AR",
         "outcome": "Appropriate reliance (binary, Schemmer CA/IA trials)",
-        "model": "logit P(AR=1) ~ rel_c * C(block, sum) + (1|pid)  [ML, Gauss-Hermite 30]",
+        "model": "logit P(AR=1) ~ rel_c * C(block, sum) + case_IA + (1|pid)  [ML, Gauss-Hermite 30]",
         "test": "Reliability (log-odds, 80 % - 60 %)",
         "predicted_sign": 0,
         "term": "rel_c",
-        "estimate": 0.36123120031066963,
-        "se": 0.15893315842887462,
-        "ci_low": 0.04972793138377879,
-        "ci_high": 0.6727344692375605,
-        "z": 2.2728498186382353,
-        "p": 0.02303523169290649,
-        "odds_ratio": 1.4350952169860283,
-        "or_ci_low": 1.0509851174082747,
-        "or_ci_high": 1.9595884353670872,
-        "interaction_wald_chi2": 0.6890915479677096,
-        "interaction_p": 0.7085421186490346,
+        "estimate": 0.04267491215977285,
+        "se": 0.17443192884452446,
+        "ci_low": -0.2992053888260567,
+        "ci_high": 0.3845552131456024,
+        "z": 0.244650807007988,
+        "p": 0.8067268208985618,
+        "odds_ratio": 1.0435985784918438,
+        "or_ci_low": 0.7414071170585669,
+        "or_ci_high": 1.468960801659211,
+        "interaction_wald_chi2": 0.16935459353145385,
+        "interaction_p": 0.9188087391172284,
         "meta": {
           "method": "ML GLMM, non-adaptive Gauss-Hermite quadrature (30 nodes)",
           "n_obs": 1007,
           "n_participants": 74,
-          "sigma_participant": 0.34057261777087455,
+          "sigma_participant": 0.3906308902542607,
           "converged": false,
           "terms": {
-            "Intercept": 0.6226136126363077,
-            "rel_c": 0.36123120031066963,
-            "block1": 0.02947017220808254,
-            "block2": 0.4359662806738827,
-            "rel_c:block1": 0.030088242890498443,
-            "rel_c:block2": -0.23662956664577373
+            "Intercept": 0.5370742317673152,
+            "rel_c": 0.04267491215977285,
+            "block1": 0.1326328042095485,
+            "block2": 0.22426873282246423,
+            "rel_c:block1": 0.08704615790271283,
+            "rel_c:block2": -0.05517233291159447,
+            "case_IA_c": -1.108838859813297
           }
         },
         "robustness": {
-          "sensitivity_with_case_type": {
-            "estimate": 0.04267491215977285,
-            "se": 0.17443192884452446,
-            "ci_low": -0.2992053888260567,
-            "ci_high": 0.3845552131456024,
-            "p": 0.8067268208985618,
+          "without_case_type": {
+            "estimate": 0.36123120031066963,
+            "se": 0.15893315842887462,
+            "ci_low": 0.04972793138377879,
+            "ci_high": 0.6727344692375605,
+            "p": 0.02303523169290649,
             "share_IA_by_condition": {
               "high": 0.24833702882483372,
               "low": 0.5539568345323741
             }
           },
           "gee_exchangeable": {
-            "estimate": 0.35348489837114166,
-            "se": 0.15346586784744917,
-            "p": 0.021259418024328836
+            "estimate": 0.04360357740503569,
+            "se": 0.16818708484357858,
+            "p": 0.7954374206868926
           },
           "bayes_mixed_glm_vb": {
-            "posterior_mean": 0.3632153668286779,
-            "posterior_sd": 0.13344647488703934
+            "posterior_mean": 0.04430816999093893,
+            "posterior_sd": 0.13764341449657835
           }
         },
-        "p_holm": 0.11517615846453244,
+        "p_holm": 1.0,
         "supported": false
       }
     },

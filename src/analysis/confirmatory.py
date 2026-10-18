@@ -27,9 +27,13 @@ not converge or the slope variance is on the boundary):
   H4a  |Q_final - Q*| ~ rel_c + C(block)   all main trials   test rel_c < 0
   H4b  |Q_final - Q*| ~ rel_c * place_c    post-error trials test rel_c:place_c < 0
        (the 60 %-minus-80 % gap is larger after propagating errors)
-  AR   logit P(AR = 1) ~ rel_c * C(block) + u_i   (the registered binary
-       model; AR from measures.py, defined on Schemmer CA/IA trials)
-       test: rel_c (two-sided; the registration names no direction)
+  AR   logit P(AR = 1) ~ rel_c * C(block) + case_IA + u_i   (AR from
+       measures.py, defined on Schemmer CA/IA trials)
+       test: rel_c (two-sided)
+       case_IA is a confirmatory term (open question 13, decided 17 Oct 2026):
+       the IA share differs by condition by design (~25 % at 80 %, ~55 % at
+       60 %), so without it the reliability term partly measures case mix.
+       The model without it is kept in the JSON as a robustness entry.
 
 GLMM method: statsmodels has no frequentist binomial GLMM (only the
 variational-Bayes BinomialBayesMixedGLM). The AR model is therefore fitted by
@@ -39,10 +43,11 @@ non-adaptive), Wald SEs from the numerical Hessian. As robustness checks the
 results JSON also carries a GEE (exchangeable working correlation, robust
 SEs) and the statsmodels BinomialBayesMixedGLM (VB) estimate.
 
-Holm: applied across the family {H1, H2, H3, H4a, H4b, AR} -- every
-confirmatory test on a primary outcome or a registered hypothesis. The
-registration says "across the primary outcomes"; including H2 (trust is listed
-as secondary) makes the family larger and the correction more conservative.
+Holm: applied across the family {H1, H3, H4a, H4b, AR} -- the confirmatory
+tests on primary outcomes, as the registration says ("across the primary
+outcomes"). H2 (trust, a secondary outcome) is outside the family (open
+question 14, decided 17 Oct 2026): it is fitted and reported with its
+uncorrected p, and supported = p < .05.
 
 Supported = Holm-adjusted p < .05 AND the estimate in the predicted direction
 (H2 and AR are non-directional).
@@ -70,7 +75,8 @@ from scipy import optimize, stats
 from statsmodels.tools.numdiff import approx_hess
 
 ALPHA = 0.05
-FAMILY = ("H1", "H2", "H3", "H4a", "H4b", "AR")
+FAMILY = ("H1", "H3", "H4a", "H4b", "AR")
+UNCORRECTED = ("H2",)   # reported, outside the Holm family
 
 
 def _prep(df: pd.DataFrame) -> pd.DataFrame:
@@ -299,6 +305,12 @@ def fit_ar(t):
     X["block2"] -= 1 / 3
     X["rel_c:block1"] = X["rel_c"] * X["block1"]
     X["rel_c:block2"] = X["rel_c"] * X["block2"]
+    X0 = X.copy()
+    # Case type is confirmatory: AR pools CA trials (success = RAIR-type) and
+    # IA trials (success = RSR-type), and the 80 % condition has more CA trials
+    # by design, so without this term a reliability "effect" can arise from
+    # the case mix alone.
+    X["case_IA_c"] = d["case_IA"].astype(float).values - 0.5
     names = list(X.columns)
     fit = glmm_logit_ghq(d["AR"].values, X.values, d["participant_id"].values)
     i = names.index("rel_c")
@@ -309,18 +321,13 @@ def fit_ar(t):
     Vb = fit["cov"][np.ix_(ib, ib)]
     chi2 = float(bb @ np.linalg.solve(Vb, bb))
 
-    # robustness: GEE exchangeable, and the VB mixed GLM
+    # robustness: the model without case type, GEE exchangeable, and the VB mixed GLM
     robust = {}
-    # Composition check: AR pools CA trials (success = RAIR-type) and IA
-    # trials (success = RSR-type). The 80 % condition has more CA trials by
-    # design, so a reliability "effect" can arise from the case mix alone.
-    Xc = X.copy()
-    Xc["case_IA_c"] = d["case_IA"].astype(float).values - 0.5
-    fc = glmm_logit_ghq(d["AR"].values, Xc.values, d["participant_id"].values)
-    bc, sec = float(fc["beta"][i]), float(fc["se"][i])
-    robust["sensitivity_with_case_type"] = {
-        "estimate": bc, "se": sec, "ci_low": bc - 1.959964 * sec, "ci_high": bc + 1.959964 * sec,
-        "p": float(2 * stats.norm.sf(abs(bc / sec))),
+    f0 = glmm_logit_ghq(d["AR"].values, X0.values, d["participant_id"].values)
+    b0, se0 = float(f0["beta"][i]), float(f0["se"][i])
+    robust["without_case_type"] = {
+        "estimate": b0, "se": se0, "ci_low": b0 - 1.959964 * se0, "ci_high": b0 + 1.959964 * se0,
+        "p": float(2 * stats.norm.sf(abs(b0 / se0))),
         "share_IA_by_condition": {c: float(v) for c, v in d.groupby("condition")["case_IA"].mean().items()}}
     try:
         gee = sm.GEE(d["AR"].values, X.values, groups=d["participant_id"].values,
@@ -339,7 +346,7 @@ def fit_ar(t):
         robust["bayes_mixed_glm_vb"] = {"error": str(exc)}
 
     return {"id": "AR", "outcome": "Appropriate reliance (binary, Schemmer CA/IA trials)",
-            "model": "logit P(AR=1) ~ rel_c * C(block, sum) + (1|pid)  [ML, Gauss-Hermite 30]",
+            "model": "logit P(AR=1) ~ rel_c * C(block, sum) + case_IA + (1|pid)  [ML, Gauss-Hermite 30]",
             "test": "Reliability (log-odds, 80 % - 60 %)", "predicted_sign": 0,
             "term": "rel_c", "estimate": b, "se": se, "ci_low": lo, "ci_high": hi,
             "z": b / se, "p": float(2 * stats.norm.sf(abs(b / se))),
@@ -377,7 +384,12 @@ def run(measures: dict) -> dict:
         r["p_holm"] = adj[k]
         sign_ok = r["predicted_sign"] == 0 or np.sign(r["estimate"]) == r["predicted_sign"]
         r["supported"] = bool(adj[k] < ALPHA and sign_ok)
-    return {"family": list(FAMILY), "alpha": ALPHA, "tests": tests,
+    for k in UNCORRECTED:
+        r = tests[k]
+        r["p_holm"] = None
+        sign_ok = r["predicted_sign"] == 0 or np.sign(r["estimate"]) == r["predicted_sign"]
+        r["supported"] = bool(r["p"] < ALPHA and sign_ok)
+    return {"family": list(FAMILY), "uncorrected": list(UNCORRECTED), "alpha": ALPHA, "tests": tests,
             "secondary": {"H1_truncated_woa": fit_h1_truncated(t), "cost_block_level": fit_cost_blocks(t)}}
 
 
@@ -387,23 +399,29 @@ def _fmt_p(p):
 
 def table2(results: dict, banner: str | None = None) -> str:
     rows = []
-    for k in results["family"]:
+    uncorrected = results.get("uncorrected", [])
+    order = [k for k in ("H1", "H2", "H3", "H4a", "H4b", "AR") if k in results["family"] or k in uncorrected]
+    for k in order:
         r = results["tests"][k]
         est = "%.3f [%.3f, %.3f]" % (r["estimate"], r["ci_low"], r["ci_high"])
         if k == "AR":
             est += "; OR %.2f [%.2f, %.2f]" % (r["odds_ratio"], r["or_ci_low"], r["or_ci_high"])
         elif "d" in r:
             est += "; d = %.2f" % r["d"]
+        p = _fmt_p(r["p"]) + " †" if k in uncorrected else _fmt_p(r["p_holm"])
         rows.append("| %s | %s | %s | %s | %s |" % (
-            k, r["test"], est, _fmt_p(r["p_holm"]), "Yes" if r["supported"] else "No"))
+            k, r["test"], est, p, "Yes" if r["supported"] else "No"))
     head = []
     if banner:
         head += ["> **%s**" % banner, ""]
     head += ["| Hypothesis | Test | Estimate [95 % CI] | p (Holm) | Supported |",
              "|---|---|---|---|---|"]
     family = ", ".join(results["family"])
-    notes = ["", f"Holm correction across {family}. Supported = p(Holm) < .05 and estimate "
-             "in the predicted direction (H2, AR non-directional). Estimates are model "
+    unc = (" † %s is outside the Holm family (secondary outcome): uncorrected p, "
+           "supported = p < .05." % ", ".join(uncorrected)) if uncorrected else ""
+    notes = ["", f"Holm correction across {family}.{unc} Supported = p(Holm) < .05 and estimate "
+             "in the predicted direction (H2, AR non-directional). AR adjusts for case type "
+             "(CA vs IA). Estimates are model "
              "coefficients: reliability coded 80 % - 60 %, placement propagating - absorbed; "
              "d = b / sqrt(var_participant + var_residual)."]
     return "\n".join(head + rows + notes) + "\n"

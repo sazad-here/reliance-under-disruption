@@ -198,6 +198,20 @@ def test_null_dataset_finds_nothing(null):
         assert t[k]["ci_low"] <= 0 <= t[k]["ci_high"], k
 
 
+def test_registered_family_and_ar_spec(effect, null):
+    # Open questions 13 and 14, decided 17 Oct 2026.
+    conf = effect["conf"]
+    assert conf["family"] == ["H1", "H3", "H4a", "H4b", "AR"]
+    assert conf["uncorrected"] == ["H2"] and conf["tests"]["H2"]["p_holm"] is None
+    ar = conf["tests"]["AR"]
+    assert "case_IA_c" in ar["meta"]["terms"] and ar["predicted_sign"] == 0
+    assert "without_case_type" in ar["robustness"]
+    # with case type controlled, null data shows no reliability effect on AR
+    r = null["conf"]["tests"]["AR"]
+    assert r["ci_low"] <= 0 <= r["ci_high"]
+    assert "H2" in confirmatory.table2(conf)
+
+
 def test_holm():
     adj = confirmatory.holm({"a": 0.01, "b": 0.04, "c": 0.03})
     assert adj == pytest.approx({"a": 0.03, "b": 0.06, "c": 0.06})

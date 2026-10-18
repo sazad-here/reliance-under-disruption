@@ -19,6 +19,7 @@ perceived_low = 62
 Not planted, but produced by the app itself: with identical weighting the
 60 % condition receives worse advice, so it makes larger decision errors
 (H4a can be 'supported' even in the null dataset), and the binary AR model
-pools CA and IA trials whose mix differs by condition (see the AR
-`sensitivity_with_case_type` entry in results.json).
+pools CA and IA trials whose mix differs by condition, which is why it
+adjusts for case type (the unadjusted fit is the AR `without_case_type`
+entry in results.json).
 CSV files start with a `#` banner line: read them with `comment='#'`.
