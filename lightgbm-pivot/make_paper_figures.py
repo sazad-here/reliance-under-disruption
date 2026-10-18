@@ -599,7 +599,10 @@ def fig15_placement(width=FULL, name="Fig15_error_placement"):
     per = pdj["selection"]["per_week"]
     weeks = sorted(int(w) for w in per)
     prop, absb = set(pdj["propagating"]), set(pdj["absorbed"])
-    fig, ax = plt.subplots(1, 2, figsize=(width, 2.3), gridspec_kw={"width_ratios": [2.3, 1]})
+    # Height 1.08 in, not 2.3: the paper places this at the full 122 mm print
+    # width, so a shorter figure buys vertical budget without shrinking the
+    # 7-7.5 pt text, which is what scaling the placed image down would do.
+    fig, ax = plt.subplots(1, 2, figsize=(width, 1.08), gridspec_kw={"width_ratios": [2.3, 1]})
     a = ax[0]
     for w in weeks:
         v = per[str(w)]["dcost"]
