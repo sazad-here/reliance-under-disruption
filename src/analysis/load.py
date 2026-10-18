@@ -14,6 +14,7 @@ The analysis never writes to the database.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 
 import pandas as pd
@@ -44,9 +45,23 @@ class StudyData:
         return bool((self.events["kind"] == SIMULATED_EVENT).any()) if len(self.events) else False
 
 
+# Table and column names cannot be bound as SQL parameters, so they are
+# interpolated. Every caller passes a literal, but the guards below make that a
+# checked property rather than a convention: anything other than plain
+# identifiers (optionally `col ASC/DESC`, comma-separated) is refused.
+_IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+_ORDER_BY = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(\s+(?:ASC|DESC))?"
+                       r"(\s*,\s*[A-Za-z_][A-Za-z0-9_]*(\s+(?:ASC|DESC))?)*$",
+                       re.IGNORECASE)
+
+
 def _frame(conn, table: str, order_by: str | None = None) -> pd.DataFrame:
+    if not _IDENT.match(table):
+        raise ValueError("unsafe table name: %r" % table)
     sql = "SELECT * FROM %s" % table
     if order_by:
+        if not _ORDER_BY.match(order_by.strip()):
+            raise ValueError("unsafe ORDER BY clause: %r" % order_by)
         sql += " ORDER BY " + order_by
     rows = conn.execute(sql).fetchall()
     cols = db.table_columns(conn, table)

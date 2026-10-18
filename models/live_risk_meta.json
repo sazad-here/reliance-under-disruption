@@ -67,5 +67,24 @@
     43
   ],
   "corpus_fingerprint": "f953645593cab9a1",
-  "lightgbm_version": "4.7.0"
+  "lightgbm_version": "4.7.0",
+  "params": {
+    "objective": "binary",
+    "learning_rate": "0.03",
+    "num_leaves": "31",
+    "min_data_in_leaf": "40",
+    "seed": "0",
+    "num_iterations": "194",
+    "bagging_fraction": "0.8",
+    "bagging_freq": "1",
+    "feature_fraction": "0.8",
+    "lambda_l2": "1",
+    "boosting": "gbdt",
+    "metric": "binary_logloss"
+  },
+  "params_provenance": "Read from the parameter block of models/live_risk_lgbm.txt on 2026-10-13. The model was NOT retrained: this artifact predates the metadata fix in src/live_model.py, so the config is recovered from the frozen booster rather than re-recorded at training time.",
+  "artifact_sha256": "6161abd100d1cb6644585d2ceb12d1bb222955fd502f1ed3b94a1e22303408b0",
+  "artifact_mtime": "2026-09-24T21:31:46-05:00",
+  "trained_at": null,
+  "trained_at_note": "Not recorded at training time and not recoverable. artifact_mtime is the file's modification time, which is an upper bound, not the training timestamp."
 }
