@@ -1143,7 +1143,9 @@ def main():
 
     if args.dry_run:
         sess = dry_run(db_path=args.db)
-        print("dry run complete -> %s" % (args.db or db.DEFAULT_DB))
+        # Never echo a postgres URL: it carries the password.
+        where = "postgres (--db URL)" if db.backend(args.db) == "postgres" else (args.db or db.DEFAULT_DB)
+        print("dry run complete -> %s" % where)
         return
 
     if args.db:

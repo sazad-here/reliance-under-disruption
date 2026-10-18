@@ -75,8 +75,8 @@ jobs:
     env:
       # PG_TEST_URL switches the test suite into its Postgres-parametrized mode.
       PG_TEST_URL: postgresql://postgres:test@localhost:5432/postgres
-      # DATABASE_URL makes the app itself (dry run, verify_log) use Postgres,
-      # exactly as it does on Cloud Run.
+      # DATABASE_URL is what the deployed app reads; the dry-run steps below
+      # pass it explicitly as --db.
       DATABASE_URL: postgresql://postgres:test@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v4
@@ -95,12 +95,14 @@ jobs:
       - name: Run tests (SQLite + Postgres)
         run: python -m pytest src/tests -q
 
-      # No --db here: DATABASE_URL (set above) selects Postgres.
+      # --db is passed explicitly: dry_run() refuses an implicit DATABASE_URL so
+      # a scripted participant can never land in the collection database. This
+      # container is throwaway, so naming it here is the deliberate opt-in.
       - name: Scripted dry run on Postgres
-        run: python src/interface/app.py --dry-run
+        run: python src/interface/app.py --dry-run --db "$DATABASE_URL"
 
       - name: Verify dry-run log integrity on Postgres
-        run: python src/interface/verify_log.py --participant DRYRUN-01
+        run: python src/interface/verify_log.py --db "$DATABASE_URL" --participant DRYRUN-01
 
   docker:
     name: Docker image builds
