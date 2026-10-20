@@ -85,3 +85,14 @@ screen.png
 paper/feedback of paper.docx
 paper/AHFE template 2026.docx
 paper/AHFE_471_Execution_Plan.docx
+
+# kept private (19 Oct 2026): the manuscript and its drafts until published, and local
+# agent / planning files. They stay on disk; they are not part of the public repository.
+paper/
+docs/AHFE-471-PAPER-*
+Document (14)*.docx
+LINKS.md
+docs/run-plan.html
+.claude/
+CLAUDE.md
+.mcp.json

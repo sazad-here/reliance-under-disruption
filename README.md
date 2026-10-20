@@ -10,10 +10,8 @@ AI depends on **where** its errors fall (weeks where a bad order propagates vs w
 absorbed), not only on **how often** it errs.
 
 - **Every number in the paper and where it comes from:** [`RESULTS.md`](RESULTS.md)
-- **Paper source:** [`paper/build_merged_paper.js`](paper/build_merged_paper.js) (builds the Word file);
-  supplement: [`paper/build_supplement.js`](paper/build_supplement.js)
-  (building the paper needs AHFE's official Word template at `paper/AHFE template 2026.docx`, which
-  AHFE gives to authors and which is not redistributed here)
+- **Figures:** [`figures/`](figures/) (each made by a script in this repository from a saved result file).
+  The manuscript itself is not included until it is published.
 - **Live study:** https://reliance-study.onrender.com (data collection, see the note below)
 
 ---
@@ -46,6 +44,28 @@ A scripted end-to-end session also runs without a browser:
 ```bash
 python src/interface/app.py --dry-run --db demo.sqlite
 ```
+
+---
+
+## The study in pictures
+
+| | |
+|---|---|
+| ![Numeracy screener](docs/images/01-numeracy-screener.png) | ![One decision week](docs/images/02-decision-week.png) |
+| **Numeracy screener**, before condition assignment (answers shown) | **One decision week**: the participant's own order is locked, then the AI suggestion and its live stockout-risk estimate appear |
+| ![Week outcome](docs/images/03-week-outcome.png) | ![Trust questionnaire](docs/images/04-trust-questionnaire.png) |
+| **What happened**: the week's outcome, here a stockout | **Trust questionnaire** after each 10-week block |
+
+![Dark mode](docs/images/05-dark-mode.png)
+
+*Dark mode, mid-session (week 13 of 30).*
+
+**How it works.** The framework (left), the risk model's validation (middle) and the error-placement
+design (right); full-size files are in [`figures/paper/main_text/`](figures/paper/main_text/).
+
+![Framework](figures/paper/main_text/Figure1_merged_workflow.png)
+![Model validation](figures/paper/main_text/Figure_validation.png)
+![Error placement](figures/paper/main_text/Figure2_error_placement.png)
 
 ---
 
@@ -101,7 +121,6 @@ models/                   live_risk_lgbm.txt + live_risk_meta.json
 lightgbm-pivot/           model benchmarks, papers/, OVERVIEW.md, report.html
 demo/                     run_demo.py (live browser demo; --headed to watch)
   narrated/               make_narrated_demo.py → output/Reliance_Under_Disruption_demo.mp4 (+ transcript.md, captions.srt)
-paper/                    build_paper.js, build_supplement.js → the .docx drafts; NUMBERS.md maps every number to its source
 figures/paper/            paper figures (PNG + SVG) and CAPTIONS.md
 deploy/                   container deploy scripts + README (production runs on Render + Neon; see render.yaml)
 .github/workflows/        ci.yml (tests on every push), deploy.yml (manual, approval-gated)
@@ -127,7 +146,6 @@ python src/placement_design.py                         # re-validate the error w
 docker build -t reliance-study:local .                 # production image
 python src/analysis/run_all.py                         # analysis on the simulated datasets
 python demo/narrated/make_narrated_demo.py             # rebuild the narrated video (~12 min, overwrites in place)
-NODE_PATH=<dir with docx installed> node paper/build_paper.js   # rebuild the paper (close it in Word first)
 ```
 
 ## Environment notes
@@ -136,3 +154,9 @@ Python 3.13 (use `python -m pip`, not bare `pip`); PyTorch CUDA build for the
 archived neural models; LightGBM **4.7.0** must match the version that trained
 `models/live_risk_lgbm.txt`. Flask caches templates: restart the server after
 editing HTML. Production runs exactly **one** process (sessions live in memory).
+
+## Licence
+
+Code is released under the [MIT Licence](LICENSE). The vendored three.js copy under
+`src/interface/static/vendor/three/` keeps its own MIT licence. Third-party datasets (Walmart M5, Olist,
+DataCo) are not redistributed; `data/README.md` explains how to obtain them.
