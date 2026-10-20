@@ -1,4 +1,4 @@
-"""How much evidence is in the test set, really? Open item 3 in RESULTS.md.
+"""How much evidence is in the test set, really? A check on the evaluation set's size.
 
 The open item reads: "11 held-out series can yield many more windows, which
 would narrow the 0.30-wide PR-AUC interval. Cheap; worth knowing."
@@ -13,7 +13,7 @@ shrink whether or not any new information has arrived.
 
 So compute both:
 
-    episode bootstrap   resamples the 78 windows      (what RESULTS.md reports)
+    episode bootstrap   resamples the 78 windows      (what the reported intervals use)
     series bootstrap    resamples the 11 series       (the honest clustering)
 
 and a learning curve over the number of test episodes, to show which of the two

@@ -21,7 +21,7 @@ here only re-partition data the plain model already sees. Tested, not assumed.
 
 All probabilities are Platt-calibrated on the validation series before
 scoring, because participants will see risk percentages. Intervals are
-series-clustered bootstrap (the series is the independent unit; RESULTS.md s6).
+series-clustered bootstrap (the series is the independent unit; docs/RESULTS.md, section 5).
 
 Run:  python lightgbm-pivot/simulator_training.py
 """

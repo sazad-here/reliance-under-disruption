@@ -96,3 +96,16 @@ docs/run-plan.html
 .claude/
 CLAUDE.md
 .mcp.json
+
+# kept locally (20 Oct 2026): the chronological lab log (public summary: docs/RESULTS.md),
+# internal drafts and the unused Firebase / Cloud Run / Azure deployment files
+/RESULTS.md
+docs/ETHICS-AMENDMENT.md
+docs/HUMAN-FACTORS-AUDIT.md
+reliance-under-disruption-PLAN.md
+.firebaserc
+firebase.json
+.github/workflows/deploy.yml
+deploy/deploy.sh
+deploy/deploy-azure.sh
+deploy/public/

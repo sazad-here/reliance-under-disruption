@@ -9,7 +9,7 @@ LightGBM stockout-risk estimate), then enter a final order. The study asks wheth
 AI depends on **where** its errors fall (weeks where a bad order propagates vs weeks where it is
 absorbed), not only on **how often** it errs.
 
-- **Every number in the paper and where it comes from:** [`RESULTS.md`](RESULTS.md)
+- **Every result and where it comes from:** [`docs/RESULTS.md`](docs/RESULTS.md)
 - **Figures:** [`figures/`](figures/) (each made by a script in this repository from a saved result file).
   The manuscript itself is not included until it is published.
 - **Live study:** https://reliance-study.onrender.com (data collection, see the note below)
@@ -80,9 +80,9 @@ design (right); full-size files are in [`figures/paper/main_text/`](figures/pape
 | Tests | ✅ `python -m pytest src/tests` (131 pass on SQLite; 23 more need a Postgres server) |
 | Analysis scripts | ✅ `src/analysis/run_all.py` (registered models, exclusions, measures); recovers planted effects on simulated participants, none on the null set |
 | Deployment | ✅ Live on Render with Neon Postgres: https://reliance-study.onrender.com |
-| Pre-registration | ✅ Submitted on OSF (text in `docs/OSF-PREREGISTRATION.md`) |
-| Data collection | 🟡 In progress |
-| Paper | 🟡 AHFE 2026 template, 10 pages; behavioural results follow data collection |
+| Pre-registration | ✅ Registered on OSF (protocol text in `docs/OSF-PREREGISTRATION.md`) |
+| Data collection | ✅ Running on the live study site |
+| Paper | ✅ AHFE 2027 paper in the official template (manuscript not included in this repository) |
 
 ---
 
@@ -121,14 +121,13 @@ lightgbm-pivot/           model benchmarks, OVERVIEW.md, report.html
 demo/                     run_demo.py (live browser demo; --headed to watch)
   narrated/               make_narrated_demo.py (builds a narrated demo video locally)
 figures/paper/            paper figures (PNG + SVG) and CAPTIONS.md
-deploy/                   container deploy scripts + README (production runs on Render + Neon; see render.yaml)
-.github/workflows/        ci.yml (tests on every push), deploy.yml (manual, approval-gated)
-docs/                     OSF pre-registration, ethics amendment, human-factors audit, README images
+deploy/                   deployment guide (Render + Neon; see render.yaml and the Dockerfile)
+.github/workflows/        ci.yml (tests on every push)
+docs/                     RESULTS.md (every result and its source), OSF pre-registration, README images
 data/processed/           fitted parameters, M5 demand cache (needed at runtime)
 data/raw/                 M5, Olist, DataCo, Kaggle backorder (not included; see data/README.md)
 results/                  design checks, power analysis, earlier model results
 archive/patchtst/         retired PatchTST work (kept for the record)
-RESULTS.md                paper-facing record of every result
 ```
 
 ## Common commands

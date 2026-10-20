@@ -7,7 +7,7 @@ WHY THIS FILE EXISTS. Until 24 Sep 2026 the app built its twin with no demand
 source, so participants silently got the SYNTHETIC negative-binomial demand,
 which is memoryless (lag-4 autocorrelation -0.16 against +0.74 in real data),
 while z = 1.600 and delta = +/-60 had been calibrated on real M5 demand and
-RESULTS.md described the sessions as replaying M5.
+The sessions are documented as replaying M5 (docs/RESULTS.md, section 1).
 
 DESIGN. Every participant replays the SAME real M5 window: the plan requires
 "comparable difficulty across participants", and a shared demand path is what

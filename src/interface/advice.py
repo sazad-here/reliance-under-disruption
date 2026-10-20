@@ -221,7 +221,7 @@ def make_advice(
             q_ai = q_star + magnitude
     else:
         # Outside the band. Direction matters: under-ordering is the error that
-        # propagates (RESULTS.md section 5 -- persistent under-ordering spans
+        # propagates (docs/RESULTS.md, section 9 -- persistent under-ordering spans
         # 4.3 periods vs 1.77 for one-off noise), so propagating positions get
         # the under-order and absorbed positions get the over-order.
         magnitude = delta + int(rng.integers(delta // 2, delta + 1))

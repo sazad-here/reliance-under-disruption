@@ -202,8 +202,8 @@ python lightgbm-pivot/backorder_benchmark.py      # ~10 min on CPU
 
 ---
 
-## 10. Next steps
+## 10. Outcome
 
-1. **Apply model E to the simulator corpus**, so the 80 % / 60 % reliability anchor comes from the same model the benchmark validates.
-2. **Update `RESULTS.md` §6** and the proposal (`Document (14).docx`) to replace the PatchTST framing with this benchmark.
-3. Optional: add TabPFN (`papers/06`) as one extra row, about an hour of work.
+The benchmark settled the choice of model: LightGBM is in the top tier, auditable against published
+results, and fast enough to run live. It is the model participants see (`src/live_model.py`,
+`models/`), and the comparison above is reported in [`docs/RESULTS.md`](../docs/RESULTS.md).

@@ -26,7 +26,7 @@ COPY models/ ./models/
 COPY data/processed/fitted_params.json data/processed/m5_weekly.npy ./data/processed/
 
 # Unprivileged runtime user. data/ is writable only so a local run without
-# DATABASE_URL can create its SQLite file; production writes to Cloud SQL.
+# DATABASE_URL can create its SQLite file; production writes to Postgres.
 RUN useradd --system --uid 10001 --home-dir /app --shell /usr/sbin/nologin app \
  && rm -rf src/tests \
  && find src -name '__pycache__' -prune -exec rm -rf {} + \
@@ -36,5 +36,5 @@ USER app
 EXPOSE 8080
 
 # Sessions live in process memory: exactly ONE worker process, many threads.
-# --timeout 0 disables gunicorn's worker kill; Cloud Run enforces its own timeout.
+# --timeout 0 disables gunicorn's worker kill; the platform enforces its own request timeout.
 CMD ["sh", "-c", "exec gunicorn --chdir src --workers 1 --threads 16 --timeout 0 --no-control-socket --bind :${PORT:-8080} --access-logfile - --error-logfile - interface.app:app"]

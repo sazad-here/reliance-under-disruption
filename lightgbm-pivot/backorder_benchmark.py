@@ -19,7 +19,7 @@ THEIR PROTOCOL, AS RECONSTRUCTED
 VARIANTS (all scored on the identical balanced test set per seed)
   A  LightGBM, raw features, the paper's selected hyper-parameters
   B  A + inventory-position features (the same quantity that alone matched
-     PatchTST on the simulator corpus -- see RESULTS.md)
+     PatchTST on the simulator corpus -- see docs/RESULTS.md, section 5)
   C  B, stacked with logistic regression (out-of-fold meta-learner)
   D  C, but each base model trained as an EasyEnsemble over K balanced bags,
      so the majority rows the paper discarded are used for TRAINING only.

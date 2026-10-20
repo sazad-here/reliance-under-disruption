@@ -1,4 +1,4 @@
-"""Data-integrity check for a logged session. Open item 2 in RESULTS.md section 8.
+"""Data-integrity check for a logged session. See docs/RESULTS.md, section 11.
 
 The plan calls this the highest-value hour in the schedule, and the reason is
 blunt: with 80 participants run in a single batch there is no second attempt at
@@ -207,7 +207,7 @@ def verify(db_path, participant_id: str, n_practice=5, n_main=30) -> int:
     r.check(not mismatched, g, "placement label matches the %s design" % design,
             "placement disagrees with calendar on trials %s" % mismatched)
 
-    # Direction of error encodes the propagation mechanism (RESULTS.md s5):
+    # Direction of error encodes the propagation mechanism (docs/RESULTS.md, section 9):
     # propagating positions get the under-order, absorbed get the over-order.
     if design == "v1":
         wrong_dir = [t["trial_index"] for t in errs

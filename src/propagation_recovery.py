@@ -1,6 +1,6 @@
 """
 How long does ONE bad order keep costing, depending on how the decision-maker
-recovers? RESULTS.md section 5's table (1.77 vs 4.30 weeks), made reproducible.
+recovers? The persistence result in docs/RESULTS.md, section 9, made reproducible.
 
 A 150-unit short order is injected at one week. Before and after it, the
 decision-maker follows one of three recovery behaviours, identically in the

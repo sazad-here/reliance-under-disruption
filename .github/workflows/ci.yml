@@ -1,7 +1,7 @@
 # Continuous integration for the warehouse reliance study.
 #
-# Runs on every push and pull request. It never deploys anything; deployment is
-# the manual, approval-gated workflow in deploy.yml.
+# Runs on every push and pull request. It never deploys anything; deployment is a
+# manual step on Render (see deploy/README.md).
 #
 # Jobs:
 #   test      - unit/integration tests on SQLite, then a scripted end-to-end
