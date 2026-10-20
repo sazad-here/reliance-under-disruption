@@ -1,0 +1,8 @@
+# Store model artefacts byte for byte: line-ending conversion (core.autocrlf on Windows) would
+# change the LightGBM model file, break its recorded artifact_sha256 and, on Windows clones,
+# stop LightGBM from parsing it.
+models/*.txt -text
+*.npy binary
+*.npz binary
+*.png binary
+*.docx binary
