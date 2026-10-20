@@ -599,46 +599,75 @@ def fig15_placement(width=FULL, name="Fig15_error_placement"):
     per = pdj["selection"]["per_week"]
     weeks = sorted(int(w) for w in per)
     prop, absb = set(pdj["propagating"]), set(pdj["absorbed"])
-    # Height 1.08 in, not 2.3: the paper places this at the full 122 mm print
-    # width, so a shorter figure buys vertical budget without shrinking the
-    # 7-7.5 pt text, which is what scaling the placed image down would do.
-    fig, ax = plt.subplots(1, 2, figsize=(width, 1.08), gridspec_kw={"width_ratios": [2.3, 1]})
-    a = ax[0]
-    for w in weeks:
-        v = per[str(w)]["dcost"]
-        if w in prop:
-            a.bar(w, v, color=INK, width=0.7)
-        elif w in absb:
-            a.bar(w, v, color="white", edgecolor=INK, hatch="////", lw=0.6, width=0.7)
-        else:
-            a.bar(w, v, color=GRID, width=0.7)
-    a.axhline(0, color=INK2, lw=0.8)
-    a.set_xlabel("Week of the 30-week session")
-    a.set_ylabel("Extra cost of one\naccepted AI error")
+    # Redrawn 19 Oct 2026, then polished to share Fig. 2's exact style (type sizes,
+    # grey axes, no grid, 600 dpi). Vermillion = an error that propagates, blue
+    # hatching = one that is absorbed, as in Fig. 1(c) (Okabe-Ito, so it survives
+    # colour-vision deficiency; the hatching survives greyscale). Triangles on the
+    # week axis mark the six fixed disruptions and have their own legend entry.
+    PROPC, ABSC, NEVER = "#d55e00", "#0072b2", "#dcdad3"
+    MUTEDC = "#6b6a65"
+    disruptions = (6, 9, 13, 17, 21, 26)   # the fixed calendar, src/simulator.py
     from matplotlib.patches import Patch
-    a.legend(handles=[Patch(facecolor=INK, label="propagating"),
-                      Patch(facecolor="white", edgecolor=INK, hatch="////", label="absorbed"),
-                      Patch(facecolor=GRID, label="never an error")], loc="upper left", fontsize=6.5)
-    a.set_title("Selection (draws 0-99)", loc="left")
-    panel(a, "a")
-    a = ax[1]
-    ref, noi = pdj["validation_reference_follower"], pdj["validation_noisy_follower"]
-    x = np.arange(2)
-    w = 0.36
-    a.bar(x - w / 2, [ref["prop_stock"], noi["prop_stock"]], w, color=INK, label="propagating")
-    a.bar(x + w / 2, [ref["abs_stock"], noi["abs_stock"]], w, color="white", edgecolor=INK, hatch="////",
-          lw=0.6, label="absorbed")
-    for xi, rr in zip(x, (ref, noi)):
-        a.text(xi, max(rr["prop_stock"], rr["abs_stock"]) + 0.015, "%.2fx" % rr["stock_ratio"],
-               ha="center", fontsize=7)
-    a.set_xticks(x, ["reference\nfollower", "noisy\nfollower"])
-    a.set_ylim(0, 0.36)
-    a.set_ylabel("Extra stockout weeks")
-    a.grid(axis="x", visible=False)
-    a.set_title("Validation (draws 100-299)", loc="left")
-    panel(a, "b")
-    fig.tight_layout()
-    save(fig, name)
+    from matplotlib.lines import Line2D
+    style = {"font.size": 6.8, "axes.labelsize": 6.6, "xtick.labelsize": 6.0, "ytick.labelsize": 6.0,
+             "legend.fontsize": 6.0, "axes.titlesize": 6.9, "axes.titleweight": "bold",
+             "font.family": "sans-serif", "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
+             "axes.edgecolor": "#8c8b86", "axes.linewidth": 0.7, "axes.grid": False,
+             "xtick.color": MUTEDC, "ytick.color": MUTEDC, "hatch.linewidth": 0.7}
+    with plt.rc_context(style):
+        fig, ax = plt.subplots(1, 2, figsize=(width, 1.22), gridspec_kw={"width_ratios": [2.35, 1]},
+                               layout="constrained")
+        a = ax[0]
+        for w in weeks:
+            v = per[str(w)]["dcost"]
+            if w in prop:
+                a.bar(w, v, color=PROPC, width=0.74, zorder=3, lw=0)
+            elif w in absb:
+                a.bar(w, v, color="white", edgecolor=ABSC, hatch="//////", lw=0.7, width=0.74, zorder=3)
+            else:
+                a.bar(w, v, color=NEVER, width=0.74, zorder=3, lw=0)
+        a.axhline(0, color=INK2, lw=0.7, zorder=4)
+        lo, hi = a.get_ylim()
+        # disruptions sit on the week axis: no bar reaches the floor at those weeks
+        for d in disruptions:
+            a.plot(d, lo + 0.05 * (hi - lo), marker="^", color=INK, ms=3.4, mew=0, zorder=5)
+        a.set_xlim(0.8, 26.5)
+        a.set_xticks([2, 5, 10, 15, 20, 25])
+        a.set_yticks([0, 250, 500, 750])
+        a.set_xlabel("Week of the session")
+        a.set_ylabel("Extra cost (units)")
+        a.legend(handles=[Patch(facecolor=PROPC, label="error propagates"),
+                          Patch(facecolor="white", edgecolor=ABSC, hatch="//////", label="error absorbed"),
+                          Patch(facecolor=NEVER, label="never an error week"),
+                          Line2D([], [], marker="^", color=INK, ls="none", ms=3.4, mew=0, label="disruption")],
+                 loc="upper left", ncol=1, handlelength=1.1, labelspacing=0.22, borderaxespad=0.15,
+                 frameon=False)
+        a.set_title("a  Extra cost of one accepted error, by week", loc="left")
+        b = ax[1]
+        ref, noi = pdj["validation_reference_follower"], pdj["validation_noisy_follower"]
+        x = np.arange(2)
+        w = 0.36
+        b.bar(x - w / 2, [ref["prop_stock"], noi["prop_stock"]], w, color=PROPC, zorder=3, lw=0)
+        b.bar(x + w / 2, [ref["abs_stock"], noi["abs_stock"]], w, color="white", edgecolor=ABSC,
+              hatch="//////", lw=0.7, zorder=3)
+        for xi, rr in zip(x, (ref, noi)):
+            b.text(xi, max(rr["prop_stock"], rr["abs_stock"]) + 0.012, "%.2f\u00d7" % rr["stock_ratio"],
+                   ha="center", fontsize=6.4, fontweight="bold", color=INK)
+        b.set_xticks(x, ["reference\nfollower", "noisy\nfollower"])
+        b.set_ylim(0, 0.36)
+        b.set_yticks([0, 0.1, 0.2, 0.3])
+        b.set_ylabel("Extra stockout weeks")
+        b.set_title("b  Held-out draws 100\u2013299", loc="left")
+        for axis in ax:
+            for sp in ("top", "right"):
+                axis.spines[sp].set_visible(False)
+            axis.tick_params(length=2, width=0.6, pad=1.5)
+            axis.tick_params(axis="x", length=0)
+        os.makedirs(OUT, exist_ok=True)
+        fig.savefig(os.path.join(OUT, name + ".png"), dpi=600, facecolor="white")
+        fig.savefig(os.path.join(OUT, name + ".svg"), facecolor="white")
+        plt.close(fig)
+        print("  %s" % name)
 
 
 def main_text_figures():

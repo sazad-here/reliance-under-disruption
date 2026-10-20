@@ -6,8 +6,12 @@ Every reliance measure in the study depends on a per-trial correct answer.
 optimality -- the paper must say so plainly rather than let a reviewer find it
 (plan section 06).
 
-    S_t  = mu_D (L+1) + z sigma_D sqrt(L+1)     order-up-to level
+    S_t  = mu_D E[L+1] + z sqrt(E[L+1] sigma_D^2 + mu_D^2 Var(L))   order-up-to level
     Q*_t = max(0, S_t - IP_t)                   IP = on hand + pipeline - backorders
+
+(The lead time is stochastic, so the risk period has a mean and a variance; see
+lead_time_moments and order_up_to_level below. An earlier version of this note
+showed the fixed-lead-time form mu_D (L+1) + z sigma_D sqrt(L+1).)
     correct(Q) iff |Q - Q*_t| <= delta
 
 delta is derived from cost sensitivity rather than picked round: it is the band

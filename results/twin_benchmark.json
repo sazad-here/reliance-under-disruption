@@ -1,0 +1,232 @@
+{
+  "demand_mean": 140.0,
+  "demand_sd": 36.75,
+  "holding_cost": 1.0,
+  "shortage_cost": 5.0,
+  "cases": [
+    {
+      "case": "fixed lead time (exact theory)",
+      "z": 0.967,
+      "seeds": 20,
+      "weeks_per_seed": 1950,
+      "lead_time_nominal": 1,
+      "delay_pmf": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "realised_mean_demand": 140.40610256410258,
+      "metrics": {
+        "stockout_rate": {
+          "simulated": 0.1668205128205128,
+          "ci95": [
+            0.1623598196218509,
+            0.1712812060191747
+          ],
+          "normal_approx": 0.16677201683171894,
+          "rel_diff_normal": 0.00029079212277438593,
+          "exact_negbin": 0.16375482843383238,
+          "rel_diff_exact": 0.018721184688115455
+        },
+        "backorders": {
+          "simulated": 5.479666666666667,
+          "ci95": [
+            5.278257574220805,
+            5.681075759112528
+          ],
+          "normal_approx": 4.609131138741531,
+          "rel_diff_normal": 0.1888719374044161,
+          "exact_negbin": 5.341832561891641,
+          "rel_diff_exact": 0.025802775204585737
+        },
+        "on_hand": {
+          "simulated": 54.66825641025641,
+          "ci95": [
+            54.05888246648825,
+            55.27763035402457
+          ],
+          "normal_approx": 54.8663920581848,
+          "rel_diff_normal": -0.00361123887494319,
+          "exact_negbin": 55.34183256237426,
+          "rel_diff_exact": -0.01217119348837381
+        },
+        "cost": {
+          "simulated": 82.06658974358973,
+          "ci95": [
+            81.40162067209761,
+            82.73155881508185
+          ],
+          "normal_approx": 77.91204775189246,
+          "rel_diff_normal": 0.05332348605349502,
+          "exact_negbin": 82.05099537183247,
+          "rel_diff_exact": 0.00019005706983299397
+        }
+      }
+    },
+    {
+      "case": "fitted Olist lead time (Eq. 3 approximation)",
+      "z": 0.967,
+      "seeds": 20,
+      "weeks_per_seed": 1950,
+      "lead_time_nominal": 1,
+      "delay_pmf": [
+        0.5176,
+        0.2857,
+        0.1149,
+        0.0818
+      ],
+      "realised_mean_demand": 140.40610256410258,
+      "metrics": {
+        "stockout_rate": {
+          "simulated": 0.11941025641025642,
+          "ci95": [
+            0.11539088443986502,
+            0.12342962838064782
+          ],
+          "normal_approx": 0.16677201683171894,
+          "rel_diff_normal": -0.28399105150387927
+        },
+        "backorders": {
+          "simulated": 8.710230769230769,
+          "ci95": [
+            8.378731452001741,
+            9.041730086459797
+          ],
+          "normal_approx": 12.978963960645887,
+          "rel_diff_normal": -0.3288962974516718
+        },
+        "on_hand": {
+          "simulated": 149.0510769230769,
+          "ci95": [
+            147.70433448762688,
+            150.3978193585269
+          ],
+          "normal_approx": 154.49960171197932,
+          "rel_diff_normal": -0.0352656235260701
+        },
+        "cost": {
+          "simulated": 192.60223076923077,
+          "ci95": [
+            191.21514467606642,
+            193.98931686239513
+          ],
+          "normal_approx": 219.39442151520876,
+          "rel_diff_normal": -0.12211883310861993
+        }
+      }
+    },
+    {
+      "case": "fixed lead time (exact theory)",
+      "z": 1.6,
+      "seeds": 20,
+      "weeks_per_seed": 1950,
+      "lead_time_nominal": 1,
+      "delay_pmf": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "realised_mean_demand": 140.40610256410258,
+      "metrics": {
+        "stockout_rate": {
+          "simulated": 0.06474358974358975,
+          "ci95": [
+            0.06171687463882532,
+            0.06777030484835418
+          ],
+          "normal_approx": 0.054799291699557995,
+          "rel_diff_normal": 0.18146763827810508,
+          "exact_negbin": 0.06256752057409888,
+          "rel_diff_exact": 0.034779533366896764
+        },
+        "backorders": {
+          "simulated": 1.8342564102564105,
+          "ci95": [
+            1.7236095334260644,
+            1.9449032870867566
+          ],
+          "normal_approx": 1.2079396567272387,
+          "rel_diff_normal": 0.5185000343693482,
+          "exact_negbin": 1.7636405778083066,
+          "rel_diff_exact": 0.04003980932206663
+        },
+        "on_hand": {
+          "simulated": 84.02284615384616,
+          "ci95": [
+            83.31854969348485,
+            84.72714261420747
+          ],
+          "normal_approx": 84.36369712426523,
+          "rel_diff_normal": -0.004040256437754297,
+          "exact_negbin": 84.76364057825833,
+          "rel_diff_exact": -0.008739530526986172
+        },
+        "cost": {
+          "simulated": 93.19412820512821,
+          "ci95": [
+            92.61045146632686,
+            93.77780494392955
+          ],
+          "normal_approx": 90.40339540790143,
+          "rel_diff_normal": 0.030869778559034833,
+          "exact_negbin": 93.58184346729986,
+          "rel_diff_exact": -0.00414306074561499
+        }
+      }
+    },
+    {
+      "case": "fitted Olist lead time (Eq. 3 approximation)",
+      "z": 1.6,
+      "seeds": 20,
+      "weeks_per_seed": 1950,
+      "lead_time_nominal": 1,
+      "delay_pmf": [
+        0.5176,
+        0.2857,
+        0.1149,
+        0.0818
+      ],
+      "realised_mean_demand": 140.40610256410258,
+      "metrics": {
+        "stockout_rate": {
+          "simulated": 0.03556410256410257,
+          "ci95": [
+            0.033420369852832796,
+            0.037707835275372345
+          ],
+          "normal_approx": 0.054799291699557995,
+          "rel_diff_normal": -0.3510116379042646
+        },
+        "backorders": {
+          "simulated": 2.066153846153846,
+          "ci95": [
+            1.9287596336344384,
+            2.203548058673254
+          ],
+          "normal_approx": 3.4014665235969908,
+          "rel_diff_normal": -0.39256969550624154
+        },
+        "on_hand": {
+          "simulated": 235.40699999999998,
+          "ci95": [
+            233.85383223228555,
+            236.9601677677144
+          ],
+          "normal_approx": 237.56177717730282,
+          "rel_diff_normal": -0.009070386671230501
+        },
+        "cost": {
+          "simulated": 245.7377692307692,
+          "ci95": [
+            244.06885983762757,
+            247.40667862391084
+          ],
+          "normal_approx": 254.56910979528777,
+          "rel_diff_normal": -0.034691328306173164
+        }
+      }
+    }
+  ]
+}
