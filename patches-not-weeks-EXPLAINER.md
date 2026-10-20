@@ -1,7 +1,7 @@
 # Patches, Not Weeks — How the Model Works
 
 > **Archived:** 17 September 2026 · **Live version (animated):** https://claude.ai/artifact/F2w2GomeXUC76HzSg2ShHS
-> Companion to [the full research plan](./reliance-under-disruption-PLAN.md).
+> Companion to [the results record](docs/RESULTS.md).
 
 How the forecasting model actually works — from three public datasets, through PatchTST, to the single number a human being sees on screen. No machine-learning background assumed.
 

@@ -48,8 +48,7 @@ desktop.ini
 .vscode/
 .idea/
 
-# Azure deploy: contains the database password written by deploy-azure.sh
-deploy/.azure-db-url
+# Database exports
 data/export-*.sql
 
 # --- Added 5 Oct 2026, before the first commit ---
@@ -74,38 +73,9 @@ data/processed/corpus*.csv
 # --- Copyrighted source PDFs: read locally, never redistributed ---
 # ~70 MB of publisher PDFs. They are inputs to the literature review, not to
 # the app, and each is retrievable by DOI. The reviews that matter are kept as
-# text in docs/paper-reviews/. See RESULTS.md and LINKS.md for the citations.
+# text in docs/paper-reviews/.
 lightgbm-pivot/papers/
 *.pdf
 
 # Working screenshot, not a project artefact.
 screen.png
-
-# internal documents: feedback, the conference template (redistribution) and planning notes
-paper/feedback of paper.docx
-paper/AHFE template 2026.docx
-paper/AHFE_471_Execution_Plan.docx
-
-# kept private (19 Oct 2026): the manuscript and its drafts until published, and local
-# agent / planning files. They stay on disk; they are not part of the public repository.
-paper/
-docs/AHFE-471-PAPER-*
-Document (14)*.docx
-LINKS.md
-docs/run-plan.html
-.claude/
-CLAUDE.md
-.mcp.json
-
-# kept locally (20 Oct 2026): the chronological lab log (public summary: docs/RESULTS.md),
-# internal drafts and the unused Firebase / Cloud Run / Azure deployment files
-/RESULTS.md
-docs/ETHICS-AMENDMENT.md
-docs/HUMAN-FACTORS-AUDIT.md
-reliance-under-disruption-PLAN.md
-.firebaserc
-firebase.json
-.github/workflows/deploy.yml
-deploy/deploy.sh
-deploy/deploy-azure.sh
-deploy/public/
