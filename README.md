@@ -69,7 +69,7 @@ design (right); full-size files are in [`figures/paper/main_text/`](figures/pape
 
 ---
 
-## Status (19 October 2026)
+## Project status
 
 | Area | State |
 |---|---|
@@ -77,11 +77,11 @@ design (right); full-size files are in [`figures/paper/main_text/`](figures/pape
 | AI component | ✅ Live LightGBM risk model (AUROC 0.897; 0.902 on unseen session demand); Platt-calibrated and frozen. Recommended orders are scripted so recommendation accuracy is exact |
 | Error design | ✅ All errors are under-orders, placed on weeks chosen by measured consequence and validated on held-out simulations (`src/placement_design.py` → `results/placement_design.json`) |
 | Participant app | ✅ Information sheet, numeracy screener, two-stage ordering, questionnaires, debrief, withdrawal, desktop-only gate |
-| Tests | ✅ `python -m pytest src/tests` (131 passed, 23 skipped on SQLite, 19 Oct 2026) |
+| Tests | ✅ `python -m pytest src/tests` (131 pass on SQLite; 23 more need a Postgres server) |
 | Analysis scripts | ✅ `src/analysis/run_all.py` (registered models, exclusions, measures); recovers planted effects on simulated participants, none on the null set |
 | Deployment | ✅ Live on Render with Neon Postgres: https://reliance-study.onrender.com |
 | Pre-registration | ✅ Submitted on OSF (text in `docs/OSF-PREREGISTRATION.md`) |
-| Data collection | 🟡 Opened 19 October 2026 |
+| Data collection | 🟡 In progress |
 | Paper | 🟡 AHFE 2026 template, 10 pages; behavioural results follow data collection |
 
 ---
@@ -95,8 +95,7 @@ than six deep-learning models including PatchTST (+0.034); neural models got
 *worse* from 50 to 100 epochs (overfitting). Externally it is validated on
 Walmart M5 (equivalent to **39th of 5,507 teams**), on the Ntakolia et al.
 (2021) backorder benchmark (90.65 %, beating a faithful reproduction on 5 of 5
-splits), and on DataCo/Olist (Li 2026). Do **not** write that it "outperformed
-all models". Details: [`lightgbm-pivot/OVERVIEW.md`](lightgbm-pivot/OVERVIEW.md).
+splits), and on DataCo/Olist (Li 2026). Details: [`lightgbm-pivot/OVERVIEW.md`](lightgbm-pivot/OVERVIEW.md).
 
 ---
 
@@ -116,17 +115,17 @@ src/                      study code
     numeracy.py, withdraw.py, verify_log.py
     templates/            index (consent, screener, desktop gate), task, info sheet
   analysis/               pre-registered analysis: load, exclusions, measures, confirmatory, exploratory, run_all
-  tests/                  pytest suite (111 + 23 PG-only) + e2e_desktop_gate.py (browser)
+  tests/                  pytest suite (131 + 23 that need Postgres) + e2e_desktop_gate.py (browser)
 models/                   live_risk_lgbm.txt + live_risk_meta.json
-lightgbm-pivot/           model benchmarks, papers/, OVERVIEW.md, report.html
+lightgbm-pivot/           model benchmarks, OVERVIEW.md, report.html
 demo/                     run_demo.py (live browser demo; --headed to watch)
-  narrated/               make_narrated_demo.py → output/Reliance_Under_Disruption_demo.mp4 (+ transcript.md, captions.srt)
+  narrated/               make_narrated_demo.py (builds a narrated demo video locally)
 figures/paper/            paper figures (PNG + SVG) and CAPTIONS.md
 deploy/                   container deploy scripts + README (production runs on Render + Neon; see render.yaml)
 .github/workflows/        ci.yml (tests on every push), deploy.yml (manual, approval-gated)
-docs/                     OSF pre-registration, ethics amendment, human-factors audit, run plan
+docs/                     OSF pre-registration, ethics amendment, human-factors audit, README images
 data/processed/           fitted parameters, M5 demand cache (needed at runtime)
-data/raw/                 M5, Olist, DataCo, Kaggle backorder (not deployed)
+data/raw/                 M5, Olist, DataCo, Kaggle backorder (not included; see data/README.md)
 results/                  design checks, power analysis, earlier model results
 archive/patchtst/         retired PatchTST work (kept for the record)
 RESULTS.md                paper-facing record of every result
@@ -141,7 +140,7 @@ python demo/run_demo.py --headed                       # watch a scripted sessio
 python demo/run_demo.py --slow                         # watch it at human speed (tour, typing, 3D animation)
 python src/interface/app.py --dry-run --db /tmp/d.sqlite3 && \
   python src/interface/verify_log.py --db /tmp/d.sqlite3 --participant DRYRUN-01
-python src/live_model.py                               # retrain the live model (only before G0!)
+python src/live_model.py                               # retrain the live model (changes what participants see)
 python src/placement_design.py                         # re-validate the error weeks
 docker build -t reliance-study:local .                 # production image
 python src/analysis/run_all.py                         # analysis on the simulated datasets
