@@ -218,7 +218,7 @@ Version: ICLR 2023 camera-ready ("Published as a conference paper at ICLR 2023" 
 3. **Fig. 7's two-panel data-efficiency diagnostic.** Test loss vs *fraction of training data*, and test loss vs *epoch*, both with seed error bars. Run on our corpus this would turn `OVERVIEW.md` §5's assertion ("wrong data regime") into a measurement, and it is the single cheapest figure that would make the PatchTST retirement argument reviewer-proof.
 4. **Instance normalisation / RevIN** (§3.1; Table 11 shows the gain survives without it). Our `archive/patchtst/src/patchtst.py:63` already implements RevIN, so we can state that the retired model had the paper's normalisation, not a stripped version.
 
-**Bottom line for the AHFE paper**
+**Bottom line for the paper**
 Nie 2023 is the right citation for *what PatchTST is* and for *why we expected it to be competitive*. It is not evidence for or against our result, and it should not be used as one. The honest framing, which matches `RESULTS.md`'s existing discipline, is: PatchTST's demonstrated advantages are long look-back windows, cross-dataset pre-training and transfer (Fig. 2, Tables 4–6); a 30-feature, two-week-horizon binary stockout label on 70 demand series exercises none of them, and on our corpus a patch Transformer built on the same principles scored 0.034 AUROC below LightGBM. That is a statement about our task, not a refutation of theirs.
 
 </analysis>

@@ -19,7 +19,7 @@ Every mini-graphic is drawn from real project data, not decoration:
 Layout is in inches and fonts in points, so the figure prints exactly at its width.
 
 Run:  python lightgbm-pivot/make_architecture_figure.py
-Out:  figures/paper/main_text/Figure_model_pipeline.svg/.png  (4.8 in, AHFE print width)
+Out:  figures/paper/main_text/Figure_model_pipeline.svg/.png  (4.8 in print width)
       figures/paper/Fig00_model_pipeline.svg/.png               (6.3 in, supplementary)
 """
 from __future__ import annotations

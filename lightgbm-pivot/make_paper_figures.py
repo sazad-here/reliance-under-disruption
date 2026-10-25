@@ -1,5 +1,5 @@
 """
-Paper figures for the AHFE 2027 submission, as SVG (vector, for Word) and PNG (300 dpi).
+Paper figures for the project, as SVG (vector, for Word) and PNG (300 dpi).
 
 Each figure follows a chart form used by one of the 14 papers in papers/ and
 puts OUR results next to the results those papers PUBLISHED. Every number is
@@ -671,7 +671,7 @@ def fig15_placement(width=FULL, name="Fig15_error_placement"):
 
 
 def main_text_figures():
-    """Figures printed in the paper: 4.8 in wide (AHFE print area 122 mm), 7-7.5 pt text."""
+    """Figures printed in the paper: 4.8 in wide (print area 122 mm), 7-7.5 pt text."""
     global OUT
     keep = OUT
     OUT = os.path.join(keep, "main_text")

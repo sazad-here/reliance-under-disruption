@@ -357,10 +357,8 @@ release.
 
 ## 15. Timeline
 
-AHFE 2027, University of Málaga, 26–30 July 2027. The 500-word abstract is due
-**4 December 2026**; camera-ready **5 February 2027**. Notification is rolling —
-abstracts are reviewed as received, roughly 10 days on average — so 4 December is
-a backstop, not a target.
+Data collection runs 19 October – 1 November 2026. The confirmatory analysis follows the plan
+above, and the results will be reported for peer review.
 
 ---
 

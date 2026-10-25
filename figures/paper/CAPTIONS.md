@@ -64,7 +64,7 @@ Suggested use: Figs 3, 7 and 12 in the paper itself (6-page limit); the rest in 
 
 ---
 
-## Main-text figures (`main_text/`, printed at the AHFE width of 122 mm)
+## Main-text figures (`main_text/`, printed at a 122 mm text width)
 
 | File | In the draft | Content |
 |---|---|---|

@@ -172,7 +172,7 @@ NARR = {
             "exclusions: thirty-five per condition. That number is confirmed with the supervisor before "
             "the pre-registration is submitted. A pilot runs on the thirteenth of October, data "
             "collection from the nineteenth of October to the first of November, twenty twenty-six, "
-            "and the results go to AHFE twenty twenty-seven.",
+            "and the results feed further research.",
     "close": "That is the whole study: open data and model building, the simulator and the live AI, "
              "each decision a participant makes, where the data goes, how it is checked, and the "
              "analysis that follows. Thank you for watching.",
@@ -205,7 +205,7 @@ def img64(p):
     return "data:image/png;base64," + base64.b64encode(Path(p).read_bytes()).decode()
 
 
-def slide(title, body_html, kicker="Reliance Under Disruption · AHFE 2027"):
+def slide(title, body_html, kicker="Reliance Under Disruption · research prototype"):
     return """<html><head><style>
     body{margin:0;width:%dpx;height:%dpx;background:#fbfbf9;font-family:Arial,Helvetica,sans-serif;color:#1a1a19;
          display:flex;flex-direction:column;padding:34px 56px;box-sizing:border-box}
@@ -611,7 +611,7 @@ def record(durs):
         page.set_content(slide("10 · Sample and timeline", """
           <div class="row">
             <div class="box blue"><b>Sample</b>Recruit 80 → about 70 analysed<br>35 per condition (80% / 60%)<br><br><span style="color:#52514e">To be confirmed with the supervisor before registration</span></div>
-            <div class="box"><b>Timeline</b>Pilot: 13 Oct 2026<br>Collection: 19 Oct – 1 Nov 2026<br>Abstract: by 4 Dec 2026<br>Conference: AHFE 2027, Málaga</div>
+            <div class="box"><b>Timeline</b>Pilot: 13 Oct 2026<br>Collection: 19 Oct – 1 Nov 2026<br>Next: further studies and analyses</div>
           </div>"""))
         scene(page, clock, "plan", durs)
 

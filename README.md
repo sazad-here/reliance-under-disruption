@@ -1,7 +1,9 @@
 # Reliance Under Disruption
 
-Code, models and results for the AHFE 2027 paper *Human–AI Collaboration in Supply Chains: A
-Framework for Resilient Decision Making Under Disruption* (Málaga, 26–30 July 2027).
+Code, models and results for a research project on human reliance on AI advice when supply-chain
+disruptions make the consequences of a decision persist. It is built for educational and research
+purposes, and the work is ongoing: I plan to extend it with further studies, analyses and
+improvements to the platform.
 
 Participants manage a simulated warehouse for 30 weeks. Each week they commit their own order,
 then see an AI assistant's suggestion (a scripted recommended order plus a live, calibrated
@@ -10,6 +12,7 @@ AI depends on **where** its errors fall (weeks where a bad order propagates vs w
 absorbed), not only on **how often** it errs.
 
 - **Every result and where it comes from:** [`docs/RESULTS.md`](docs/RESULTS.md)
+- **Overview of the risk model and the live study site:** [model and site report](https://claude.ai/artifact/AmUqMvnux5KVSafYoJ1ESw)
 - **Figures:** [`figures/`](figures/) (each made by a script in this repository from a saved result file).
   The manuscript itself is not included until it is published.
 - **Live study:** https://reliance-study.onrender.com (data collection, see the note below)
@@ -82,7 +85,7 @@ design (right); full-size files are in [`figures/paper/main_text/`](figures/pape
 | Deployment | ✅ Live on Render with Neon Postgres: https://reliance-study.onrender.com |
 | Pre-registration | ✅ Registered on OSF (protocol text in `docs/OSF-PREREGISTRATION.md`) |
 | Data collection | ✅ Running on the live study site |
-| Paper | ✅ AHFE 2027 paper in the official template (manuscript not included in this repository) |
+| Further work | Planned: further studies, analyses and platform improvements build on this code |
 
 ---
 

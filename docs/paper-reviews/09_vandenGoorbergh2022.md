@@ -213,7 +213,7 @@ This is the most directly consequential of the three papers for our study, becau
 - **Decision curves (Fig. 2) as the consequence layer.** Our supplement's Fig S14 (the ordering rule that saves 464 units) is the same move — showing the estimate has decision value rather than only statistical quality. Vickers & Elkin is already in our `MORE_REFS`; this paper's Table 1 Net Benefit definition and its "no clinical utility" criterion are directly transferable to a cost-based framing.
 - **Audit and report failures (Table S1).** Our `RESULTS.md` bug log already does this in spirit; a short table of runs that failed or did not converge would formalize it.
 
-**For the AHFE paper's argument**
+**For the paper's argument**
 - This paper supplies the citation for the sentence our Methods needs and does not yet have: *the risk shown to participants is calibrated because an uncalibrated risk display would change the decision the participant faces, independently of the AI's error rate.* Without it, a reviewer can argue that our reliability manipulation (80% vs 60%) is confounded with systematic risk overstatement.
 - It also supports the Discussion's third methodological point (`build_paper.js:226`, "model comparisons in supply-chain prediction need no-skill floors, paired reproductions and leakage checks") with a fourth: **and calibration, not just discrimination.**
 
