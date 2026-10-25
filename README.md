@@ -93,9 +93,9 @@ simulator it is **top tier but not the outright winner**: AUROC 0.891, tied
 with logistic regression (0.893) and XGBoost (0.893), and significantly better
 than six deep-learning models including PatchTST (+0.034); neural models got
 *worse* from 50 to 100 epochs (overfitting). Externally it is validated on
-Walmart M5 (equivalent to **39th of 5,507 teams**), on the Ntakolia et al.
-(2021) backorder benchmark (90.65 %, beating a faithful reproduction on 5 of 5
-splits), and on DataCo/Olist (Li 2026). Details: [`lightgbm-pivot/OVERVIEW.md`](lightgbm-pivot/OVERVIEW.md).
+Walmart M5 (a separate per-store forecaster scoring between the **38th and 39th
+of 5,507 teams**), on the Ntakolia et al. (2021) backorder benchmark (90.3 % with
+the published protocol, against 87.78–88.85 % reported), and on DataCo/Olist (Li 2026). Details: [`lightgbm-pivot/OVERVIEW.md`](lightgbm-pivot/OVERVIEW.md).
 
 ---
 

@@ -35,7 +35,7 @@ run on a different corpus.
 | Fitted lead times: weekly stockout rate | 3.6 % | 5.5 % (normal approximation behind the order-up-to formula) |
 
 With a fixed lead time the theory is exact and the simulation matches it; with random lead times the
-textbook approximation overstates risk, which is why *z* was calibrated by simulation.
+textbook approximation overstates risk, which supports calibrating *z* by simulation (*z* = 1.60 was set before this benchmark was run).
 
 ## 4. The live risk model
 
@@ -75,8 +75,8 @@ weeks: 24,960 out-of-fold weeks, five folds split by demand series, paired serie
 
 | Benchmark | Our result | Published | Source |
 |---|---|---|---|
-| Walmart M5 (WRMSSE, private leaderboard) | 0.569, equivalent to about 39th of 5,507 teams | 38 of the top 50 scored better; 15 % better than the best statistical benchmark (ES_bu) | `lightgbm-pivot/m5_results.json` |
-| Kaggle backorders (Ntakolia et al., 2021 protocol) | 90.65 % accuracy | 88.85 % best, 87.78 % LightGBM | `lightgbm-pivot/backorder_benchmark.json` |
+| Walmart M5 (WRMSSE, private leaderboard; a separate per-store forecaster, not the live risk model) | 0.569, a score between the 38th and 39th of 5,507 teams (a score placement, not a competition rank) | 38 of the top 50 scored better; 15 % better than the best statistical benchmark (ES_bu) | `lightgbm-pivot/m5_results.json` |
+| Kaggle backorders (Ntakolia et al., 2021 protocol, balanced test set) | 90.3 % accuracy with the published settings (90.65 % is the best of five variants scored on the same splits) | 88.85 % best, 87.78 % LightGBM | `lightgbm-pivot/backorder_benchmark.json` |
 | DataCo delay prioritisation (Li, 2026) | Capture@10 % 0.322 | 0.323 | `lightgbm-pivot/li2026_results.json` |
 
 ## 7. Robustness and decision value
